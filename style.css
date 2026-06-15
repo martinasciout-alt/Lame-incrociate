@@ -1,0 +1,108 @@
+body {
+  margin: 0;
+  font-family: Arial, sans-serif;
+  background: #1b1b1b;
+  color: white;
+  text-align: center;
+}
+
+#game {
+  max-width: 900px;
+  margin: auto;
+  padding: 20px;
+}
+
+h1 {
+  margin-bottom: 10px;
+}
+
+/* STATUS */
+#status {
+  background: #2a2a2a;
+  padding: 10px;
+  border-radius: 10px;
+  margin-bottom: 15px;
+}
+
+/* COUNTDOWN */
+#countdown {
+  font-size: 40px;
+  margin: 15px 0;
+  font-weight: bold;
+  color: #00ffcc;
+}
+
+/* PLAYERS AREA */
+.players {
+  display: flex;
+  justify-content: space-between;
+  gap: 20px;
+}
+
+.player {
+  flex: 1;
+  background: #2a2a2a;
+  padding: 15px;
+  border-radius: 12px;
+}
+
+/* CARDS */
+.cards {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 10px;
+  margin: 10px 0;
+}
+
+.cards button {
+  width: 50px;
+  height: 70px;
+  font-size: 18px;
+  border: none;
+  border-radius: 8px;
+  cursor: pointer;
+  background: white;
+  color: black;
+  transition: 0.2s;
+}
+
+.cards button:hover {
+  transform: scale(1.1);
+  background: #00ffcc;
+}
+
+/* CHOICE */
+.player p {
+  font-size: 18px;
+}
+
+/* RESULT */
+#result {
+  margin-top: 20px;
+  font-size: 22px;
+  font-weight: bold;
+  color: yellow;
+}
+
+/* BUTTON */
+button {
+  margin-top: 15px;
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  background: #00ffcc;
+  cursor: pointer;
+  font-weight: bold;
+}
+
+button:hover {
+  background: #00c2a3;
+}
+
+/* MOBILE */
+@media (max-width: 700px) {
+  .players {
+    flex-direction: column;
+  }
+}
