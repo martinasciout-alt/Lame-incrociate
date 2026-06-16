@@ -57,13 +57,14 @@ function startReveal() {
 function reveal() {
   const result = document.getElementById("result");
 
-  // 🔥 QUI LA MODIFICA IMPORTANTE:
+  // 🔥 MOSTRA LE CARTE REALI
   document.getElementById("cardP1").innerHTML =
-    `<img src="carta${choice1}.webp" alt="card">`;
+    `<img src="carta-${choice1}.webp" alt="card">`;
 
   document.getElementById("cardP2").innerHTML =
-    `<img src="carta${choice2}.webp" alt="card">`;
+    `<img src="carta-${choice2}.webp" alt="card">`;
 
+  // 🧠 LOGICA GIOCO
   if (choice1 > choice2) {
     score1++;
     result.innerText = "Player 1 vince il turno!";
