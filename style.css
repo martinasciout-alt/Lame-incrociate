@@ -125,3 +125,9 @@ button:hover {
 #table {
   align-items: center;
 }
+#cardP1 img,
+#cardP2 img {
+  width: 80px;
+  height: 120px;
+  object-fit: cover;
+}
