@@ -57,11 +57,12 @@ function startReveal() {
 function reveal() {
   const result = document.getElementById("result");
 
-  // qui potresti mettere immagini diverse per ogni numero in futuro
+  // mostra i numeri (fase reveal)
   document.getElementById("cardP1").innerHTML =
-    '<img src="retro-carta.webp" alt="card">';
+    `<div class="card-number">${choice1}</div>`;
+
   document.getElementById("cardP2").innerHTML =
-    '<img src="retro-carta.webp" alt="card">';
+    `<div class="card-number">${choice2}</div>`;
 
   if (choice1 > choice2) {
     score1++;
@@ -104,7 +105,7 @@ function resetRound() {
   document.getElementById("countdown").innerText = "Pronto";
   document.getElementById("result").innerText = "";
 
-  // svuota tavolo
+  // tavolo vuoto
   document.getElementById("cardP1").innerHTML = "";
   document.getElementById("cardP2").innerHTML = "";
 }
