@@ -65,17 +65,17 @@ function reveal() {
     `<img src="carta-${choice2}.webp" alt="card">`;
 
   // 🧠 LOGICA GIOCO
-  if (choice1 > choice2) {
-    score1++;
-    result.innerText = "Player 1 vince il turno!";
-  } 
-  else if (choice2 > choice1) {
-    score2++;
-    result.innerText = "Player 2 vince il turno!";
-  } 
-  else {
-    result.innerText = "Pareggio! Nessun punto.";
-  }
+ if (choice1 > choice2) {
+  score1++;
+  result.innerHTML = '<span class="p1">Player 1 vince il turno!</span>';
+} 
+else if (choice2 > choice1) {
+  score2++;
+  result.innerHTML = '<span class="p2">Player 2 vince il turno!</span>';
+} 
+else {
+  result.innerText = "Pareggio! Nessun punto.";
+}
 
   document.getElementById("score1").innerText = score1;
   document.getElementById("score2").innerText = score2;
