@@ -15,10 +15,10 @@ body {
   font-family: 'Pieces of Eight', sans-serif;
   font-size: 48px;
   letter-spacing: 2px;
-  color: #00ffcc;
+  color: #a855f7;
   text-transform: uppercase;
   margin-bottom: 10px;
-  text-shadow: 0 0 10px #00ffcc;
+  text-shadow: 0 0 10px #a855f7;
 }
 
 /* STATUS */
@@ -34,7 +34,7 @@ body {
   font-size: 40px;
   margin: 15px 0;
   font-weight: bold;
-  color: #00ffcc;
+  color: #a855f7;
 }
 
 /* PLAYERS AREA */
@@ -123,13 +123,13 @@ button {
   padding: 10px 15px;
   border: none;
   border-radius: 8px;
-  background: #00ffcc;
+  background: #a855f7;
   cursor: pointer;
   font-weight: bold;
 }
 
 button:hover {
-  background: #00c2a3;
+  background: #a855f7;
 }
 
 /* MOBILE */
@@ -154,16 +154,16 @@ button:hover {
   margin-top: 20px;
   padding: 12px 20px;
   font-size: 18px;
-  border: 2px solid #00ffcc;
+  border: 2px solid #a855f7;
   background: transparent;
-  color: #00ffcc;
+  color: #a855f7;
   border-radius: 10px;
   cursor: pointer;
   transition: 0.2s;
 }
 
 .next-btn:hover {
-  background: #00ffcc;
+  background: #a855f7;
   color: #1b1b1b;
   transform: scale(1.05);
 }
