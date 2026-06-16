@@ -13,9 +13,12 @@ function choose(player, value) {
   if (player === 1) {
     choice1 = value;
     document.getElementById("choice1").innerText = value;
-  } else {
+    document.getElementById("cardP1").innerText = "🂠";
+  } 
+  else {
     choice2 = value;
     document.getElementById("choice2").innerText = value;
+    document.getElementById("cardP2").innerText = "🂠";
   }
 
   checkReady();
@@ -47,6 +50,9 @@ function startReveal() {
 
 function reveal() {
   const result = document.getElementById("result");
+
+  document.getElementById("cardP1").innerText = choice1;
+  document.getElementById("cardP2").innerText = choice2;
 
   if (choice1 > choice2) {
     score1++;
@@ -88,6 +94,9 @@ function resetRound() {
   document.getElementById("choice2").innerText = "-";
   document.getElementById("countdown").innerText = "Pronto";
   document.getElementById("result").innerText = "";
+
+  document.getElementById("cardP1").innerText = "🂠";
+  document.getElementById("cardP2").innerText = "🂠";
 }
 
 function endGame() {
