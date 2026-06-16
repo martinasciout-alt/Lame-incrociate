@@ -13,12 +13,18 @@ function choose(player, value) {
   if (player === 1) {
     choice1 = value;
     document.getElementById("choice1").innerText = value;
-    document.getElementById("cardP1").innerText = "🂠";
+
+    // mostra retro carta
+    document.getElementById("cardP1").innerHTML =
+      '<img src="retro-carta.webp" alt="card">';
   } 
   else {
     choice2 = value;
     document.getElementById("choice2").innerText = value;
-    document.getElementById("cardP2").innerText = "🂠";
+
+    // mostra retro carta
+    document.getElementById("cardP2").innerHTML =
+      '<img src="retro-carta.webp" alt="card">';
   }
 
   checkReady();
@@ -51,8 +57,11 @@ function startReveal() {
 function reveal() {
   const result = document.getElementById("result");
 
-  document.getElementById("cardP1").innerText = choice1;
-  document.getElementById("cardP2").innerText = choice2;
+  // qui potresti mettere immagini diverse per ogni numero in futuro
+  document.getElementById("cardP1").innerHTML =
+    '<img src="retro-carta.webp" alt="card">';
+  document.getElementById("cardP2").innerHTML =
+    '<img src="retro-carta.webp" alt="card">';
 
   if (choice1 > choice2) {
     score1++;
@@ -95,8 +104,9 @@ function resetRound() {
   document.getElementById("countdown").innerText = "Pronto";
   document.getElementById("result").innerText = "";
 
-  document.getElementById("cardP1").innerText = "🂠";
-  document.getElementById("cardP2").innerText = "🂠";
+  // svuota tavolo
+  document.getElementById("cardP1").innerHTML = "";
+  document.getElementById("cardP2").innerHTML = "";
 }
 
 function endGame() {
