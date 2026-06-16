@@ -96,12 +96,13 @@ h1 {
 
 #cardP1 img,
 #cardP2 img {
-  width: 110px;
-  height: 150px;
-  object-fit: cover;
-  border-radius: 10px;
+  width: 100px;
+  height: auto;
+  max-height: 140px;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
 }
-
 /* RISULTATO */
 #result {
   margin-top: 20px;
