@@ -150,3 +150,20 @@ button:hover {
 .p2 {
   color: #4da6ff;
 }
+.next-btn {
+  margin-top: 20px;
+  padding: 12px 20px;
+  font-size: 18px;
+  border: 2px solid #00ffcc;
+  background: transparent;
+  color: #00ffcc;
+  border-radius: 10px;
+  cursor: pointer;
+  transition: 0.2s;
+}
+
+.next-btn:hover {
+  background: #00ffcc;
+  color: #1b1b1b;
+  transform: scale(1.05);
+}
