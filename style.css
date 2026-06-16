@@ -11,9 +11,14 @@ body {
   margin: auto;
   padding: 20px;
 }
-
-h1 {
+ h1 {
+  font-family: 'Pieces of Eight', sans-serif;
+  font-size: 48px;
+  letter-spacing: 2px;
+  color: #00ffcc;
+  text-transform: uppercase;
   margin-bottom: 10px;
+  text-shadow: 0 0 10px #00ffcc;
 }
 
 /* STATUS */
