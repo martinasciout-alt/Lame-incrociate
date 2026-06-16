@@ -57,12 +57,12 @@ function startReveal() {
 function reveal() {
   const result = document.getElementById("result");
 
-  // mostra i numeri (fase reveal)
+  // 🔥 QUI LA MODIFICA IMPORTANTE:
   document.getElementById("cardP1").innerHTML =
-    `<div class="card-number">${choice1}</div>`;
+    `<img src="carta${choice1}.webp" alt="card">`;
 
   document.getElementById("cardP2").innerHTML =
-    `<div class="card-number">${choice2}</div>`;
+    `<img src="carta${choice2}.webp" alt="card">`;
 
   if (choice1 > choice2) {
     score1++;
