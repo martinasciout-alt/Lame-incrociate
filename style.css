@@ -62,7 +62,7 @@ body {
 
 .cards button {
   width: 90px;
-  height: auto;
+  height: 130px;
   padding: 0;
   border: none;
   background: transparent;
@@ -71,7 +71,7 @@ body {
 
 .cards button img {
   width: 100%;
-  height: auto;
+  height: 100%;
   display: block;
   object-fit: contain;
   border-radius: 8px;
