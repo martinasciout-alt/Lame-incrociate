@@ -106,3 +106,22 @@ button:hover {
     flex-direction: column;
   }
 }
+#table {
+  display: flex;
+  justify-content: center;
+  gap: 60px;
+  margin: 20px 0;
+  align-items: center;
+}
+
+.card-slot {
+  text-align: center;
+}
+
+#cardP1, #cardP2 {
+  font-size: 60px;
+  margin-top: 10px;
+}
+#table {
+  align-items: center;
+}
