@@ -1,6 +1,18 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import { getDatabase } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+ import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 
+import {
+  getDatabase,
+  ref,
+  set,
+  update,
+  onValue
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+// =========================
+// 🔥 FIREBASE
+// =========================
 const firebaseConfig = {
   apiKey: "AIzaSyBzdhurbAi48OoRyw6eKJ3HIkd1q87-43c",
   authDomain: "gioco-della-lama-alta.firebaseapp.com",
@@ -13,9 +25,16 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+
+// =========================
+// 🏠 ROOM
+// =========================
 let roomCode = null;
 let playerNumber = null;
 
+// =========================
+// 🎮 GAME STATE
+// =========================
 let choice1 = null;
 let choice2 = null;
 
@@ -26,9 +45,8 @@ let round = 1;
 let locked = false;
 
 // =========================
-// 🎵 AUDIO
+// 🔊 AUDIO
 // =========================
-
 const bgMusic = new Audio("sottofondo.mp3");
 bgMusic.loop = true;
 bgMusic.volume = 0.4;
@@ -48,7 +66,7 @@ countdownSound.volume = 0.8;
 let musicStarted = false;
 
 // =========================
-// 🎵 MUSICA
+// 🎵 MUSIC
 // =========================
 window.startMusic = function () {
   if (musicStarted) return;
@@ -58,211 +76,20 @@ window.startMusic = function () {
   }).catch(() => {});
 };
 
-document.addEventListener("click", function firstMusicTrigger() {
+document.addEventListener("click", function firstMusic() {
   if (musicStarted) return;
 
   bgMusic.play().then(() => {
     musicStarted = true;
   }).catch(() => {});
 
-  document.removeEventListener("click", firstMusicTrigger);
+  document.removeEventListener("click", firstMusic);
 });
 
 // =========================
-// 🔊 CLICK
+// 🏠 ROOM FUNCTIONS
 // =========================
-function playClick() {
-  clickSound.currentTime = 0;
-  clickSound.play().catch(() => {});
-}
-
-// =========================
-// 🃏 SCELTA CARTE
-// =========================
-function choose(player, value) {
-  if (locked) return;
-
-  const path =
-    player === 1
-      ? "player1Choice"
-      : "player2Choice";
-
-  update(ref(db, "rooms/" + roomCode), {
-    [path]: value
-  });
-}
-
-    // 🔥 MOSTRA RETRO SUBITO
-    document.getElementById("cardP1").innerHTML =
-      '<img src="retro-carta.webp">';
-  }
-
-  if (player === 2) {
-    choice2 = value;
-    document.getElementById("choice2").innerText = value;
-
-    // 🔥 MOSTRA RETRO SUBITO
-    document.getElementById("cardP2").innerHTML =
-      '<img src="retro-carta.webp">';
-  }
-
-  checkReady();
-}
-
-// =========================
-// CHECK PRONTI
-// =========================
-function checkReady() {
-  if (choice1 !== null && choice2 !== null) {
-    startReveal();
-  }
-}
-
-// =========================
-// ⏳ COUNTDOWN (FIX PERFETTO)
-// =========================
-function startReveal() {
-  locked = true;
-
-  let countdown = 3;
-  const cd = document.getElementById("countdown");
-
-  cd.innerText = countdown;
-
-  // 🔥 SUONO UNA SOLA VOLTA
-  countdownSound.currentTime = 0;
-  countdownSound.play().catch(() => {});
-
-  const interval = setInterval(() => {
-    countdown--;
-
-    if (countdown > 0) {
-      cd.innerText = countdown;
-    } else {
-      clearInterval(interval);
-      reveal();
-    }
-  }, 1000);
-}
-
-// =========================
-// 🎴 REVEAL
-// =========================
-function reveal() {
-  document.getElementById("cardP1").innerHTML =
-    `<img src="carta-${choice1}.webp">`;
-
-  document.getElementById("cardP2").innerHTML =
-    `<img src="carta-${choice2}.webp">`;
-
-  const result = document.getElementById("result");
-
-  if (choice1 > choice2) {
-    score1++;
-    result.innerHTML = "Player 1 vince il turno!";
-  } else if (choice2 > choice1) {
-    score2++;
-    result.innerHTML = "Player 2 vince il turno!";
-  } else {
-    result.innerHTML = "Pareggio!";
-    drawSound.play().catch(() => {});
-  }
-
-  document.getElementById("score1").innerText = score1;
-  document.getElementById("score2").innerText = score2;
-
-  checkEndRound();
-}
-
-// =========================
-// 🔁 ROUND
-// =========================
-function checkEndRound() {
-  if (round >= 3) {
-    endGame();
-  } else {
-    round++;
-    document.getElementById("round").innerText = round;
-  }
-}
-
-// =========================
-// 🏆 FINE GIOCO
-// =========================
-function endGame() {
-  locked = true;
-
-  if (score1 > score2) {
-    winSound.play();
-    document.getElementById("finalText").innerText =
-      "🏆 Player 1 vince la partita!";
-  } else if (score2 > score1) {
-    winSound.play();
-    document.getElementById("finalText").innerText =
-      "🏆 Player 2 vince la partita!";
-  } else {
-    drawSound.play();
-    document.getElementById("finalText").innerText =
-      "🤝 Pareggio finale!";
-  }
-
-  document.getElementById("overlay").classList.remove("hidden");
-}
-
-// =========================
-// RESET ROUND
-// =========================
-function resetRound() {
-  choice1 = null;
-  choice2 = null;
-  locked = false;
-
-  document.getElementById("choice1").innerText = "-";
-  document.getElementById("choice2").innerText = "-";
-  document.getElementById("countdown").innerText = "Pronto";
-
-  document.getElementById("cardP1").innerHTML = "";
-  document.getElementById("cardP2").innerHTML = "";
-  document.getElementById("result").innerText = "";
-}
-
-// =========================
-// NEXT ROUND
-// =========================
-function nextRound() {
-  resetRound();
-}
-
-// =========================
-// RESTART
-// =========================
-function restartGame() {
-  score1 = 0;
-  score2 = 0;
-  round = 1;
-  locked = false;
-
-  choice1 = null;
-  choice2 = null;
-
-  document.getElementById("score1").innerText = 0;
-  document.getElementById("score2").innerText = 0;
-  document.getElementById("round").innerText = 1;
-
-  document.getElementById("overlay").classList.add("hidden");
-
-  resetRound();
-}
-
-// EXPORT
-window.startMusic = startMusic;
-window.choose = choose;
-window.nextRound = nextRound;
-window.restartGame = restartGame;
-
-
-
-function createRoom(code) {
+window.createRoom = function (code) {
   roomCode = code;
   playerNumber = 1;
 
@@ -275,13 +102,18 @@ function createRoom(code) {
   });
 
   listenRoom();
-}
-function joinRoom(code) {
+};
+
+window.joinRoom = function (code) {
   roomCode = code;
   playerNumber = 2;
 
   listenRoom();
-}
+};
+
+// =========================
+// 👂 LISTENER FIREBASE
+// =========================
 function listenRoom() {
   const roomRef = ref(db, "rooms/" + roomCode);
 
@@ -289,21 +121,63 @@ function listenRoom() {
     const data = snap.val();
     if (!data) return;
 
-    score1 = data.score1;
-    score2 = data.score2;
-    round = data.round;
+    score1 = data.score1 || 0;
+    score2 = data.score2 || 0;
+    round = data.round || 1;
 
     document.getElementById("score1").innerText = score1;
     document.getElementById("score2").innerText = score2;
     document.getElementById("round").innerText = round;
 
-    // quando entrambi hanno scelto
-    if (data.player1Choice && data.player2Choice) {
+    // aggiorna carte se presenti
+    if (data.player1Choice) {
+      document.getElementById("cardP1").innerHTML =
+        `<img src="retro-carta.webp">`;
+    }
+
+    if (data.player2Choice) {
+      document.getElementById("cardP2").innerHTML =
+        `<img src="retro-carta.webp">`;
+    }
+
+    // se entrambi hanno scelto → reveal
+    if (data.player1Choice && data.player2Choice && !locked) {
       revealOnline(data);
     }
   });
 }
 
+// =========================
+// 🃏 CHOOSE
+// =========================
+window.choose = function (player, value) {
+  if (!roomCode || locked) return;
+
+  clickSound.currentTime = 0;
+  clickSound.play().catch(() => {});
+
+  const path =
+    player === 1
+      ? "player1Choice"
+      : "player2Choice";
+
+  update(ref(db, "rooms/" + roomCode), {
+    [path]: value
+  });
+
+  // mostra retro subito
+  if (player === 1) {
+    document.getElementById("cardP1").innerHTML =
+      '<img src="retro-carta.webp">';
+  } else {
+    document.getElementById("cardP2").innerHTML =
+      '<img src="retro-carta.webp">';
+  }
+};
+
+// =========================
+// 🎴 REVEAL ONLINE
+// =========================
 function revealOnline(data) {
   locked = true;
 
@@ -311,14 +185,23 @@ function revealOnline(data) {
   const c2 = data.player2Choice;
 
   setTimeout(() => {
+
     document.getElementById("cardP1").innerHTML =
       `<img src="carta-${c1}.webp">`;
 
     document.getElementById("cardP2").innerHTML =
       `<img src="carta-${c2}.webp">`;
 
-    if (c1 > c2) score1++;
-    else if (c2 > c1) score2++;
+    if (c1 > c2) {
+      score1++;
+      document.getElementById("result").innerText = "Player 1 vince!";
+    } else if (c2 > c1) {
+      score2++;
+      document.getElementById("result").innerText = "Player 2 vince!";
+    } else {
+      document.getElementById("result").innerText = "Pareggio!";
+      drawSound.play().catch(() => {});
+    }
 
     update(ref(db, "rooms/" + roomCode), {
       score1,
@@ -329,5 +212,30 @@ function revealOnline(data) {
     });
 
     locked = false;
+
   }, 1000);
 }
+
+// =========================
+// 🔄 RESET LOCAL ROUND
+// =========================
+window.nextRound = function () {
+  document.getElementById("cardP1").innerHTML = "";
+  document.getElementById("cardP2").innerHTML = "";
+  document.getElementById("result").innerText = "";
+};
+
+// =========================
+// 🔁 RESTART
+// =========================
+window.restartGame = function () {
+  score1 = 0;
+  score2 = 0;
+  round = 1;
+  locked = false;
+
+  choice1 = null;
+  choice2 = null;
+
+  document.getElementById("overlay").classList.add("hidden");
+};
