@@ -116,11 +116,9 @@ function startReveal() {
     if (countdown > 0) {
       cd.innerText = countdown;
 
-      // 🔊 CLONE AUDIO (SOLUZIONE GIUSTA)
-      const sound = new Audio("countdown.mp3");
-      sound.volume = 0.8;
-      sound.play().catch(() => {});
-      
+      // ✔ SUONO PULITO (UNO SOLO)
+      countdownSound.currentTime = 0;
+      countdownSound.play().catch(() => {});
     } else {
       clearInterval(interval);
       reveal();
@@ -128,7 +126,6 @@ function startReveal() {
 
   }, 1000);
 }
-
 // =========================
 // RIVELAZIONE
 // =========================
@@ -247,7 +244,3 @@ function restartGame() {
 }
 
 // export
-window.startMusic = startMusic;
-window.choose = choose;
-window.nextRound = nextRound;
-window.restartGame = restartGame;
