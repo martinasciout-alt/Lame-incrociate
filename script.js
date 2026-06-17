@@ -13,7 +13,8 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
-
+let roomCode = null;
+let playerNumber = null;
 
 let choice1 = null;
 let choice2 = null;
@@ -81,23 +82,16 @@ function playClick() {
 function choose(player, value) {
   if (locked) return;
 
-  playClick();
+  const path =
+    player === 1
+      ? "player1Choice"
+      : "player2Choice";
 
-  if (player === 1) {
-    choice1 = value;
-   function choose(player, value) {
-  if (locked) return;
-
-  playClick();
-
-  if (player === 1) {
-    choice1 = value;
-  } else {
-    choice2 = value;
-  }
-
-  checkReady();
+  update(ref(db, "rooms/" + roomCode), {
+    [path]: value
+  });
 }
+
     // 🔥 MOSTRA RETRO SUBITO
     document.getElementById("cardP1").innerHTML =
       '<img src="retro-carta.webp">';
@@ -265,3 +259,75 @@ window.startMusic = startMusic;
 window.choose = choose;
 window.nextRound = nextRound;
 window.restartGame = restartGame;
+
+
+
+function createRoom(code) {
+  roomCode = code;
+  playerNumber = 1;
+
+  set(ref(db, "rooms/" + code), {
+    player1Choice: null,
+    player2Choice: null,
+    score1: 0,
+    score2: 0,
+    round: 1
+  });
+
+  listenRoom();
+}
+function joinRoom(code) {
+  roomCode = code;
+  playerNumber = 2;
+
+  listenRoom();
+}
+function listenRoom() {
+  const roomRef = ref(db, "rooms/" + roomCode);
+
+  onValue(roomRef, (snap) => {
+    const data = snap.val();
+    if (!data) return;
+
+    score1 = data.score1;
+    score2 = data.score2;
+    round = data.round;
+
+    document.getElementById("score1").innerText = score1;
+    document.getElementById("score2").innerText = score2;
+    document.getElementById("round").innerText = round;
+
+    // quando entrambi hanno scelto
+    if (data.player1Choice && data.player2Choice) {
+      revealOnline(data);
+    }
+  });
+}
+
+function revealOnline(data) {
+  locked = true;
+
+  const c1 = data.player1Choice;
+  const c2 = data.player2Choice;
+
+  setTimeout(() => {
+    document.getElementById("cardP1").innerHTML =
+      `<img src="carta-${c1}.webp">`;
+
+    document.getElementById("cardP2").innerHTML =
+      `<img src="carta-${c2}.webp">`;
+
+    if (c1 > c2) score1++;
+    else if (c2 > c1) score2++;
+
+    update(ref(db, "rooms/" + roomCode), {
+      score1,
+      score2,
+      player1Choice: null,
+      player2Choice: null,
+      round: round + 1
+    });
+
+    locked = false;
+  }, 1000);
+}
