@@ -36,6 +36,10 @@ clickSound.preload = "auto";
 // stato musica
 let musicStarted = false;
 
+let winSound = new Audio("vittoria.mp3");
+winSound.volume = 1;
+winSound.preload = "auto";
+
 // =========================
 // 🎵 MUSICA
 // =========================
@@ -184,6 +188,11 @@ function endGame() {
 
   document.getElementById("finalText").innerText = final;
   document.getElementById("overlay").classList.remove("hidden");
+}
+
+function endGame() {
+  winSound.currentTime = 0;
+  winSound.play().catch(() => {});
 }
 
 // =========================
