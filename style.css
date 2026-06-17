@@ -249,3 +249,6 @@ button:hover {
 .hidden {
   display: none;
 }
+#overlay {
+  z-index: 1000;
+}
