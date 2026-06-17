@@ -2,19 +2,6 @@ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebas
 import { getDatabase } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 const firebaseConfig = {
-  apiKey: "METTI_QUI",
-  authDomain: "METTI_QUI",
-  databaseURL: "METTI_QUI",
-  projectId: "METTI_QUI",
-  storageBucket: "METTI_QUI",
-  messagingSenderId: "METTI_QUI",
-  appId: "// Import the functions you need from the SDKs you need
-import { initializeApp } from "firebase/app";
-// TODO: Add SDKs for Firebase products that you want to use
-// https://firebase.google.com/docs/web/setup#available-libraries
-
-// Your web app's Firebase configuration
-const firebaseConfig = {
   apiKey: "AIzaSyBzdhurbAi48OoRyw6eKJ3HIkd1q87-43c",
   authDomain: "gioco-della-lama-alta.firebaseapp.com",
   databaseURL: "https://gioco-della-lama-alta-default-rtdb.europe-west1.firebasedatabase.app",
@@ -22,10 +9,6 @@ const firebaseConfig = {
   storageBucket: "gioco-della-lama-alta.firebasestorage.app",
   messagingSenderId: "182282784891",
   appId: "1:182282784891:web:0503cff93af07a0ee8d2de"
-};
-
-// Initialize Firebase
-const app = initializeApp(firebaseConfig);"
 };
 
 const app = initializeApp(firebaseConfig);
