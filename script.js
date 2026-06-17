@@ -7,11 +7,17 @@ let score2 = 0;
 let round = 1;
 let locked = false;
 
+// 🎵 SUONO
+let clickSound = new Audio("sounds/carta.wav");
+
 // =========================
 // SCELTA CARTE
 // =========================
 function choose(player, value) {
   if (locked) return;
+
+   clickSound.currentTime = 0;
+  clickSound.play();
 
   if (player === 1) {
     choice1 = value;
