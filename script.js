@@ -111,18 +111,21 @@ function startReveal() {
 
   const interval = setInterval(() => {
 
-    // 🔊 suono countdown ad ogni tick
-    countdownSound.currentTime = 0;
-    countdownSound.play().catch(() => {});
-
     countdown--;
 
     if (countdown > 0) {
       cd.innerText = countdown;
+
+      // 🔊 CLONE AUDIO (SOLUZIONE GIUSTA)
+      const sound = new Audio("countdown.mp3");
+      sound.volume = 0.8;
+      sound.play().catch(() => {});
+      
     } else {
       clearInterval(interval);
       reveal();
     }
+
   }, 1000);
 }
 
