@@ -24,6 +24,9 @@ clickSound.volume = 1;
 let winSound = new Audio("vittoria.mp3");
 winSound.volume = 1;
 
+let drawSound = new Audio("pareggio.mp3");
+drawSound.volume = 1;
+
 // stato musica
 let musicStarted = false;
 
@@ -175,6 +178,9 @@ function endGame() {
     final = "🏆 Player 2 vince la partita!";
   } else {
     final = "🤝 Pareggio finale!";
+     drawSound.currentTime = 0;
+  drawSound.play().catch(() => {});
+}
   }
 
   document.getElementById("finalText").innerText = final;
