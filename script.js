@@ -8,6 +8,10 @@ let round = 1;
 let locked = false;
 
 // 🎵 SUONO
+let bgMusic = new Audio("sottofondo.wav");
+bgMusic.loop = true;
+bgMusic.volume = 0.4;
+
 let clickSound = new Audio("./carta.wav");
 
 clickSound.addEventListener("canplaythrough", () => {
