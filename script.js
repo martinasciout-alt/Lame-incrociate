@@ -32,8 +32,6 @@ const countdownSound = new Audio("countdown.mp3");
 countdownSound.volume = 0.8;
 countdownSound.preload = "auto";
 
-let countdownLocked = false;
-
 // stato musica
 let musicStarted = false;
 
@@ -76,19 +74,31 @@ function playClick() {
   clickSound.play().catch(() => {});
 }
 
-// 🔥 COUNTDOWN FIX (NO DOPPIO AUDIO)
-function playCountdownSound() {
-  if (countdownLocked) return;
 
-  countdownLocked = true;
+function startReveal() {
+  locked = true;
 
+  let countdown = 3;
+  const cd = document.getElementById("countdown");
+
+  cd.innerText = countdown;
+
+  // AVVIA UNA SOLA VOLTA IL FILE "3-2-1"
   countdownSound.currentTime = 0;
   countdownSound.play().catch(() => {});
 
-  setTimeout(() => {
-    countdownLocked = false;
-  }, 900);
+  const interval = setInterval(() => {
+    countdown--;
+
+    if (countdown > 0) {
+      cd.innerText = countdown;
+    } else {
+      clearInterval(interval);
+      reveal();
+    }
+  }, 1000);
 }
+
 
 // =========================
 // 🃏 SCELTA CARTE
