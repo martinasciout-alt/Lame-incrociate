@@ -7,7 +7,7 @@ body {
 }
 
 /* =========================
-   CONTAINER PRINCIPALE
+   CONTAINER
 ========================= */
 #game {
   max-width: 900px;
@@ -28,7 +28,7 @@ h1 {
 }
 
 /* =========================
-   STATO PARTITA
+   STATUS
 ========================= */
 #status {
   background: #2a2a2a;
@@ -63,7 +63,7 @@ h1 {
   border-radius: 12px;
 }
 
-/* colori player */
+/* COLORI PLAYER */
 .p1 { color: #ff4d4d; }
 .p2 { color: #4da6ff; }
 
@@ -87,7 +87,6 @@ h1 {
   cursor: pointer;
 }
 
-/* 🔥 FIX IMMAGINI NON TAGLIATE */
 .cards button img {
   width: 100%;
   height: 100%;
@@ -262,34 +261,10 @@ button:hover {
 }
 
 /* =========================
-   MOBILE
+   MOBILE (UNICO BLOCCO PULITO)
 ========================= */
 @media (max-width: 700px) {
-  .players {
-    flex-direction: column;
-  }
 
-  #table {
-    flex-direction: column;
-    gap: 20px;
-  
-  }
-}
-@media (max-width: 700px) {
-  h1 {
-    font-size: 32px;
-  }
-
-  .cards button {
-    width: 70px;
-    height: 110px;
-  }
-
-  #countdown {
-    font-size: 30px;
-  }
-}
-@media (max-width: 700px) {
   body {
     padding: 10px;
   }
@@ -302,7 +277,16 @@ button:hover {
     font-size: 30px;
   }
 
+  #status {
+    font-size: 14px;
+  }
+
+  #countdown {
+    font-size: 28px;
+  }
+
   .players {
+    flex-direction: column;
     gap: 10px;
   }
 
@@ -316,19 +300,15 @@ button:hover {
   }
 
   #table {
+    flex-direction: column;
     gap: 15px;
-  }
-
-  #countdown {
-    font-size: 28px;
   }
 
   button {
     width: 100%;
     font-size: 16px;
   }
-}
-@media (max-width: 700px) {
+
   .rules {
     position: relative;
     top: auto;
