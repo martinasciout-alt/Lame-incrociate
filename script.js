@@ -170,3 +170,4 @@ function restartGame() {
   document.getElementById("cardP1").innerHTML = "";
   document.getElementById("cardP2").innerHTML = "";
 }
+window.restartGame = restartGame;
