@@ -145,15 +145,16 @@ function startReveal() {
 
   cd.innerText = countdown;
 
+  // Parte il file audio UNA SOLA VOLTA
+  countdownSound.pause();
+  countdownSound.currentTime = 0;
+  countdownSound.play().catch(() => {});
+
   const interval = setInterval(() => {
     countdown--;
 
     if (countdown > 0) {
       cd.innerText = countdown;
-
-      // 🔥 SUONO PULITO (UNA VOLTA SOLA)
-      playCountdownSound();
-
     } else {
       clearInterval(interval);
       reveal();
