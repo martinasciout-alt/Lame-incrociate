@@ -238,6 +238,5 @@ function restartGame() {
 
 // export funzioni per HTML
 window.restartGame = restartGame;
-window.startMusic = startMusic;
 window.choose = choose;
 window.nextRound = nextRound;
