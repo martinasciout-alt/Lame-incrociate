@@ -13,6 +13,17 @@ let locked = false;
 
 // musica sottofondo
 let bgMusic = new Audio("sottofondo.wav");
+
+console.log(bgMusic.src);
+
+bgMusic.addEventListener("error", () => {
+  console.log("ERRORE CARICAMENTO AUDIO");
+});
+
+bgMusic.addEventListener("canplaythrough", () => {
+  console.log("AUDIO CARICATO CORRETTAMENTE");
+});
+
 bgMusic.loop = true;
 bgMusic.volume = 1;
 bgMusic.preload = "auto";
