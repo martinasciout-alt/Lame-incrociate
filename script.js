@@ -10,22 +10,25 @@ let locked = false;
 // =========================
 // 🎵 AUDIO
 // =========================
+
+// musica sottofondo
 let bgMusic = new Audio("sottofondo.wav");
 bgMusic.loop = true;
 bgMusic.volume = 0.4;
 bgMusic.preload = "auto";
 
+// suono carta
 let clickSound = new Audio("carta.wav");
 clickSound.volume = 1;
+clickSound.preload = "auto";
 
+// stato musica
 let musicStarted = false;
-let musicEnabled = true;
 
 // =========================
-// 🎵 MUSICA (START MANUALE + SICURO)
+// 🎵 MUSICA
 // =========================
 window.startMusic = function () {
-  if (!musicEnabled) return;
   if (musicStarted) return;
 
   bgMusic.currentTime = 0;
@@ -40,18 +43,16 @@ window.startMusic = function () {
     });
 };
 
-// =========================
-// 🎵 AUTO START AL PRIMO CLICK (UX MIGLIORE)
-// =========================
+// auto start al primo click
 document.addEventListener("click", function firstMusicTrigger() {
-  if (!musicStarted && musicEnabled) {
-    bgMusic.play()
-      .then(() => {
-        musicStarted = true;
-        console.log("🎵 Musica partita al primo click");
-      })
-      .catch(() => {});
-  }
+  if (musicStarted) return;
+
+  bgMusic.play()
+    .then(() => {
+      musicStarted = true;
+      console.log("🎵 Musica partita al primo click");
+    })
+    .catch(() => {});
 
   document.removeEventListener("click", firstMusicTrigger);
 });
@@ -62,7 +63,7 @@ document.addEventListener("click", function firstMusicTrigger() {
 function choose(player, value) {
   if (locked) return;
 
-  // 🔊 click sound
+  // 🔊 SUONO CARTA
   clickSound.currentTime = 0;
   clickSound.play().catch(() => {});
 
@@ -218,5 +219,6 @@ function restartGame() {
   resetRound();
 }
 
-// 🔥 rende restart accessibile da HTML
+// esponi funzione
 window.restartGame = restartGame;
+window.startMusic = startMusic;
