@@ -134,3 +134,20 @@ function restartGame() {
 
   resetRound();
 }
+function restartGame() {
+  score1 = 0;
+  score2 = 0;
+  round = 1;
+  locked = false;
+
+  choice1 = null;
+  choice2 = null;
+
+  document.getElementById("score1").innerText = 0;
+  document.getElementById("score2").innerText = 0;
+  document.getElementById("round").innerText = 1;
+
+  document.getElementById("overlay").classList.add("hidden");
+
+  resetRound();
+}
