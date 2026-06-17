@@ -8,7 +8,15 @@ let round = 1;
 let locked = false;
 
 // 🎵 SUONO
-let clickSound = new Audio("carta.wav");
+let clickSound = new Audio("./carta.wav");
+
+clickSound.addEventListener("canplaythrough", () => {
+  console.log("Audio caricato correttamente");
+});
+
+clickSound.addEventListener("error", () => {
+  console.log("ERRORE CARICAMENTO AUDIO");
+});
 
 // =========================
 // SCELTA CARTE
