@@ -12,7 +12,7 @@ let locked = false;
 // =========================
 
 // musica sottofondo
-let bgMusic = new Audio("sottofondo.wav");
+let bgMusic = new Audio("sottofondo.mp3");
 
 console.log(bgMusic.src);
 
