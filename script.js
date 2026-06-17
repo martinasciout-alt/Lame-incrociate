@@ -39,23 +39,21 @@ let musicStarted = false;
 // =========================
 // 🎵 MUSICA
 // =========================
-window.startMusic = function () {
+function startMusic() {
   if (!bgMusic) return;
 
   bgMusic.currentTime = 0;
 
-  const playPromise = bgMusic.play();
+  bgMusic.play()
+    .then(() => {
+      console.log("🎵 Musica avviata");
+    })
+    .catch((err) => {
+      console.log("❌ Bloccato dal browser:", err);
+    });
+}
 
-  if (playPromise !== undefined) {
-    playPromise
-      .then(() => {
-        console.log("🎵 Musica avviata");
-      })
-      .catch((err) => {
-        console.log("❌ Bloccato dal browser:", err);
-      });
-  }
-};
+window.startMusic = startMusic;
 
 // auto start al primo click
 document.addEventListener("click", function firstMusicTrigger() {
