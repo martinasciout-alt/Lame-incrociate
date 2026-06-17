@@ -235,4 +235,4 @@ function restartGame() {
 
 // esponi funzione
 window.restartGame = restartGame;
-window.startMusic = startMusic;
+
