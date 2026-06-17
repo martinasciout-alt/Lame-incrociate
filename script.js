@@ -176,6 +176,10 @@ function checkEndRound() {
 function endGame() {
   locked = true;
 
+  // 🔊 SUONO VITTORIA
+  winSound.currentTime = 0;
+  winSound.play().catch(() => {});
+
   let final;
 
   if (score1 > score2) {
@@ -188,11 +192,6 @@ function endGame() {
 
   document.getElementById("finalText").innerText = final;
   document.getElementById("overlay").classList.remove("hidden");
-}
-
-function endGame() {
-  winSound.currentTime = 0;
-  winSound.play().catch(() => {});
 }
 
 // =========================
