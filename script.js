@@ -28,7 +28,7 @@ let drawSound = new Audio("pareggio.mp3");
 drawSound.volume = 1;
 
 // 🔥 NUOVO: countdown sound
-let countdownSound = new Audio("conto-alla-rovescia.mp3");
+let countdownSound = new Audio("countdown.mp3");
 countdownSound.volume = 0.8;
 
 let musicStarted = false;
