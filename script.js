@@ -68,8 +68,19 @@ function choose(player, value) {
 
   if (player === 1) {
     choice1 = value;
-    document.getElementById("choice1").innerText = value;
+   function choose(player, value) {
+  if (locked) return;
 
+  playClick();
+
+  if (player === 1) {
+    choice1 = value;
+  } else {
+    choice2 = value;
+  }
+
+  checkReady();
+}
     // 🔥 MOSTRA RETRO SUBITO
     document.getElementById("cardP1").innerHTML =
       '<img src="retro-carta.webp">';
