@@ -106,10 +106,20 @@ function nextRound() {
   resetRound();
 }
 
-function resetRound() {
+function restartGame() {
+  score1 = 0;
+  score2 = 0;
+  round = 1;
+  locked = false;
+
   choice1 = null;
   choice2 = null;
-  locked = false;
+
+  document.getElementById("score1").innerText = 0;
+  document.getElementById("score2").innerText = 0;
+  document.getElementById("round").innerText = 1;
+
+  document.getElementById("overlay").classList.add("hidden");
 
   document.getElementById("choice1").innerText = "-";
   document.getElementById("choice2").innerText = "-";
@@ -118,36 +128,4 @@ function resetRound() {
 
   document.getElementById("cardP1").innerHTML = "";
   document.getElementById("cardP2").innerHTML = "";
-}
-
-function restartGame() {
-  score1 = 0;
-  score2 = 0;
-  round = 1;
-  locked = false;
-
-  document.getElementById("score1").innerText = 0;
-  document.getElementById("score2").innerText = 0;
-  document.getElementById("round").innerText = 1;
-
-  document.getElementById("overlay").classList.add("hidden");
-
-  resetRound();
-}
-function restartGame() {
-  score1 = 0;
-  score2 = 0;
-  round = 1;
-  locked = false;
-
-  choice1 = null;
-  choice2 = null;
-
-  document.getElementById("score1").innerText = 0;
-  document.getElementById("score2").innerText = 0;
-  document.getElementById("round").innerText = 1;
-
-  document.getElementById("overlay").classList.add("hidden");
-
-  resetRound();
 }
