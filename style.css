@@ -1,9 +1,13 @@
 body {
   margin: 0;
   font-family: 'Pieces of Eight', sans-serif;
-  background: #1b1b1b;
   color: white;
   text-align: center;
+
+  background-image: url("sfondo.jpeg");
+  background-size: cover;
+  background-position: center;
+  background-repeat: no-repeat;
 }
 
 /* =========================
@@ -48,7 +52,7 @@ h1 {
   font-size: 40px;
   margin: 15px 0;
   font-weight: bold;
-  color: ##7c3aed;
+  color: #7c3aed;
 }
 
 /* =========================
@@ -340,10 +344,4 @@ button:hover {
 
 #status button:hover {
   background: #7c3aed;
-}
-body {
-  background-image: url("sfondo.jpeg");
-  background-size: cover;
-  background-position: center;
-  background-repeat: no-repeat;
 }
