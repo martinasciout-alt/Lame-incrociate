@@ -30,7 +30,7 @@ bgMusic.preload = "auto";
 
 // suono carta
 let clickSound = new Audio("carta.wav");
-clickSound.volume = 2;
+clickSound.volume = 1;
 clickSound.preload = "auto";
 
 // stato musica
