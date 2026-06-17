@@ -14,12 +14,12 @@ let locked = false;
 // musica sottofondo
 let bgMusic = new Audio("sottofondo.wav");
 bgMusic.loop = true;
-bgMusic.volume = 0.4;
+bgMusic.volume = 1;
 bgMusic.preload = "auto";
 
 // suono carta
 let clickSound = new Audio("carta.wav");
-clickSound.volume = 1;
+clickSound.volume = 2;
 clickSound.preload = "auto";
 
 // stato musica
