@@ -17,7 +17,7 @@ bgMusic.loop = true;
 bgMusic.volume = 0.4;
 bgMusic.preload = "auto";
 
-// suoni effetti
+// effetti
 let clickSound = new Audio("carta.wav");
 clickSound.volume = 1;
 
@@ -27,16 +27,14 @@ winSound.volume = 1;
 let drawSound = new Audio("pareggio.mp3");
 drawSound.volume = 1;
 
-// stato musica
+// stato
 let musicStarted = false;
 
 // =========================
-// 🎵 MUSICA
+// 🎵 MUSICA (SOLO BOTTONE)
 // =========================
 window.startMusic = function () {
   if (musicStarted) return;
-
-  bgMusic.currentTime = 0;
 
   bgMusic.play()
     .then(() => {
@@ -48,7 +46,9 @@ window.startMusic = function () {
     });
 };
 
-// autoplay sicuro al primo click
+// =========================
+// 🎵 AUTO START (SOLO 1 VOLTA, SICURO)
+// =========================
 document.addEventListener("click", function firstMusicTrigger() {
   if (musicStarted) return;
 
@@ -68,29 +68,24 @@ document.addEventListener("click", function firstMusicTrigger() {
 function choose(player, value) {
   if (locked) return;
 
-  // 🔊 suono carta
   clickSound.currentTime = 0;
   clickSound.play().catch(() => {});
 
   if (player === 1) {
     choice1 = value;
     document.getElementById("choice1").innerText = value;
-
-    document.getElementById("cardP1").innerHTML =
-      '<img src="retro-carta.webp" alt="card">';
+    document.getElementById("cardP1").innerHTML = '<img src="retro-carta.webp">';
   } else {
     choice2 = value;
     document.getElementById("choice2").innerText = value;
-
-    document.getElementById("cardP2").innerHTML =
-      '<img src="retro-carta.webp" alt="card">';
+    document.getElementById("cardP2").innerHTML = '<img src="retro-carta.webp">';
   }
 
   checkReady();
 }
 
 // =========================
-// CONTROLLO PRONTI
+// CONTROLLO
 // =========================
 function checkReady() {
   if (choice1 !== null && choice2 !== null) {
@@ -127,18 +122,22 @@ function reveal() {
   const result = document.getElementById("result");
 
   document.getElementById("cardP1").innerHTML =
-    `<img src="carta-${choice1}.webp" alt="card">`;
+    `<img src="carta-${choice1}.webp">`;
 
   document.getElementById("cardP2").innerHTML =
-    `<img src="carta-${choice2}.webp" alt="card">`;
+    `<img src="carta-${choice2}.webp">`;
 
   if (choice1 > choice2) {
     score1++;
     result.innerHTML = '<span class="p1">Player 1 vince il turno!</span>';
+    winSound.currentTime = 0;
+    winSound.play().catch(() => {});
   } 
   else if (choice2 > choice1) {
     score2++;
     result.innerHTML = '<span class="p2">Player 2 vince il turno!</span>';
+    winSound.currentTime = 0;
+    winSound.play().catch(() => {});
   } 
   else {
     result.innerText = "🤝 Pareggio! Nessun punto.";
@@ -153,7 +152,7 @@ function reveal() {
 }
 
 // =========================
-// FINE ROUND
+// ROUND
 // =========================
 function checkEndRound() {
   if (round >= 3) {
@@ -165,7 +164,7 @@ function checkEndRound() {
 }
 
 // =========================
-// 🔥 FINE PARTITA (CORRETTA + SUONO)
+// FINE GIOCO
 // =========================
 function endGame() {
   locked = true;
@@ -173,34 +172,24 @@ function endGame() {
   let final;
 
   if (score1 > score2) {
-    winSound.currentTime = 0;
-    winSound.play().catch(() => {});
     final = "🏆 Player 1 vince la partita!";
-  } 
-  else if (score2 > score1) {
-    winSound.currentTime = 0;
-    winSound.play().catch(() => {});
+  } else if (score2 > score1) {
     final = "🏆 Player 2 vince la partita!";
-  } 
-  else {
-    drawSound.currentTime = 0;
-    drawSound.play().catch(() => {});
+  } else {
     final = "🤝 Pareggio finale!";
   }
 
   document.getElementById("finalText").innerText = final;
   document.getElementById("overlay").classList.remove("hidden");
 }
+
 // =========================
-// PROSSIMO TURNO
+// RESET
 // =========================
 function nextRound() {
   resetRound();
 }
 
-// =========================
-// RESET ROUND
-// =========================
 function resetRound() {
   choice1 = null;
   choice2 = null;
@@ -216,7 +205,7 @@ function resetRound() {
 }
 
 // =========================
-// RESTART GIOCO
+// RESTART
 // =========================
 function restartGame() {
   score1 = 0;
@@ -236,7 +225,8 @@ function restartGame() {
   resetRound();
 }
 
-// export funzioni per HTML
+// EXPORT HTML
 window.restartGame = restartGame;
+window.startMusic = startMusic;
 window.choose = choose;
 window.nextRound = nextRound;
