@@ -320,3 +320,16 @@ button:hover {
     box-sizing: border-box;
   }
 }
+#status button {
+  margin: 10px 0;
+  padding: 8px 12px;
+  border-radius: 8px;
+  background: #6d28d9;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+
+#status button:hover {
+  background: #7c3aed;
+}
