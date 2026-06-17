@@ -289,3 +289,54 @@ button:hover {
     font-size: 30px;
   }
 }
+@media (max-width: 700px) {
+  body {
+    padding: 10px;
+  }
+
+  #game {
+    padding: 10px;
+  }
+
+  h1 {
+    font-size: 30px;
+  }
+
+  .players {
+    gap: 10px;
+  }
+
+  .player {
+    padding: 10px;
+  }
+
+  .cards button {
+    width: 60px;
+    height: 90px;
+  }
+
+  #table {
+    gap: 15px;
+  }
+
+  #countdown {
+    font-size: 28px;
+  }
+
+  button {
+    width: 100%;
+    font-size: 16px;
+  }
+}
+@media (max-width: 700px) {
+  .rules {
+    position: relative;
+    top: auto;
+    right: auto;
+
+    width: 100%;
+    margin: 15px auto;
+
+    box-sizing: border-box;
+  }
+}
