@@ -17,7 +17,7 @@ bgMusic.loop = true;
 bgMusic.volume = 0.4;
 bgMusic.preload = "auto";
 
-// effetti
+// suoni effetti
 let clickSound = new Audio("carta.wav");
 clickSound.volume = 1;
 
@@ -27,14 +27,19 @@ winSound.volume = 1;
 let drawSound = new Audio("pareggio.mp3");
 drawSound.volume = 1;
 
-// stato
+// 🔥 NUOVO: countdown sound
+let countdownSound = new Audio("conto-alla-rovescia.mp3");
+countdownSound.volume = 0.8;
+
 let musicStarted = false;
 
 // =========================
-// 🎵 MUSICA (SOLO BOTTONE)
+// 🎵 MUSICA
 // =========================
 window.startMusic = function () {
   if (musicStarted) return;
+
+  bgMusic.currentTime = 0;
 
   bgMusic.play()
     .then(() => {
@@ -46,16 +51,13 @@ window.startMusic = function () {
     });
 };
 
-// =========================
-// 🎵 AUTO START (SOLO 1 VOLTA, SICURO)
-// =========================
+// autoplay al primo click
 document.addEventListener("click", function firstMusicTrigger() {
   if (musicStarted) return;
 
   bgMusic.play()
     .then(() => {
       musicStarted = true;
-      console.log("🎵 Musica partita al primo click");
     })
     .catch(() => {});
 
@@ -74,18 +76,22 @@ function choose(player, value) {
   if (player === 1) {
     choice1 = value;
     document.getElementById("choice1").innerText = value;
-    document.getElementById("cardP1").innerHTML = '<img src="retro-carta.webp">';
+
+    document.getElementById("cardP1").innerHTML =
+      '<img src="retro-carta.webp" alt="card">';
   } else {
     choice2 = value;
     document.getElementById("choice2").innerText = value;
-    document.getElementById("cardP2").innerHTML = '<img src="retro-carta.webp">';
+
+    document.getElementById("cardP2").innerHTML =
+      '<img src="retro-carta.webp" alt="card">';
   }
 
   checkReady();
 }
 
 // =========================
-// CONTROLLO
+// CHECK PRONTI
 // =========================
 function checkReady() {
   if (choice1 !== null && choice2 !== null) {
@@ -94,7 +100,7 @@ function checkReady() {
 }
 
 // =========================
-// COUNTDOWN
+// COUNTDOWN + AUDIO
 // =========================
 function startReveal() {
   locked = true;
@@ -104,6 +110,11 @@ function startReveal() {
   cd.innerText = countdown;
 
   const interval = setInterval(() => {
+
+    // 🔊 suono countdown ad ogni tick
+    countdownSound.currentTime = 0;
+    countdownSound.play().catch(() => {});
+
     countdown--;
 
     if (countdown > 0) {
@@ -122,22 +133,18 @@ function reveal() {
   const result = document.getElementById("result");
 
   document.getElementById("cardP1").innerHTML =
-    `<img src="carta-${choice1}.webp">`;
+    `<img src="carta-${choice1}.webp" alt="card">`;
 
   document.getElementById("cardP2").innerHTML =
-    `<img src="carta-${choice2}.webp">`;
+    `<img src="carta-${choice2}.webp" alt="card">`;
 
   if (choice1 > choice2) {
     score1++;
     result.innerHTML = '<span class="p1">Player 1 vince il turno!</span>';
-    winSound.currentTime = 0;
-    winSound.play().catch(() => {});
   } 
   else if (choice2 > choice1) {
     score2++;
     result.innerHTML = '<span class="p2">Player 2 vince il turno!</span>';
-    winSound.currentTime = 0;
-    winSound.play().catch(() => {});
   } 
   else {
     result.innerText = "🤝 Pareggio! Nessun punto.";
@@ -152,7 +159,7 @@ function reveal() {
 }
 
 // =========================
-// ROUND
+// FINE ROUND
 // =========================
 function checkEndRound() {
   if (round >= 3) {
@@ -172,10 +179,18 @@ function endGame() {
   let final;
 
   if (score1 > score2) {
+    winSound.currentTime = 0;
+    winSound.play().catch(() => {});
     final = "🏆 Player 1 vince la partita!";
-  } else if (score2 > score1) {
+  } 
+  else if (score2 > score1) {
+    winSound.currentTime = 0;
+    winSound.play().catch(() => {});
     final = "🏆 Player 2 vince la partita!";
-  } else {
+  } 
+  else {
+    drawSound.currentTime = 0;
+    drawSound.play().catch(() => {});
     final = "🤝 Pareggio finale!";
   }
 
@@ -184,12 +199,8 @@ function endGame() {
 }
 
 // =========================
-// RESET
+// RESET ROUND
 // =========================
-function nextRound() {
-  resetRound();
-}
-
 function resetRound() {
   choice1 = null;
   choice2 = null;
@@ -202,6 +213,13 @@ function resetRound() {
 
   document.getElementById("cardP1").innerHTML = "";
   document.getElementById("cardP2").innerHTML = "";
+}
+
+// =========================
+// NEXT ROUND
+// =========================
+function nextRound() {
+  resetRound();
 }
 
 // =========================
@@ -225,8 +243,8 @@ function restartGame() {
   resetRound();
 }
 
-// EXPORT HTML
-window.restartGame = restartGame;
+// export
 window.startMusic = startMusic;
 window.choose = choose;
 window.nextRound = nextRound;
+window.restartGame = restartGame;
