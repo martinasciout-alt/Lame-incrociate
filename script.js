@@ -8,7 +8,7 @@ let round = 1;
 let locked = false;
 
 // 🎵 SUONO
-let clickSound = new Audio("sounds/carta.wav");
+let clickSound = new Audio("carta.wav");
 
 // =========================
 // SCELTA CARTE
