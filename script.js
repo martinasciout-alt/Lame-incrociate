@@ -13,53 +13,39 @@ let locked = false;
 
 // musica sottofondo
 let bgMusic = new Audio("sottofondo.mp3");
-
-console.log(bgMusic.src);
-
-bgMusic.addEventListener("error", () => {
-  console.log("ERRORE CARICAMENTO AUDIO");
-});
-
-bgMusic.addEventListener("canplaythrough", () => {
-  console.log("AUDIO CARICATO CORRETTAMENTE");
-});
-
 bgMusic.loop = true;
-bgMusic.volume = 1;
+bgMusic.volume = 0.4;
 bgMusic.preload = "auto";
 
-// suono carta
+// suoni effetti
 let clickSound = new Audio("carta.wav");
 clickSound.volume = 1;
-clickSound.preload = "auto";
+
+let winSound = new Audio("vittoria.mp3");
+winSound.volume = 1;
 
 // stato musica
 let musicStarted = false;
 
-let winSound = new Audio("vittoria.mp3");
-winSound.volume = 1;
-winSound.preload = "auto";
-
 // =========================
-// 🎵 MUSICA
+// 🎵 MUSICA (BOTTONE + AUTO CLICK)
 // =========================
-function startMusic() {
-  if (!bgMusic) return;
+window.startMusic = function () {
+  if (musicStarted) return;
 
   bgMusic.currentTime = 0;
 
   bgMusic.play()
     .then(() => {
+      musicStarted = true;
       console.log("🎵 Musica avviata");
     })
-    .catch((err) => {
-      console.log("❌ Bloccato dal browser:", err);
+    .catch(err => {
+      console.log("❌ Errore musica:", err);
     });
-}
+};
 
-window.startMusic = startMusic;
-
-// auto start al primo click
+// autoplay sicuro al primo click
 document.addEventListener("click", function firstMusicTrigger() {
   if (musicStarted) return;
 
@@ -79,7 +65,7 @@ document.addEventListener("click", function firstMusicTrigger() {
 function choose(player, value) {
   if (locked) return;
 
-  // 🔊 SUONO CARTA
+  // 🔊 suono carta
   clickSound.currentTime = 0;
   clickSound.play().catch(() => {});
 
@@ -121,6 +107,7 @@ function startReveal() {
 
   const interval = setInterval(() => {
     countdown--;
+
     if (countdown > 0) {
       cd.innerText = countdown;
     } else {
@@ -171,7 +158,7 @@ function checkEndRound() {
 }
 
 // =========================
-// FINE PARTITA
+// 🔥 FINE PARTITA (CORRETTA + SUONO)
 // =========================
 function endGame() {
   locked = true;
@@ -241,4 +228,6 @@ function restartGame() {
 
 // esponi funzione
 window.restartGame = restartGame;
-
+window.startMusic = startMusic;
+window.choose = choose;
+window.nextRound = nextRound;
