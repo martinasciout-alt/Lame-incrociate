@@ -29,18 +29,21 @@ let musicStarted = false;
 // 🎵 MUSICA
 // =========================
 window.startMusic = function () {
-  if (musicStarted) return;
+  if (!bgMusic) return;
 
   bgMusic.currentTime = 0;
 
-  bgMusic.play()
-    .then(() => {
-      musicStarted = true;
-      console.log("🎵 Musica avviata");
-    })
-    .catch(err => {
-      console.log("❌ Musica bloccata:", err);
-    });
+  const playPromise = bgMusic.play();
+
+  if (playPromise !== undefined) {
+    playPromise
+      .then(() => {
+        console.log("🎵 Musica avviata");
+      })
+      .catch((err) => {
+        console.log("❌ Bloccato dal browser:", err);
+      });
+  }
 };
 
 // auto start al primo click
