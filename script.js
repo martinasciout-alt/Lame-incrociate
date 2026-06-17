@@ -7,20 +7,22 @@ let score2 = 0;
 let round = 1;
 let locked = false;
 
-// 🎵 SUONO
+// =========================
+// 🎵 AUDIO
+// =========================
 let bgMusic = new Audio("sottofondo.wav");
 bgMusic.loop = true;
 bgMusic.volume = 0.4;
 
-let clickSound = new Audio("./carta.wav");
+let clickSound = new Audio("carta.wav");
+clickSound.volume = 1;
 
-clickSound.addEventListener("canplaythrough", () => {
-  console.log("Audio caricato correttamente");
-});
-
-clickSound.addEventListener("error", () => {
-  console.log("ERRORE CARICAMENTO AUDIO");
-});
+// =========================
+// 🎵 AVVIO MUSICA
+// =========================
+function startMusic() {
+  bgMusic.play();
+}
 
 // =========================
 // SCELTA CARTE
@@ -28,8 +30,14 @@ clickSound.addEventListener("error", () => {
 function choose(player, value) {
   if (locked) return;
 
-   clickSound.currentTime = 0;
+  // 🔊 suono click
+  clickSound.currentTime = 0;
   clickSound.play();
+
+  // 🎵 sicurezza musica (parte al primo click se non partita)
+  if (bgMusic.paused) {
+    bgMusic.play();
+  }
 
   if (player === 1) {
     choice1 = value;
@@ -79,7 +87,7 @@ function startReveal() {
 }
 
 // =========================
-// RIVELAZIONE CARTE + LOGICA
+// RIVELAZIONE CARTE
 // =========================
 function reveal() {
   const result = document.getElementById("result");
@@ -119,7 +127,7 @@ function checkEndRound() {
 }
 
 // =========================
-// FINE PARTITA (OVERLAY)
+// FINE PARTITA
 // =========================
 function endGame() {
   locked = true;
@@ -163,7 +171,7 @@ function resetRound() {
 }
 
 // =========================
-// RICOMINCIA GIOCO
+// RIAVVIO GIOCO
 // =========================
 function restartGame() {
   score1 = 0;
@@ -180,12 +188,5 @@ function restartGame() {
 
   document.getElementById("overlay").classList.add("hidden");
 
-  document.getElementById("choice1").innerText = "-";
-  document.getElementById("choice2").innerText = "-";
-  document.getElementById("countdown").innerText = "Pronto";
-  document.getElementById("result").innerText = "";
-
-  document.getElementById("cardP1").innerHTML = "";
-  document.getElementById("cardP2").innerHTML = "";
+  resetRound();
 }
-window.restartGame = restartGame;
