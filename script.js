@@ -165,7 +165,7 @@ function checkEndRound() {
 }
 
 // =========================
-// FINE PARTITA
+// 🔥 FINE PARTITA (CORRETTA + SUONO)
 // =========================
 function endGame() {
   locked = true;
@@ -173,25 +173,24 @@ function endGame() {
   let final;
 
   if (score1 > score2) {
-    final = "🏆 Player 1 vince la partita!";
     winSound.currentTime = 0;
     winSound.play().catch(() => {});
+    final = "🏆 Player 1 vince la partita!";
   } 
   else if (score2 > score1) {
-    final = "🏆 Player 2 vince la partita!";
     winSound.currentTime = 0;
     winSound.play().catch(() => {});
+    final = "🏆 Player 2 vince la partita!";
   } 
   else {
-    final = "🤝 Pareggio finale!";
     drawSound.currentTime = 0;
     drawSound.play().catch(() => {});
+    final = "🤝 Pareggio finale!";
   }
 
   document.getElementById("finalText").innerText = final;
   document.getElementById("overlay").classList.remove("hidden");
 }
-
 // =========================
 // PROSSIMO TURNO
 // =========================
