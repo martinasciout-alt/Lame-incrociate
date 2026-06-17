@@ -11,7 +11,7 @@ let locked = false;
 // 🎵 AUDIO (OTTIMIZZATO)
 // =========================
 
-// musica sottofondo
+// musica
 const bgMusic = new Audio("sottofondo.mp3");
 bgMusic.loop = true;
 bgMusic.volume = 0.4;
@@ -27,10 +27,12 @@ winSound.volume = 1;
 const drawSound = new Audio("pareggio.mp3");
 drawSound.volume = 1;
 
-// countdown (UN SOLO AUDIO → NO BUG)
+// 🔥 COUNTDOWN FIX DEFINITIVO
 const countdownSound = new Audio("countdown.mp3");
 countdownSound.volume = 0.8;
 countdownSound.preload = "auto";
+
+let countdownLocked = false;
 
 // stato musica
 let musicStarted = false;
@@ -53,7 +55,7 @@ window.startMusic = function () {
     });
 };
 
-// autoplay sicuro primo click
+// autoplay sicuro
 document.addEventListener("click", function firstMusicTrigger() {
   if (musicStarted) return;
 
@@ -74,9 +76,18 @@ function playClick() {
   clickSound.play().catch(() => {});
 }
 
+// 🔥 COUNTDOWN FIX (NO DOPPIO AUDIO)
 function playCountdownSound() {
+  if (countdownLocked) return;
+
+  countdownLocked = true;
+
   countdownSound.currentTime = 0;
   countdownSound.play().catch(() => {});
+
+  setTimeout(() => {
+    countdownLocked = false;
+  }, 900);
 }
 
 // =========================
@@ -114,13 +125,14 @@ function checkReady() {
 }
 
 // =========================
-// ⏳ COUNTDOWN PULITO
+// ⏳ COUNTDOWN
 // =========================
 function startReveal() {
   locked = true;
 
   let countdown = 3;
   const cd = document.getElementById("countdown");
+
   cd.innerText = countdown;
 
   const interval = setInterval(() => {
@@ -128,7 +140,10 @@ function startReveal() {
 
     if (countdown > 0) {
       cd.innerText = countdown;
-      playCountdownSound(); // 🔥 NO OVERLAP, SOLO 1 AUDIO
+
+      // 🔥 SUONO PULITO (UNA VOLTA SOLA)
+      playCountdownSound();
+
     } else {
       clearInterval(interval);
       reveal();
@@ -151,10 +166,12 @@ function reveal() {
   if (choice1 > choice2) {
     score1++;
     result.innerHTML = '<span class="p1">Player 1 vince il turno!</span>';
-  } else if (choice2 > choice1) {
+  } 
+  else if (choice2 > choice1) {
     score2++;
     result.innerHTML = '<span class="p2">Player 2 vince il turno!</span>';
-  } else {
+  } 
+  else {
     result.innerText = "🤝 Pareggio! Nessun punto.";
     drawSound.currentTime = 0;
     drawSound.play().catch(() => {});
@@ -190,11 +207,13 @@ function endGame() {
     winSound.currentTime = 0;
     winSound.play().catch(() => {});
     final = "🏆 Player 1 vince la partita!";
-  } else if (score2 > score1) {
+  } 
+  else if (score2 > score1) {
     winSound.currentTime = 0;
     winSound.play().catch(() => {});
     final = "🏆 Player 2 vince la partita!";
-  } else {
+  } 
+  else {
     drawSound.currentTime = 0;
     drawSound.play().catch(() => {});
     final = "🤝 Pareggio finale!";
@@ -229,7 +248,7 @@ function nextRound() {
 }
 
 // =========================
-// 🔁 RESTART GAME
+// 🔁 RESTART
 // =========================
 function restartGame() {
   score1 = 0;
