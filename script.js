@@ -7,6 +7,9 @@ let score2 = 0;
 let round = 1;
 let locked = false;
 
+// =========================
+// SCELTA CARTE
+// =========================
 function choose(player, value) {
   if (locked) return;
 
@@ -27,12 +30,18 @@ function choose(player, value) {
   checkReady();
 }
 
+// =========================
+// CONTROLLO PRONTI
+// =========================
 function checkReady() {
   if (choice1 !== null && choice2 !== null) {
     startReveal();
   }
 }
 
+// =========================
+// COUNTDOWN
+// =========================
 function startReveal() {
   locked = true;
 
@@ -51,6 +60,9 @@ function startReveal() {
   }, 1000);
 }
 
+// =========================
+// RIVELAZIONE CARTE + LOGICA
+// =========================
 function reveal() {
   const result = document.getElementById("result");
 
@@ -67,7 +79,7 @@ function reveal() {
     score2++;
     result.innerHTML = '<span class="p2">Player 2 vince il turno!</span>';
   } else {
-    result.innerText = "Pareggio! Nessun punto.";
+    result.innerText = "🤝 Pareggio! Nessun punto.";
   }
 
   document.getElementById("score1").innerText = score1;
@@ -76,6 +88,9 @@ function reveal() {
   checkEndRound();
 }
 
+// =========================
+// FINE TURNO / PARTITA
+// =========================
 function checkEndRound() {
   if (round >= 3) {
     endGame();
@@ -85,6 +100,9 @@ function checkEndRound() {
   }
 }
 
+// =========================
+// FINE PARTITA (OVERLAY)
+// =========================
 function endGame() {
   locked = true;
 
@@ -102,10 +120,33 @@ function endGame() {
   document.getElementById("overlay").classList.remove("hidden");
 }
 
+// =========================
+// PROSSIMO TURNO
+// =========================
 function nextRound() {
   resetRound();
 }
 
+// =========================
+// RESET TURNO
+// =========================
+function resetRound() {
+  choice1 = null;
+  choice2 = null;
+  locked = false;
+
+  document.getElementById("choice1").innerText = "-";
+  document.getElementById("choice2").innerText = "-";
+  document.getElementById("countdown").innerText = "Pronto";
+  document.getElementById("result").innerText = "";
+
+  document.getElementById("cardP1").innerHTML = "";
+  document.getElementById("cardP2").innerHTML = "";
+}
+
+// =========================
+// RICOMINCIA GIOCO
+// =========================
 function restartGame() {
   score1 = 0;
   score2 = 0;
