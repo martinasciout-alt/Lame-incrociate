@@ -272,5 +272,20 @@ button:hover {
   #table {
     flex-direction: column;
     gap: 20px;
+  
+  }
+}
+@media (max-width: 700px) {
+  h1 {
+    font-size: 32px;
+  }
+
+  .cards button {
+    width: 70px;
+    height: 110px;
+  }
+
+  #countdown {
+    font-size: 30px;
   }
 }
