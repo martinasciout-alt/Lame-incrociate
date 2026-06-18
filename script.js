@@ -13,18 +13,14 @@ import {
 // =========================
 // 🔥 FIREBASE
 // =========================
-const firebaseConfig = {
-  apiKey: "AIzaSyBzdhurbAi48OoRyw6eKJ3HIkd1q87-43c",
-  authDomain: "gioco-della-lama-alta.firebaseapp.com",
-  databaseURL: "https://gioco-della-lama-alta-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "gioco-della-lama-alta",
-  storageBucket: "gioco-della-lama-alta.firebasestorage.app",
-  messagingSenderId: "182282784891",
-  appId: "1:182282784891:web:0503cff93af07a0ee8d2de"
-};
-
-const app = initializeApp(firebaseConfig);
-const db = getDatabase(app);
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getDatabase,
+  ref,
+  set,
+  update,
+  onValue
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 // =========================
 // 🏠 ROOM
