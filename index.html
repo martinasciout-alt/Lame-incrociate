@@ -17,7 +17,7 @@
 
 <body>
 
-  <!-- OVERLAY VITTORIA -->
+  <!-- OVERLAY FINE PARTITA -->
   <div id="overlay" class="hidden">
     <div class="overlay-content">
       <h1 id="finalText"></h1>
@@ -29,38 +29,24 @@
 
     <h1>Il Gioco della Lama Alta</h1>
 
-    <!-- STATO PARTITA -->
+    <!-- STATUS -->
     <div id="status">
-      <button onclick="startMusic()">🔊 Attiva musica</button>
 
-     <div>
-  <input id="roomInput" placeholder="Codice stanza (es. AB12)">
-  <button onclick="createRoom(roomInput.value)">Crea stanza</button>
-  <button onclick="joinRoom(roomInput.value)">Entra stanza</button>
-</div>
+      <button onclick="startMusic()">🔊 Attiva musica</button>
 
       <p>Stanza: <span id="roomCode">---</span></p>
       <p>Turno: <span id="round">1</span> / 3</p>
 
       <p>
-        Punteggio → Player 1: <span id="score1">0</span> |
+        Punteggio →
+        Player 1: <span id="score1">0</span> |
         Player 2: <span id="score2">0</span>
       </p>
+
     </div>
 
     <!-- COUNTDOWN -->
     <div id="countdown">Pronto</div>
-
-    <!-- REGOLE -->
-    <div class="rules">
-      <h2>Regole del gioco</h2>
-      <ul>
-        <li>3 turni di gioco</li>
-        <li>Scegli una carta da 1 a 5</li>
-        <li>Vince il numero più alto</li>
-        <li>Parità = entrambi perdono</li>
-      </ul>
-    </div>
 
     <!-- TAVOLO -->
     <div id="table">
@@ -81,7 +67,7 @@
     <div class="players">
 
       <!-- PLAYER 1 -->
-      <div class="player" id="p1">
+      <div class="player">
         <h2 class="p1">Player 1</h2>
 
         <div class="cards">
@@ -92,11 +78,10 @@
           <button onclick="choose(1,5)"><img src="carta-5.webp"></button>
         </div>
 
-        <p>Scelta: <span id="choice1">-</span></p>
       </div>
 
       <!-- PLAYER 2 -->
-      <div class="player" id="p2">
+      <div class="player">
         <h2 class="p2">Player 2</h2>
 
         <div class="cards">
@@ -107,7 +92,6 @@
           <button onclick="choose(2,5)"><img src="carta-5.webp"></button>
         </div>
 
-        <p>Scelta: <span id="choice2">-</span></p>
       </div>
 
     </div>
@@ -119,7 +103,7 @@
 
   </div>
 
-  <!-- 🔥 IMPORTANTISSIMO: MODULE -->
+  <!-- 🔥 IMPORT JS CORRETTO -->
   <script type="module" src="script.js"></script>
 
 </body>
