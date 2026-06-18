@@ -1,7 +1,4 @@
-import {
-  initializeApp
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-
+ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
   getDatabase,
   ref,
@@ -11,7 +8,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 // =========================
-// 🔥 FIREBASE
+// FIREBASE
 // =========================
 const firebaseConfig = {
   apiKey: "AIzaSyBzdhurbAi48OoRyw6eKJ3HIkd1q87-43c",
@@ -27,13 +24,13 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 // =========================
-// 🏠 ROOM
+// ROOM
 // =========================
 let roomCode = null;
 let playerNumber = null;
 
 // =========================
-// 🎮 GAME STATE
+// GAME STATE
 // =========================
 let score1 = 0;
 let score2 = 0;
@@ -41,49 +38,30 @@ let round = 1;
 let locked = false;
 
 // =========================
-// 🔊 AUDIO
+// AUDIO
 // =========================
-const bgMusic = new Audio("sottofondo.mp3");
-bgMusic.loop = true;
-bgMusic.volume = 0.4;
-
 const clickSound = new Audio("carta.wav");
-clickSound.volume = 1;
-
-const winSound = new Audio("vittoria.mp3");
-winSound.volume = 1;
-
 const drawSound = new Audio("pareggio.mp3");
-drawSound.volume = 1;
 
-const countdownSound = new Audio("countdown.mp3");
-countdownSound.volume = 0.8;
-
+// =========================
+// MUSIC
+// =========================
 let musicStarted = false;
 
-// =========================
-// 🎵 MUSIC
-// =========================
 window.startMusic = function () {
   if (musicStarted) return;
 
-  bgMusic.play().then(() => {
+  const bg = new Audio("sottofondo.mp3");
+  bg.loop = true;
+  bg.volume = 0.4;
+
+  bg.play().then(() => {
     musicStarted = true;
   }).catch(() => {});
 };
 
-document.addEventListener("click", function firstMusic() {
-  if (musicStarted) return;
-
-  bgMusic.play().then(() => {
-    musicStarted = true;
-  }).catch(() => {});
-
-  document.removeEventListener("click", firstMusic);
-});
-
 // =========================
-// 🏠 ROOM
+// ROOM FUNCTIONS (IMPORTANTI)
 // =========================
 window.createRoom = function (code) {
   roomCode = code;
@@ -108,7 +86,7 @@ window.joinRoom = function (code) {
 };
 
 // =========================
-// 👂 LISTENER FIREBASE
+// FIREBASE LISTENER
 // =========================
 function listenRoom() {
   const roomRef = ref(db, "rooms/" + roomCode);
@@ -125,7 +103,6 @@ function listenRoom() {
     document.getElementById("score2").innerText = score2;
     document.getElementById("round").innerText = round;
 
-    // retro carte
     if (data.player1Choice) {
       document.getElementById("cardP1").innerHTML =
         '<img src="retro-carta.webp">';
@@ -136,17 +113,16 @@ function listenRoom() {
         '<img src="retro-carta.webp">';
     }
 
-    // reveal
     if (data.player1Choice && data.player2Choice && !locked) {
-      revealOnline(data);
+      reveal(data);
     }
   });
 }
 
 // =========================
-// 🃏 CHOOSE (IMPORTANTISSIMO)
+// CHOOSE CARD (FIX DEFINITIVO)
 // =========================
-function choose(player, value) {
+window.choose = function (player, value) {
   if (!roomCode || locked) return;
 
   clickSound.currentTime = 0;
@@ -158,7 +134,6 @@ function choose(player, value) {
     [path]: value
   });
 
-  // UI locale
   if (player === 1) {
     document.getElementById("cardP1").innerHTML =
       '<img src="retro-carta.webp">';
@@ -169,9 +144,9 @@ function choose(player, value) {
 };
 
 // =========================
-// 🎴 REVEAL
+// REVEAL
 // =========================
-function revealOnline(data) {
+function reveal(data) {
   locked = true;
 
   const c1 = data.player1Choice;
@@ -234,10 +209,3 @@ window.restartGame = function () {
 
   document.getElementById("overlay").classList.add("hidden");
 };
-
-window.choose = choose;
-window.createRoom = createRoom;
-window.joinRoom = joinRoom;
-window.nextRound = nextRound;
-window.restartGame = restartGame;
-window.startMusic = startMusic;
