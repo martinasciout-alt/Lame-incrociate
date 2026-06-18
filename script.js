@@ -1,7 +1,4 @@
-import {
-  initializeApp
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-
+ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
   getDatabase,
   ref,
@@ -11,19 +8,23 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 // =========================
-// 🔥 FIREBASE
+// 🔥 FIREBASE INIT
 // =========================
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
-import {
-  getDatabase,
-  ref,
-  set,
-  update,
-  onValue
-} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+const firebaseConfig = {
+  apiKey: "AIzaSyBzdhurbAi48OoRyw6eKJ3HIkd1q87-43c",
+  authDomain: "gioco-della-lama-alta.firebaseapp.com",
+  databaseURL: "https://gioco-della-lama-alta-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "gioco-della-lama-alta",
+  storageBucket: "gioco-della-lama-alta.firebasestorage.app",
+  messagingSenderId: "182282784891",
+  appId: "1:182282784891:web:0503cff93af07a0ee8d2de"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
 
 // =========================
-// 🏠 ROOM
+// 🏠 ROOM STATE
 // =========================
 let roomCode = null;
 let playerNumber = null;
@@ -104,7 +105,7 @@ window.joinRoom = function (code) {
 };
 
 // =========================
-// 👂 FIREBASE LISTENER
+// 👂 LISTENER FIREBASE
 // =========================
 function listenRoom() {
   const roomRef = ref(db, "rooms/" + roomCode);
@@ -121,7 +122,7 @@ function listenRoom() {
     document.getElementById("score2").innerText = score2;
     document.getElementById("round").innerText = round;
 
-    // retro carte mentre si gioca
+    // retro carte mentre si aspetta
     if (data.player1Choice) {
       document.getElementById("cardP1").innerHTML =
         '<img src="retro-carta.webp">';
@@ -155,7 +156,7 @@ window.choose = function (player, value) {
     [path]: value
   });
 
-  // UI locale
+  // UI locale immediata (retro carta)
   if (player === 1) {
     document.getElementById("cardP1").innerHTML =
       '<img src="retro-carta.webp">';
@@ -166,7 +167,7 @@ window.choose = function (player, value) {
 };
 
 // =========================
-// 🎴 REVEAL
+// 🎴 REVEAL ONLINE
 // =========================
 function revealOnline(data) {
   locked = true;
@@ -182,16 +183,16 @@ function revealOnline(data) {
     document.getElementById("cardP2").innerHTML =
       `<img src="carta-${c2}.webp">`;
 
+    const result = document.getElementById("result");
+
     if (c1 > c2) {
       score1++;
-      document.getElementById("result").innerText = "Player 1 vince!";
-    } 
-    else if (c2 > c1) {
+      result.innerText = "Player 1 vince!";
+    } else if (c2 > c1) {
       score2++;
-      document.getElementById("result").innerText = "Player 2 vince!";
-    } 
-    else {
-      document.getElementById("result").innerText = "Pareggio!";
+      result.innerText = "Player 2 vince!";
+    } else {
+      result.innerText = "Pareggio!";
       drawSound.play().catch(() => {});
     }
 
@@ -225,6 +226,9 @@ window.restartGame = function () {
   score2 = 0;
   round = 1;
   locked = false;
+
+  roomCode = null;
+  playerNumber = null;
 
   document.getElementById("overlay").classList.add("hidden");
 };
