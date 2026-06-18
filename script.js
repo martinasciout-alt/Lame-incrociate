@@ -1,4 +1,7 @@
- import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  initializeApp
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+
 import {
   getDatabase,
   ref,
@@ -8,7 +11,7 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 // =========================
-// 🔥 FIREBASE INIT
+// 🔥 FIREBASE
 // =========================
 const firebaseConfig = {
   apiKey: "AIzaSyBzdhurbAi48OoRyw6eKJ3HIkd1q87-43c",
@@ -24,7 +27,7 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 // =========================
-// 🏠 ROOM STATE
+// 🏠 ROOM
 // =========================
 let roomCode = null;
 let playerNumber = null;
@@ -80,14 +83,7 @@ document.addEventListener("click", function firstMusic() {
 });
 
 // =========================
-// 🏠 ROOM UI
-// =========================
-function updateRoomUI() {
-  document.getElementById("roomCode").innerText = roomCode || "---";
-}
-
-// =========================
-// 🏠 CREATE ROOM
+// 🏠 ROOM
 // =========================
 window.createRoom = function (code) {
   roomCode = code;
@@ -101,23 +97,18 @@ window.createRoom = function (code) {
     round: 1
   });
 
-  updateRoomUI();
   listenRoom();
 };
 
-// =========================
-// 🏠 JOIN ROOM
-// =========================
 window.joinRoom = function (code) {
   roomCode = code;
   playerNumber = 2;
 
-  updateRoomUI();
   listenRoom();
 };
 
 // =========================
-// 👂 FIREBASE LISTENER
+// 👂 LISTENER FIREBASE
 // =========================
 function listenRoom() {
   const roomRef = ref(db, "rooms/" + roomCode);
@@ -134,7 +125,7 @@ function listenRoom() {
     document.getElementById("score2").innerText = score2;
     document.getElementById("round").innerText = round;
 
-    // mostra retro carte mentre si gioca
+    // retro carte
     if (data.player1Choice) {
       document.getElementById("cardP1").innerHTML =
         '<img src="retro-carta.webp">';
@@ -145,7 +136,7 @@ function listenRoom() {
         '<img src="retro-carta.webp">';
     }
 
-    // reveal automatico
+    // reveal
     if (data.player1Choice && data.player2Choice && !locked) {
       revealOnline(data);
     }
@@ -153,7 +144,7 @@ function listenRoom() {
 }
 
 // =========================
-// 🃏 CHOOSE CARD
+// 🃏 CHOOSE (IMPORTANTISSIMO)
 // =========================
 window.choose = function (player, value) {
   if (!roomCode || locked) return;
@@ -161,14 +152,13 @@ window.choose = function (player, value) {
   clickSound.currentTime = 0;
   clickSound.play().catch(() => {});
 
-  const path =
-    player === 1 ? "player1Choice" : "player2Choice";
+  const path = player === 1 ? "player1Choice" : "player2Choice";
 
   update(ref(db, "rooms/" + roomCode), {
     [path]: value
   });
 
-  // UI locale (retro carta)
+  // UI locale
   if (player === 1) {
     document.getElementById("cardP1").innerHTML =
       '<img src="retro-carta.webp">';
@@ -179,7 +169,7 @@ window.choose = function (player, value) {
 };
 
 // =========================
-// 🎴 REVEAL ONLINE
+// 🎴 REVEAL
 // =========================
 function revealOnline(data) {
   locked = true;
@@ -200,14 +190,10 @@ function revealOnline(data) {
     if (c1 > c2) {
       score1++;
       result.innerText = "Player 1 vince!";
-      winSound.play().catch(() => {});
-    } 
-    else if (c2 > c1) {
+    } else if (c2 > c1) {
       score2++;
       result.innerText = "Player 2 vince!";
-      winSound.play().catch(() => {});
-    } 
-    else {
+    } else {
       result.innerText = "Pareggio!";
       drawSound.play().catch(() => {});
     }
@@ -226,7 +212,7 @@ function revealOnline(data) {
 }
 
 // =========================
-// 🔄 NEXT ROUND
+// NEXT ROUND
 // =========================
 window.nextRound = function () {
   document.getElementById("cardP1").innerHTML = "";
@@ -235,7 +221,7 @@ window.nextRound = function () {
 };
 
 // =========================
-// 🔁 RESTART GAME
+// RESTART
 // =========================
 window.restartGame = function () {
   score1 = 0;
@@ -247,5 +233,4 @@ window.restartGame = function () {
   playerNumber = null;
 
   document.getElementById("overlay").classList.add("hidden");
-  document.getElementById("roomCode").innerText = "---";
 };
