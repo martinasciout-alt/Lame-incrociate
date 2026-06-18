@@ -1,4 +1,4 @@
- import {
+import {
   initializeApp
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 
@@ -35,12 +35,8 @@ let playerNumber = null;
 // =========================
 // 🎮 GAME STATE
 // =========================
-let choice1 = null;
-let choice2 = null;
-
 let score1 = 0;
 let score2 = 0;
-
 let round = 1;
 let locked = false;
 
@@ -87,7 +83,7 @@ document.addEventListener("click", function firstMusic() {
 });
 
 // =========================
-// 🏠 ROOM FUNCTIONS
+// 🏠 ROOM CREATE / JOIN
 // =========================
 window.createRoom = function (code) {
   roomCode = code;
@@ -112,7 +108,7 @@ window.joinRoom = function (code) {
 };
 
 // =========================
-// 👂 LISTENER FIREBASE
+// 👂 FIREBASE LISTENER
 // =========================
 function listenRoom() {
   const roomRef = ref(db, "rooms/" + roomCode);
@@ -129,18 +125,18 @@ function listenRoom() {
     document.getElementById("score2").innerText = score2;
     document.getElementById("round").innerText = round;
 
-    // aggiorna carte se presenti
+    // retro carte mentre si gioca
     if (data.player1Choice) {
       document.getElementById("cardP1").innerHTML =
-        `<img src="retro-carta.webp">`;
+        '<img src="retro-carta.webp">';
     }
 
     if (data.player2Choice) {
       document.getElementById("cardP2").innerHTML =
-        `<img src="retro-carta.webp">`;
+        '<img src="retro-carta.webp">';
     }
 
-    // se entrambi hanno scelto → reveal
+    // reveal automatico
     if (data.player1Choice && data.player2Choice && !locked) {
       revealOnline(data);
     }
@@ -148,7 +144,7 @@ function listenRoom() {
 }
 
 // =========================
-// 🃏 CHOOSE
+// 🃏 CHOOSE CARD
 // =========================
 window.choose = function (player, value) {
   if (!roomCode || locked) return;
@@ -157,15 +153,13 @@ window.choose = function (player, value) {
   clickSound.play().catch(() => {});
 
   const path =
-    player === 1
-      ? "player1Choice"
-      : "player2Choice";
+    player === 1 ? "player1Choice" : "player2Choice";
 
   update(ref(db, "rooms/" + roomCode), {
     [path]: value
   });
 
-  // mostra retro subito
+  // UI locale
   if (player === 1) {
     document.getElementById("cardP1").innerHTML =
       '<img src="retro-carta.webp">';
@@ -176,7 +170,7 @@ window.choose = function (player, value) {
 };
 
 // =========================
-// 🎴 REVEAL ONLINE
+// 🎴 REVEAL
 // =========================
 function revealOnline(data) {
   locked = true;
@@ -195,10 +189,12 @@ function revealOnline(data) {
     if (c1 > c2) {
       score1++;
       document.getElementById("result").innerText = "Player 1 vince!";
-    } else if (c2 > c1) {
+    } 
+    else if (c2 > c1) {
       score2++;
       document.getElementById("result").innerText = "Player 2 vince!";
-    } else {
+    } 
+    else {
       document.getElementById("result").innerText = "Pareggio!";
       drawSound.play().catch(() => {});
     }
@@ -217,7 +213,7 @@ function revealOnline(data) {
 }
 
 // =========================
-// 🔄 RESET LOCAL ROUND
+// 🔄 NEXT ROUND
 // =========================
 window.nextRound = function () {
   document.getElementById("cardP1").innerHTML = "";
@@ -233,9 +229,6 @@ window.restartGame = function () {
   score2 = 0;
   round = 1;
   locked = false;
-
-  choice1 = null;
-  choice2 = null;
 
   document.getElementById("overlay").classList.add("hidden");
 };
