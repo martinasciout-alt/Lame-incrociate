@@ -33,6 +33,12 @@
     <div id="status">
       <button onclick="startMusic()">🔊 Attiva musica</button>
 
+     <div>
+  <input id="roomInput" placeholder="Codice stanza (es. AB12)">
+  <button onclick="createRoom(roomInput.value)">Crea stanza</button>
+  <button onclick="joinRoom(roomInput.value)">Entra stanza</button>
+</div>
+
       <p>Stanza: <span id="roomCode">---</span></p>
       <p>Turno: <span id="round">1</span> / 3</p>
 
