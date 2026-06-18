@@ -80,7 +80,14 @@ document.addEventListener("click", function firstMusic() {
 });
 
 // =========================
-// 🏠 ROOM CREATE / JOIN
+// 🏠 ROOM UI
+// =========================
+function updateRoomUI() {
+  document.getElementById("roomCode").innerText = roomCode || "---";
+}
+
+// =========================
+// 🏠 CREATE ROOM
 // =========================
 window.createRoom = function (code) {
   roomCode = code;
@@ -94,18 +101,23 @@ window.createRoom = function (code) {
     round: 1
   });
 
-  listenRoom();
-};
-
-window.joinRoom = function (code) {
-  roomCode = code;
-  playerNumber = 2;
-
+  updateRoomUI();
   listenRoom();
 };
 
 // =========================
-// 👂 LISTENER FIREBASE
+// 🏠 JOIN ROOM
+// =========================
+window.joinRoom = function (code) {
+  roomCode = code;
+  playerNumber = 2;
+
+  updateRoomUI();
+  listenRoom();
+};
+
+// =========================
+// 👂 FIREBASE LISTENER
 // =========================
 function listenRoom() {
   const roomRef = ref(db, "rooms/" + roomCode);
@@ -122,7 +134,7 @@ function listenRoom() {
     document.getElementById("score2").innerText = score2;
     document.getElementById("round").innerText = round;
 
-    // retro carte mentre si aspetta
+    // mostra retro carte mentre si gioca
     if (data.player1Choice) {
       document.getElementById("cardP1").innerHTML =
         '<img src="retro-carta.webp">';
@@ -156,7 +168,7 @@ window.choose = function (player, value) {
     [path]: value
   });
 
-  // UI locale immediata (retro carta)
+  // UI locale (retro carta)
   if (player === 1) {
     document.getElementById("cardP1").innerHTML =
       '<img src="retro-carta.webp">';
@@ -188,10 +200,14 @@ function revealOnline(data) {
     if (c1 > c2) {
       score1++;
       result.innerText = "Player 1 vince!";
-    } else if (c2 > c1) {
+      winSound.play().catch(() => {});
+    } 
+    else if (c2 > c1) {
       score2++;
       result.innerText = "Player 2 vince!";
-    } else {
+      winSound.play().catch(() => {});
+    } 
+    else {
       result.innerText = "Pareggio!";
       drawSound.play().catch(() => {});
     }
@@ -219,7 +235,7 @@ window.nextRound = function () {
 };
 
 // =========================
-// 🔁 RESTART
+// 🔁 RESTART GAME
 // =========================
 window.restartGame = function () {
   score1 = 0;
@@ -231,4 +247,5 @@ window.restartGame = function () {
   playerNumber = null;
 
   document.getElementById("overlay").classList.add("hidden");
+  document.getElementById("roomCode").innerText = "---";
 };
