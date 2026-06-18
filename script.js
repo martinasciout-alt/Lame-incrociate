@@ -175,3 +175,21 @@ window.restartGame = function () {
   playerNumber = null;
   roomData = null;
 };
+
+const bgMusic = new Audio("sottofondo.mp3");
+bgMusic.loop = true;
+bgMusic.volume = 0.4;
+
+let musicStarted = false;
+
+window.startMusic = async function () {
+  if (musicStarted) return;
+
+  try {
+    await bgMusic.play();
+    musicStarted = true;
+    console.log("🎵 Musica avviata");
+  } catch (e) {
+    console.log("❌ Musica bloccata:", e);
+  }
+};
