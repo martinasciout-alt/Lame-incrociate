@@ -146,7 +146,7 @@ function listenRoom() {
 // =========================
 // 🃏 CHOOSE (IMPORTANTISSIMO)
 // =========================
-window.choose = function (player, value) {
+function choose(player, value) {
   if (!roomCode || locked) return;
 
   clickSound.currentTime = 0;
@@ -234,3 +234,10 @@ window.restartGame = function () {
 
   document.getElementById("overlay").classList.add("hidden");
 };
+
+window.choose = choose;
+window.createRoom = createRoom;
+window.joinRoom = joinRoom;
+window.nextRound = nextRound;
+window.restartGame = restartGame;
+window.startMusic = startMusic;
