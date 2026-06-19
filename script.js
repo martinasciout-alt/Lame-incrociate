@@ -19,11 +19,20 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+
+// =========================
 // AUDIO
+// =========================
 const clickSound = new Audio("carta.wav");
 const victorySound = new Audio("vittoria.mp3");
 const drawSound = new Audio("pareggio.mp3");
 const countdownSound = new Audio("countdown.mp3");
+
+const bgMusic = new Audio("sottofondo.mp3");
+bgMusic.loop = true;
+bgMusic.volume = 0.4;
+
+let musicStarted = false;
 
 // =========================
 // STATE
@@ -33,6 +42,21 @@ let playerNumber = null;
 let roomData = null;
 
 let revealLock = false;
+
+// =========================
+// MUSIC
+// =========================
+window.startMusic = async function () {
+  if (musicStarted) return;
+
+  try {
+    await bgMusic.play();
+    musicStarted = true;
+  } catch (e) {
+    console.log(e);
+  }
+};
+
 // =========================
 // ROOM
 // =========================
@@ -62,20 +86,16 @@ window.joinRoom = function (code) {
 };
 
 // =========================
-// HAND (PRIVATA PER PLAYER)
+// HAND
 // =========================
 function renderHand() {
   const hand = document.getElementById("hand");
-
   hand.innerHTML = "";
 
   for (let i = 1; i <= 5; i++) {
     const btn = document.createElement("button");
-
     btn.innerHTML = `<img src="carta-${i}.webp">`;
-
     btn.onclick = () => choose(i);
-
     hand.appendChild(btn);
   }
 }
@@ -95,24 +115,22 @@ function listenRoom() {
     document.getElementById("score1").innerText = data.score1;
     document.getElementById("score2").innerText = data.score2;
     document.getElementById("round").innerText = data.round;
-
     document.getElementById("roomCode").innerText = roomCode;
 
     // COPERTE
-    if (data.player1Choice) {
-      document.getElementById("cardP1").innerHTML = `<img src="retro-carta.webp">`;
-    } else {
-      document.getElementById("cardP1").innerHTML = "";
-    }
+    document.getElementById("cardP1").innerHTML =
+      data.player1Choice ? `<img src="retro-carta.webp">` : "";
 
-    if (data.player2Choice) {
-      document.getElementById("cardP2").innerHTML = `<img src="retro-carta.webp">`;
-    } else {
-      document.getElementById("cardP2").innerHTML = "";
-    }
+    document.getElementById("cardP2").innerHTML =
+      data.player2Choice ? `<img src="retro-carta.webp">` : "";
 
-    // REVEAL
-    if (data.player1Choice && data.player2Choice && !data.locked) {
+    // REVEAL SAFE
+    if (
+      data.player1Choice &&
+      data.player2Choice &&
+      !data.locked &&
+      !revealLock
+    ) {
       reveal(data);
     }
   });
@@ -124,9 +142,8 @@ function listenRoom() {
 window.choose = function (value) {
   if (!roomData || roomData.locked) return;
 
-  // 🔊 suono carta
   clickSound.currentTime = 0;
-  clickSound.play().catch(err => console.log(err));
+  clickSound.play().catch(() => {});
 
   const path =
     playerNumber === 1 ? "player1Choice" : "player2Choice";
@@ -137,26 +154,23 @@ window.choose = function (value) {
 };
 
 // =========================
-// REVEAL (STABILE)
+// REVEAL STABILE
 // =========================
-
 function reveal(data) {
 
-  if (revealLock) return;
   revealLock = true;
 
   update(ref(db, "rooms/" + roomCode), {
     locked: true
   });
 
-  // COUNTDOWN SOUND
+  // COUNTDOWN
   countdownSound.currentTime = 0;
   countdownSound.play().catch(() => {});
 
   const countdown = document.getElementById("countdown");
 
   countdown.innerText = "3";
-
   setTimeout(() => countdown.innerText = "2", 1000);
   setTimeout(() => countdown.innerText = "1", 2000);
 
@@ -178,22 +192,16 @@ function reveal(data) {
 
     const result = document.getElementById("result");
 
-    // WIN LOGIC
     if (c1 > c2) {
       s1++;
       result.innerText = "Player 1 vince!";
-      victorySound.currentTime = 0;
       victorySound.play().catch(() => {});
-    }
-    else if (c2 > c1) {
+    } else if (c2 > c1) {
       s2++;
       result.innerText = "Player 2 vince!";
-      victorySound.currentTime = 0;
       victorySound.play().catch(() => {});
-    }
-    else {
+    } else {
       result.innerText = "Pareggio!";
-      drawSound.currentTime = 0;
       drawSound.play().catch(() => {});
     }
 
@@ -206,26 +214,18 @@ function reveal(data) {
       locked: false
     });
 
-    // 🔥 MOSTRA CARTE PER 2 SECONDI PRIMA DI RESET
+    // RESET VISIVO
     setTimeout(() => {
-
       document.getElementById("cardP1").innerHTML = "";
       document.getElementById("cardP2").innerHTML = "";
       document.getElementById("result").innerText = "";
 
-      revealLock = false;
-
-      // FINE PARTITA (3 ROUND)
-      if (data.round + 1 > 3) {
-
-        document.getElementById("result").innerText =
-          s1 === s2 ? "PARTITA FINITA: PAREGGIO"
-          : s1 > s2 ? "PARTITA FINITA: PLAYER 1 VINCE"
-          : "PARTITA FINITA: PLAYER 2 VINCE";
-
-      }
-
     }, 2000);
+
+    // RESET LOCK SICURO
+    setTimeout(() => {
+      revealLock = false;
+    }, 2100);
 
   }, 3000);
 }
@@ -237,22 +237,4 @@ window.restartGame = function () {
   roomCode = null;
   playerNumber = null;
   roomData = null;
-};
-
-const bgMusic = new Audio("sottofondo.mp3");
-bgMusic.loop = true;
-bgMusic.volume = 0.4;
-
-let musicStarted = false;
-
-window.startMusic = async function () {
-  if (musicStarted) return;
-
-  try {
-    await bgMusic.play();
-    musicStarted = true;
-    console.log("🎵 Musica avviata");
-  } catch (e) {
-    console.log("❌ Musica bloccata:", e);
-  }
 };
