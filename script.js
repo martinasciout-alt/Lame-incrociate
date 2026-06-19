@@ -44,7 +44,7 @@ let roomData = null;
 let revealLock = false;
 
 // =========================
-// MUSIC
+// MUSIC START
 // =========================
 window.startMusic = async function () {
   if (musicStarted) return;
@@ -55,6 +55,13 @@ window.startMusic = async function () {
   } catch (e) {
     console.log(e);
   }
+};
+
+// 👉 NUOVO: STOP MUSICA (IMPORTANTISSIMO)
+window.stopMusic = function () {
+  bgMusic.pause();
+  bgMusic.currentTime = 0;
+  musicStarted = false;
 };
 
 // =========================
@@ -117,14 +124,14 @@ function listenRoom() {
     document.getElementById("round").innerText = data.round;
     document.getElementById("roomCode").innerText = roomCode;
 
-    // COPERTE
+    // 🧠 SEMPRE COERENTE
     document.getElementById("cardP1").innerHTML =
       data.player1Choice ? `<img src="retro-carta.webp">` : "";
 
     document.getElementById("cardP2").innerHTML =
       data.player2Choice ? `<img src="retro-carta.webp">` : "";
 
-    // REVEAL SAFE
+    // 🔥 SAFE REVEAL (NO BUG MULTI DEVICE)
     if (
       data.player1Choice &&
       data.player2Choice &&
@@ -164,7 +171,7 @@ function reveal(data) {
     locked: true
   });
 
-  // COUNTDOWN
+  // 🔊 countdown
   countdownSound.currentTime = 0;
   countdownSound.play().catch(() => {});
 
@@ -195,13 +202,18 @@ function reveal(data) {
     if (c1 > c2) {
       s1++;
       result.innerText = "Player 1 vince!";
+      victorySound.currentTime = 0;
       victorySound.play().catch(() => {});
-    } else if (c2 > c1) {
+    } 
+    else if (c2 > c1) {
       s2++;
       result.innerText = "Player 2 vince!";
+      victorySound.currentTime = 0;
       victorySound.play().catch(() => {});
-    } else {
+    } 
+    else {
       result.innerText = "Pareggio!";
+      drawSound.currentTime = 0;
       drawSound.play().catch(() => {});
     }
 
@@ -219,10 +231,9 @@ function reveal(data) {
       document.getElementById("cardP1").innerHTML = "";
       document.getElementById("cardP2").innerHTML = "";
       document.getElementById("result").innerText = "";
-
     }, 2000);
 
-    // RESET LOCK SICURO
+    // UNLOCK
     setTimeout(() => {
       revealLock = false;
     }, 2100);
@@ -234,6 +245,8 @@ function reveal(data) {
 // RESET
 // =========================
 window.restartGame = function () {
+  stopMusic(); // 🔥 importante
+
   roomCode = null;
   playerNumber = null;
   roomData = null;
