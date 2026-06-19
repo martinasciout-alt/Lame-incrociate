@@ -32,8 +32,6 @@ const bgMusic = new Audio("sottofondo.mp3");
 bgMusic.loop = true;
 bgMusic.volume = 0.4;
 
-let musicStarted = false;
-
 // =========================
 // STATE
 // =========================
@@ -42,30 +40,22 @@ let playerNumber = null;
 let roomData = null;
 
 let revealLock = false;
-
-const MAX_ROUNDS = 3;
 let gameEnded = false;
 
+const MAX_ROUNDS = 3;
+
 // =========================
-// MUSIC FIX (STOP / TAB)
+// MUSIC
 // =========================
 window.startMusic = async function () {
-  if (musicStarted) return;
-
   try {
     await bgMusic.play();
-    musicStarted = true;
-  } catch (e) {
-    console.log(e);
-  }
+  } catch {}
 };
 
 document.addEventListener("visibilitychange", () => {
-  if (document.hidden) {
-    bgMusic.pause();
-  } else if (musicStarted) {
-    bgMusic.play().catch(() => {});
-  }
+  if (document.hidden) bgMusic.pause();
+  else bgMusic.play().catch(() => {});
 });
 
 // =========================
@@ -81,7 +71,8 @@ window.createRoom = function (code) {
     score1: 0,
     score2: 0,
     round: 1,
-    locked: false
+    locked: false,
+    revealId: 0
   });
 
   listenRoom();
@@ -114,7 +105,7 @@ function renderHand() {
 }
 
 // =========================
-// LISTENER
+// LISTENER (ANTI DESYNC FIX)
 // =========================
 function listenRoom() {
   const roomRef = ref(db, "rooms/" + roomCode);
@@ -140,7 +131,6 @@ function listenRoom() {
       data.player1Choice &&
       data.player2Choice &&
       !data.locked &&
-      !revealLock &&
       !gameEnded
     ) {
       reveal(data);
@@ -157,8 +147,7 @@ window.choose = function (value) {
   clickSound.currentTime = 0;
   clickSound.play().catch(() => {});
 
-  const path =
-    playerNumber === 1 ? "player1Choice" : "player2Choice";
+  const path = playerNumber === 1 ? "player1Choice" : "player2Choice";
 
   update(ref(db, "rooms/" + roomCode), {
     [path]: value
@@ -166,27 +155,23 @@ window.choose = function (value) {
 };
 
 // =========================
-// REVEAL
+// REVEAL (FIX DESYNC + MULTI CALL BLOCK)
 // =========================
 function reveal(data) {
-  if (revealLock || gameEnded) return;
+  if (revealLock) return;
   revealLock = true;
 
+  const revealId = (data.revealId || 0) + 1;
+
   update(ref(db, "rooms/" + roomCode), {
-    locked: true
+    locked: true,
+    revealId
   });
 
   countdownSound.currentTime = 0;
   countdownSound.play().catch(() => {});
 
-  const countdown = document.getElementById("countdown");
-
-  countdown.innerText = "3";
-  setTimeout(() => countdown.innerText = "2", 1000);
-  setTimeout(() => countdown.innerText = "1", 2000);
-
   setTimeout(() => {
-
     const c1 = data.player1Choice;
     const c2 = data.player2Choice;
 
@@ -226,14 +211,13 @@ function reveal(data) {
     });
 
     setTimeout(() => {
-
       document.getElementById("cardP1").innerHTML = "";
       document.getElementById("cardP2").innerHTML = "";
       document.getElementById("result").innerText = "";
 
       revealLock = false;
 
-      // 🔥 FINE PARTITA
+      // END GAME
       if (nextRound > MAX_ROUNDS) {
         endGame(s1, s2);
       }
@@ -244,7 +228,7 @@ function reveal(data) {
 }
 
 // =========================
-// END GAME
+// END GAME FIX
 // =========================
 function endGame(s1, s2) {
   gameEnded = true;
@@ -259,9 +243,7 @@ function endGame(s1, s2) {
       s1 > s2 ? "🏆 HAI VINTO!" :
       s1 < s2 ? "💀 HAI PERSO!" :
       "🤝 PAREGGIO!";
-  }
-
-  if (playerNumber === 2) {
+  } else {
     finalText.innerText =
       s2 > s1 ? "🏆 HAI VINTO!" :
       s2 < s1 ? "💀 HAI PERSO!" :
@@ -272,33 +254,29 @@ function endGame(s1, s2) {
 }
 
 // =========================
-// RESET
+// RESTART FIX (IMPORTANT)
 // =========================
- window.restartGame = function () {
+window.restartGame = function () {
+
   if (!roomCode) return;
 
-  // reset stato partita nel database
   update(ref(db, "rooms/" + roomCode), {
     player1Choice: null,
     player2Choice: null,
     score1: 0,
     score2: 0,
     round: 1,
-    locked: false
+    locked: false,
+    revealId: 0
   });
 
-  // reset variabili locali
   roomData = null;
   revealLock = false;
   gameEnded = false;
 
-  // reset UI
   document.getElementById("overlay").classList.add("hidden");
   document.getElementById("result").innerText = "";
   document.getElementById("cardP1").innerHTML = "";
   document.getElementById("cardP2").innerHTML = "";
   document.getElementById("countdown").innerText = "In attesa...";
-
-  // rigenera mano
-  renderHand();
 };
