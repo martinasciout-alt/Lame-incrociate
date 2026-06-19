@@ -1,16 +1,16 @@
- <!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Gioco Della Lama Alta</title>
 
-<link rel="icon" href="favicon.ico">
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-<link rel="manifest" href="site.webmanifest">
- 
+  <link rel="icon" href="favicon.ico">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
+
   <link href="https://fonts.cdnfonts.com/css/pieces-of-eight" rel="stylesheet">
   <link rel="stylesheet" href="style.css">
 </head>
@@ -25,26 +25,26 @@
     </div>
   </div>
 
-<!-- SCHERMATA INIZIALE REGOLE -->
-<div id="startScreen" class="start-screen">
+  <!-- START SCREEN -->
+  <div id="startScreen" class="start-screen">
 
-  <div class="rules-box">
-    <h2> Regole del gioco</h2>
+    <div class="rules-box">
+      <h2>Regole del gioco</h2>
 
-    <ul>
-     <li>Per giocare bisogna o creare una stanza o entrarci attraverso il codice</li>
-      <li>Ogni giocatore sceglie una carta (1–5)</li>
-      <li>La carta più alta vince il round</li>
-      <li>Si gioca fino a 3 round</li>
-      <li>In caso di pareggio entrambi perdono</li>
-    </ul>
+      <ul>
+        <li>Per giocare bisogna creare o entrare in una stanza</li>
+        <li>Ogni giocatore sceglie una carta (1–5)</li>
+        <li>La carta più alta vince il round</li>
+        <li>Si gioca fino a 3 round</li>
+        <li>In caso di pareggio entrambi ricevono ❌</li>
+      </ul>
 
-    <button onclick="enterGame()">ENTRA NEL GIOCO</button>
+      <button onclick="enterGame()">ENTRA NEL GIOCO</button>
+    </div>
+
   </div>
 
-</div>
- 
-<div id="game" style="display:none;">
+  <div id="game" style="display:none;">
 
     <h1>Il Gioco della Lama Alta</h1>
 
@@ -58,8 +58,11 @@
 
       <p>
         Punteggio →
-        Player 1: <span id="score1">0</span> |
+        Player 1: <span id="score1">0</span>
+        <span id="marks1"></span>
+        |
         Player 2: <span id="score2">0</span>
+        <span id="marks2"></span>
       </p>
 
     </div>
@@ -90,9 +93,7 @@
 
       <div class="player">
         <h2>La tua mano</h2>
-
         <div class="cards" id="hand"></div>
-
       </div>
 
     </div>
