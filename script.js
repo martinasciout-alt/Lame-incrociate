@@ -75,8 +75,7 @@ window.createRoom = function (code) {
     score1: 0,
     score2: 0,
     round: 1,
-    locked: false,
-    revealId: 0
+    locked: false
   });
 
   listenRoom();
@@ -109,7 +108,7 @@ function renderHand() {
 }
 
 // =========================
-// LISTENER (ANTI DESYNC FIX)
+// LISTENER (FIX ANTI DESYNC)
 // =========================
 function listenRoom() {
   const roomRef = ref(db, "rooms/" + roomCode);
@@ -134,7 +133,7 @@ function listenRoom() {
     if (
       data.player1Choice &&
       data.player2Choice &&
-      !data.locked &&
+      data.locked === false &&
       !gameEnded
     ) {
       reveal(data);
@@ -159,23 +158,29 @@ window.choose = function (value) {
 };
 
 // =========================
-// REVEAL (FIX DESYNC + MULTI CALL BLOCK)
+// REVEAL (STABILE + 5s CARDS)
 // =========================
 function reveal(data) {
   if (revealLock) return;
   revealLock = true;
 
-  const revealId = (data.revealId || 0) + 1;
-
   update(ref(db, "rooms/" + roomCode), {
-    locked: true,
-    revealId
+    locked: true
   });
+
+  const countdown = document.getElementById("countdown");
 
   countdownSound.currentTime = 0;
   countdownSound.play().catch(() => {});
 
+  countdown.innerText = "3";
+  setTimeout(() => countdown.innerText = "2", 1000);
+  setTimeout(() => countdown.innerText = "1", 2000);
+
   setTimeout(() => {
+
+    countdown.innerText = "";
+
     const c1 = data.player1Choice;
     const c2 = data.player2Choice;
 
@@ -214,25 +219,26 @@ function reveal(data) {
       locked: false
     });
 
+    // 🔥 CARTE VISIBILI 5 SECONDI
     setTimeout(() => {
+
       document.getElementById("cardP1").innerHTML = "";
       document.getElementById("cardP2").innerHTML = "";
       document.getElementById("result").innerText = "";
 
       revealLock = false;
 
-      // END GAME
       if (nextRound > MAX_ROUNDS) {
         endGame(s1, s2);
       }
 
     }, 5000);
 
-  }, 0);
+  }, 3000);
 }
 
 // =========================
-// END GAME FIX
+// END GAME
 // =========================
 function endGame(s1, s2) {
   gameEnded = true;
@@ -258,10 +264,9 @@ function endGame(s1, s2) {
 }
 
 // =========================
-// RESTART FIX (IMPORTANT)
+// RESTART
 // =========================
 window.restartGame = function () {
-
   if (!roomCode) return;
 
   update(ref(db, "rooms/" + roomCode), {
@@ -270,8 +275,7 @@ window.restartGame = function () {
     score1: 0,
     score2: 0,
     round: 1,
-    locked: false,
-    revealId: 0
+    locked: false
   });
 
   roomData = null;
@@ -283,4 +287,6 @@ window.restartGame = function () {
   document.getElementById("cardP1").innerHTML = "";
   document.getElementById("cardP2").innerHTML = "";
   document.getElementById("countdown").innerText = "In attesa...";
+
+  renderHand();
 };
