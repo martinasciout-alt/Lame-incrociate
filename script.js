@@ -58,6 +58,10 @@ document.addEventListener("visibilitychange", () => {
   else bgMusic.play().catch(() => {});
 });
 
+window.enterGame = function () {
+  document.getElementById("startScreen").style.display = "none";
+};
+
 // =========================
 // ROOM
 // =========================
