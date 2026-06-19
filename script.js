@@ -27,6 +27,8 @@ const clickSound = new Audio("carta.wav");
 const victorySound = new Audio("vittoria.mp3");
 const drawSound = new Audio("pareggio.mp3");
 const countdownSound = new Audio("countdown.mp3");
+const winFinalSound = new Audio("finale.wav");
+const loseFinalSound = new Audio("sconfitta.mp3");
 
 const bgMusic = new Audio("sottofondo.mp3");
 bgMusic.loop = true;
@@ -282,6 +284,17 @@ function endGame(s1, s2) {
       s2 < s1 ? "💀 HAI PERSO!" :
       "🤝 PAREGGIO!";
   }
+
+    if (s1 === s2) {
+    // pareggio → puoi scegliere se usare uno dei due o nessuno
+  } else if (isWin) {
+    winFinalSound.currentTime = 0;
+    winFinalSound.play().catch(() => {});
+  } else {
+    loseFinalSound.currentTime = 0;
+    loseFinalSound.play().catch(() => {});
+  }
+
 
   bgMusic.pause();
 }
