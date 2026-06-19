@@ -28,7 +28,7 @@ const victorySound = new Audio("vittoria.mp3");
 const drawSound = new Audio("pareggio.mp3");
 const countdownSound = new Audio("countdown.mp3");
 const winFinalSound = new Audio("finale.wav");
-const loseFinalSound = new Audio("sconfitta.mp3");
+const loseFinalSound = new Audio("sconfitta (2).mp3");
 
 const bgMusic = new Audio("sottofondo.mp3");
 bgMusic.loop = true;
