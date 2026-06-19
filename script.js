@@ -21,6 +21,9 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 // AUDIO
 const clickSound = new Audio("carta.wav");
+const victorySound = new Audio("vittoria.mp3");
+const drawSound = new Audio("pareggio.mp3");
+const countdownSound = new Audio("countdown.mp3");
 
 // =========================
 // STATE
@@ -141,7 +144,25 @@ function reveal(data) {
     locked: true
   });
 
+  // AUDIO COUNTDOWN
+  countdownSound.currentTime = 0;
+  countdownSound.play().catch(() => {});
+
+  const countdown = document.getElementById("countdown");
+
+  countdown.innerText = "3";
+
   setTimeout(() => {
+    countdown.innerText = "2";
+  }, 1000);
+
+  setTimeout(() => {
+    countdown.innerText = "1";
+  }, 2000);
+
+  setTimeout(() => {
+
+    countdown.innerText = "";
 
     const c1 = data.player1Choice;
     const c2 = data.player2Choice;
@@ -155,11 +176,34 @@ function reveal(data) {
     let s1 = data.score1;
     let s2 = data.score2;
 
-    if (c1 > c2) s1++;
-    else if (c2 > c1) s2++;
+    const result = document.getElementById("result");
 
-    document.getElementById("result").innerText =
-      c1 === c2 ? "Pareggio!" : (c1 > c2 ? "Player 1 vince!" : "Player 2 vince!");
+    if (c1 > c2) {
+
+      s1++;
+      result.innerText = "Player 1 vince!";
+
+      victorySound.currentTime = 0;
+      victorySound.play().catch(() => {});
+
+    }
+    else if (c2 > c1) {
+
+      s2++;
+      result.innerText = "Player 2 vince!";
+
+      victorySound.currentTime = 0;
+      victorySound.play().catch(() => {});
+
+    }
+    else {
+
+      result.innerText = "Pareggio!";
+
+      drawSound.currentTime = 0;
+      drawSound.play().catch(() => {});
+
+    }
 
     update(ref(db, "rooms/" + roomCode), {
       score1: s1,
@@ -170,8 +214,10 @@ function reveal(data) {
       locked: false
     });
 
-  }, 1200);
+  }, 3000);
+
 }
+
 
 // =========================
 // RESET
