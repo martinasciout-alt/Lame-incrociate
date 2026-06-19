@@ -274,13 +274,31 @@ function endGame(s1, s2) {
 // =========================
 // RESET
 // =========================
-window.restartGame = function () {
-  roomCode = null;
-  playerNumber = null;
-  roomData = null;
+ window.restartGame = function () {
+  if (!roomCode) return;
 
+  // reset stato partita nel database
+  update(ref(db, "rooms/" + roomCode), {
+    player1Choice: null,
+    player2Choice: null,
+    score1: 0,
+    score2: 0,
+    round: 1,
+    locked: false
+  });
+
+  // reset variabili locali
+  roomData = null;
   revealLock = false;
   gameEnded = false;
 
-  bgMusic.pause();
+  // reset UI
+  document.getElementById("overlay").classList.add("hidden");
+  document.getElementById("result").innerText = "";
+  document.getElementById("cardP1").innerHTML = "";
+  document.getElementById("cardP2").innerHTML = "";
+  document.getElementById("countdown").innerText = "In attesa...";
+
+  // rigenera mano
+  renderHand();
 };
