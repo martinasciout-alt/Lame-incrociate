@@ -61,7 +61,7 @@ document.addEventListener("visibilitychange", () => {
 });
 
 // =========================
-// START SCREEN
+// START GAME
 // =========================
 window.enterGame = function () {
   document.getElementById("startScreen").style.display = "none";
@@ -133,14 +133,9 @@ function listenRoom() {
     document.getElementById("round").innerText = data.round;
     document.getElementById("roomCode").innerText = roomCode;
 
-    // ❌ MARKS
-    document.getElementById("marks1").innerHTML =
-      (data.p1Marks || []).join(" ");
+    document.getElementById("marks1").innerHTML = (data.p1Marks || []).join(" ");
+    document.getElementById("marks2").innerHTML = (data.p2Marks || []).join(" ");
 
-    document.getElementById("marks2").innerHTML =
-      (data.p2Marks || []).join(" ");
-
-    // COPERTE
     document.getElementById("cardP1").innerHTML =
       data.player1Choice ? `<img src="retro-carta.webp">` : "";
 
@@ -182,18 +177,13 @@ function reveal(data) {
   if (revealLock) return;
   revealLock = true;
 
-  update(ref(db, "rooms/" + roomCode), {
-    locked: true
-  });
+  update(ref(db, "rooms/" + roomCode), { locked: true });
 
   const c1 = data.player1Choice;
   const c2 = data.player2Choice;
 
-  document.getElementById("cardP1").innerHTML =
-    `<img src="carta-${c1}.webp">`;
-
-  document.getElementById("cardP2").innerHTML =
-    `<img src="carta-${c2}.webp">`;
+  document.getElementById("cardP1").innerHTML = `<img src="carta-${c1}.webp">`;
+  document.getElementById("cardP2").innerHTML = `<img src="carta-${c2}.webp">`;
 
   const countdown = document.getElementById("countdown");
   countdownSound.currentTime = 0;
@@ -215,16 +205,21 @@ function reveal(data) {
 
     const result = document.getElementById("result");
 
+    let p1Wins = false;
+    let p2Wins = false;
+
     if (c1 > c2) {
       s1++;
       p2Marks.push("❌");
       result.innerText = "Player 1 vince!";
       victorySound.play().catch(() => {});
+      p1Wins = true;
     } else if (c2 > c1) {
       s2++;
       p1Marks.push("❌");
       result.innerText = "Player 2 vince!";
       victorySound.play().catch(() => {});
+      p2Wins = true;
     } else {
       p1Marks.push("❌");
       p2Marks.push("❌");
@@ -263,7 +258,7 @@ function reveal(data) {
 }
 
 // =========================
-// END GAME
+// END GAME (FIX AUDIO)
 // =========================
 function endGame(s1, s2) {
   gameEnded = true;
@@ -273,34 +268,37 @@ function endGame(s1, s2) {
 
   overlay.classList.remove("hidden");
 
+  let win = false;
+
   if (playerNumber === 1) {
+    win = s1 > s2;
     finalText.innerText =
       s1 > s2 ? "🏆 HAI VINTO!" :
       s1 < s2 ? "💀 HAI PERSO!" :
       "🤝 PAREGGIO!";
   } else {
+    win = s2 > s1;
     finalText.innerText =
       s2 > s1 ? "🏆 HAI VINTO!" :
       s2 < s1 ? "💀 HAI PERSO!" :
       "🤝 PAREGGIO!";
   }
 
-    if (s1 === s2) {
-    // pareggio → puoi scegliere se usare uno dei due o nessuno
-  } else if (isWin) {
+  bgMusic.pause();
+
+  if (s1 === s2) {
+    drawSound.play().catch(() => {});
+  } else if (win) {
     winFinalSound.currentTime = 0;
     winFinalSound.play().catch(() => {});
   } else {
     loseFinalSound.currentTime = 0;
     loseFinalSound.play().catch(() => {});
   }
-
-
-  bgMusic.pause();
 }
 
 // =========================
-// RESTART
+// RESTART (FIX DEFINITIVO)
 // =========================
 window.restartGame = function () {
 
