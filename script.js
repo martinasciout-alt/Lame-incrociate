@@ -1,4 +1,4 @@
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
   getDatabase,
   ref,
@@ -104,8 +104,6 @@ window.joinRoom = function (code) {
 // =========================
 function renderHand() {
   const hand = document.getElementById("hand");
-  if (!hand) return;
-
   hand.innerHTML = "";
 
   for (let i = 1; i <= 5; i++) {
@@ -171,7 +169,7 @@ window.choose = function (value) {
 };
 
 // =========================
-// REVEAL
+// REVEAL (FIX ROUND BUG)
 // =========================
 function reveal(data) {
   if (revealLock) return;
@@ -203,38 +201,33 @@ function reveal(data) {
     let p1Marks = data.p1Marks || [];
     let p2Marks = data.p2Marks || [];
 
-    const result = document.getElementById("result");
-
-    let p1Wins = false;
-    let p2Wins = false;
+    let isWinP1 = false;
 
     if (c1 > c2) {
       s1++;
       p2Marks.push("❌");
-      result.innerText = "Player 1 vince!";
       victorySound.play().catch(() => {});
-      p1Wins = true;
+      isWinP1 = true;
     } else if (c2 > c1) {
       s2++;
       p1Marks.push("❌");
-      result.innerText = "Player 2 vince!";
       victorySound.play().catch(() => {});
-      p2Wins = true;
+      isWinP1 = false;
     } else {
       p1Marks.push("❌");
       p2Marks.push("❌");
-      result.innerText = "Pareggio!";
       drawSound.play().catch(() => {});
     }
 
     const nextRound = data.round + 1;
+    const isGameOver = nextRound > MAX_ROUNDS;
 
     update(ref(db, "rooms/" + roomCode), {
       score1: s1,
       score2: s2,
       player1Choice: null,
       player2Choice: null,
-      round: nextRound,
+      round: isGameOver ? MAX_ROUNDS : nextRound,
       locked: false,
       p1Marks,
       p2Marks
@@ -248,7 +241,7 @@ function reveal(data) {
 
       revealLock = false;
 
-      if (nextRound > MAX_ROUNDS) {
+      if (isGameOver) {
         endGame(s1, s2);
       }
 
@@ -298,7 +291,7 @@ function endGame(s1, s2) {
 }
 
 // =========================
-// RESTART (FIX DEFINITIVO)
+// RESTART
 // =========================
 window.restartGame = function () {
 
