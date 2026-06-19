@@ -290,3 +290,9 @@ window.restartGame = function () {
 
   renderHand();
 };
+
+window.enterGame = function () {
+  document.getElementById("startScreen").style.display = "none";
+  document.getElementById("game").style.display = "block";
+  startMusic();
+};
