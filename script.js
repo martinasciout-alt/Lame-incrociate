@@ -1,4 +1,4 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
   getDatabase,
   ref,
@@ -43,6 +43,9 @@ let roomData = null;
 
 let revealLock = false;
 let gameEnded = false;
+
+let revealInProgress = false;
+let lastProcessedRound = 0;
 
 const MAX_ROUNDS = 3;
 
@@ -115,7 +118,7 @@ function renderHand() {
 }
 
 // =========================
-// LISTENER
+// LISTENER (FIXED)
 // =========================
 function listenRoom() {
   const roomRef = ref(db, "rooms/" + roomCode);
@@ -134,19 +137,26 @@ function listenRoom() {
     document.getElementById("marks1").innerHTML = (data.p1Marks || []).join(" ");
     document.getElementById("marks2").innerHTML = (data.p2Marks || []).join(" ");
 
-    document.getElementById("cardP1").innerHTML =
-      data.player1Choice ? `<img src="retro-carta.webp">` : "";
+    // 🔥 UI immediata (zero lag percepito)
+    requestAnimationFrame(() => {
+      document.getElementById("cardP1").innerHTML =
+        data.player1Choice ? `<img src="retro-carta.webp">` : "";
 
-    document.getElementById("cardP2").innerHTML =
-      data.player2Choice ? `<img src="retro-carta.webp">` : "";
+      document.getElementById("cardP2").innerHTML =
+        data.player2Choice ? `<img src="retro-carta.webp">` : "";
+    });
 
+    // 🔥 trigger controllato (NO doppio reveal)
     if (
       data.player1Choice &&
       data.player2Choice &&
       !data.locked &&
-      !revealLock &&
-      !gameEnded
+      !gameEnded &&
+      !revealInProgress &&
+      data.round !== lastProcessedRound
     ) {
+      revealInProgress = true;
+      lastProcessedRound = data.round;
       reveal(data);
     }
   });
@@ -169,11 +179,13 @@ window.choose = function (value) {
 };
 
 // =========================
-// REVEAL (FIX ROUND BUG)
+// REVEAL (FIXED)
 // =========================
 function reveal(data) {
   if (revealLock) return;
+
   revealLock = true;
+  revealInProgress = true;
 
   update(ref(db, "rooms/" + roomCode), { locked: true });
 
@@ -201,33 +213,34 @@ function reveal(data) {
     let p1Marks = data.p1Marks || [];
     let p2Marks = data.p2Marks || [];
 
-    let isWinP1 = false;
+    let isGameOver = false;
+
+    if (data.round >= MAX_ROUNDS) {
+      isGameOver = true;
+    }
 
     if (c1 > c2) {
       s1++;
       p2Marks.push("❌");
       victorySound.play().catch(() => {});
-      isWinP1 = true;
     } else if (c2 > c1) {
       s2++;
       p1Marks.push("❌");
       victorySound.play().catch(() => {});
-      isWinP1 = false;
     } else {
       p1Marks.push("❌");
       p2Marks.push("❌");
       drawSound.play().catch(() => {});
     }
 
-    const nextRound = data.round + 1;
-    const isGameOver = nextRound > MAX_ROUNDS;
+    const nextRound = isGameOver ? data.round : data.round + 1;
 
     update(ref(db, "rooms/" + roomCode), {
       score1: s1,
       score2: s2,
       player1Choice: null,
       player2Choice: null,
-      round: isGameOver ? MAX_ROUNDS : nextRound,
+      round: nextRound,
       locked: false,
       p1Marks,
       p2Marks
@@ -240,6 +253,7 @@ function reveal(data) {
       document.getElementById("result").innerText = "";
 
       revealLock = false;
+      revealInProgress = false;
 
       if (isGameOver) {
         endGame(s1, s2);
@@ -251,7 +265,7 @@ function reveal(data) {
 }
 
 // =========================
-// END GAME (FIX AUDIO)
+// END GAME
 // =========================
 function endGame(s1, s2) {
   gameEnded = true;
@@ -311,6 +325,8 @@ window.restartGame = function () {
   roomData = null;
   revealLock = false;
   gameEnded = false;
+  revealInProgress = false;
+  lastProcessedRound = 0;
 
   document.getElementById("overlay").classList.add("hidden");
   document.getElementById("result").innerText = "";
