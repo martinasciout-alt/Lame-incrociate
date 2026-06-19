@@ -32,6 +32,7 @@ let roomCode = null;
 let playerNumber = null;
 let roomData = null;
 
+let revealLock = false;
 // =========================
 // ROOM
 // =========================
@@ -138,13 +139,17 @@ window.choose = function (value) {
 // =========================
 // REVEAL (STABILE)
 // =========================
+
 function reveal(data) {
+
+  if (revealLock) return;
+  revealLock = true;
 
   update(ref(db, "rooms/" + roomCode), {
     locked: true
   });
 
-  // AUDIO COUNTDOWN
+  // COUNTDOWN SOUND
   countdownSound.currentTime = 0;
   countdownSound.play().catch(() => {});
 
@@ -152,13 +157,8 @@ function reveal(data) {
 
   countdown.innerText = "3";
 
-  setTimeout(() => {
-    countdown.innerText = "2";
-  }, 1000);
-
-  setTimeout(() => {
-    countdown.innerText = "1";
-  }, 2000);
+  setTimeout(() => countdown.innerText = "2", 1000);
+  setTimeout(() => countdown.innerText = "1", 2000);
 
   setTimeout(() => {
 
@@ -178,31 +178,23 @@ function reveal(data) {
 
     const result = document.getElementById("result");
 
+    // WIN LOGIC
     if (c1 > c2) {
-
       s1++;
       result.innerText = "Player 1 vince!";
-
       victorySound.currentTime = 0;
       victorySound.play().catch(() => {});
-
     }
     else if (c2 > c1) {
-
       s2++;
       result.innerText = "Player 2 vince!";
-
       victorySound.currentTime = 0;
       victorySound.play().catch(() => {});
-
     }
     else {
-
       result.innerText = "Pareggio!";
-
       drawSound.currentTime = 0;
       drawSound.play().catch(() => {});
-
     }
 
     update(ref(db, "rooms/" + roomCode), {
@@ -214,10 +206,29 @@ function reveal(data) {
       locked: false
     });
 
+    // 🔥 MOSTRA CARTE PER 2 SECONDI PRIMA DI RESET
+    setTimeout(() => {
+
+      document.getElementById("cardP1").innerHTML = "";
+      document.getElementById("cardP2").innerHTML = "";
+      document.getElementById("result").innerText = "";
+
+      revealLock = false;
+
+      // FINE PARTITA (3 ROUND)
+      if (data.round + 1 > 3) {
+
+        document.getElementById("result").innerText =
+          s1 === s2 ? "PARTITA FINITA: PAREGGIO"
+          : s1 > s2 ? "PARTITA FINITA: PLAYER 1 VINCE"
+          : "PARTITA FINITA: PLAYER 2 VINCE";
+
+      }
+
+    }, 2000);
+
   }, 3000);
-
 }
-
 
 // =========================
 // RESET
