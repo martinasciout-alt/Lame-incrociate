@@ -351,3 +351,57 @@ button:hover {
   display: none !important;
   pointer-events: none;
 }
+/* =========================
+   START SCREEN REGOLE
+========================= */
+
+.start-screen {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 2000;
+}
+
+.rules-box {
+  width: 320px;
+  padding: 25px;
+
+  background: url("pergamena.jpg");
+  background-size: cover;
+  background-position: center;
+
+  border-radius: 12px;
+  border: 2px solid #c8a15a;
+
+  text-align: center;
+  color: #2b1b0e;
+  font-weight: bold;
+
+  box-shadow: 0 10px 25px rgba(0,0,0,0.4);
+}
+
+.rules-box h2 {
+  margin-bottom: 10px;
+}
+
+.rules-box ul {
+  list-style: none;
+  padding: 0;
+  margin-bottom: 15px;
+}
+
+.rules-box li {
+  margin: 5px 0;
+}
+
+.rules-box button {
+  padding: 10px 15px;
+  border: none;
+  border-radius: 8px;
+  background: #6d28d9;
+  color: white;
+  cursor: pointer;
+}
