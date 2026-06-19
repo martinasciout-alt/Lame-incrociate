@@ -19,6 +19,8 @@ const firebaseConfig = {
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
+// AUDIO
+const clickSound = new Audio("carta.wav");
 
 // =========================
 // STATE
@@ -117,6 +119,10 @@ function listenRoom() {
 // =========================
 window.choose = function (value) {
   if (!roomData || roomData.locked) return;
+
+  // 🔊 suono carta
+  clickSound.currentTime = 0;
+  clickSound.play().catch(err => console.log(err));
 
   const path =
     playerNumber === 1 ? "player1Choice" : "player2Choice";
