@@ -1,4 +1,4 @@
- import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
   getDatabase,
   ref,
@@ -11,7 +11,7 @@ import {
 // FIREBASE
 // =========================
 const firebaseConfig = {
-  apiKey: "AIzaSyBzdhurbAi48OoRyw6eKJ3HIkd1q87-43c",
+  apiKey: "AIzaSyBzdhurbAi48OoRyw6E3HIkd1q87-43c",
   authDomain: "gioco-della-lama-alta.firebaseapp.com",
   databaseURL: "https://gioco-della-lama-alta-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "gioco-della-lama-alta",
@@ -58,8 +58,13 @@ document.addEventListener("visibilitychange", () => {
   else bgMusic.play().catch(() => {});
 });
 
+// =========================
+// START SCREEN
+// =========================
 window.enterGame = function () {
   document.getElementById("startScreen").style.display = "none";
+  document.getElementById("game").style.display = "block";
+  startMusic();
 };
 
 // =========================
@@ -75,7 +80,9 @@ window.createRoom = function (code) {
     score1: 0,
     score2: 0,
     round: 1,
-    locked: false
+    locked: false,
+    p1Marks: [],
+    p2Marks: []
   });
 
   listenRoom();
@@ -108,7 +115,7 @@ function renderHand() {
 }
 
 // =========================
-// LISTENER (FIX ANTI DESYNC)
+// LISTENER
 // =========================
 function listenRoom() {
   const roomRef = ref(db, "rooms/" + roomCode);
@@ -124,6 +131,14 @@ function listenRoom() {
     document.getElementById("round").innerText = data.round;
     document.getElementById("roomCode").innerText = roomCode;
 
+    // ❌ MARKS
+    document.getElementById("marks1").innerHTML =
+      (data.p1Marks || []).join(" ");
+
+    document.getElementById("marks2").innerHTML =
+      (data.p2Marks || []).join(" ");
+
+    // COPERTE
     document.getElementById("cardP1").innerHTML =
       data.player1Choice ? `<img src="retro-carta.webp">` : "";
 
@@ -133,7 +148,8 @@ function listenRoom() {
     if (
       data.player1Choice &&
       data.player2Choice &&
-      data.locked === false &&
+      !data.locked &&
+      !revealLock &&
       !gameEnded
     ) {
       reveal(data);
@@ -158,7 +174,7 @@ window.choose = function (value) {
 };
 
 // =========================
-// REVEAL (STABILE + 5s CARDS)
+// REVEAL
 // =========================
 function reveal(data) {
   if (revealLock) return;
@@ -168,8 +184,16 @@ function reveal(data) {
     locked: true
   });
 
-  const countdown = document.getElementById("countdown");
+  const c1 = data.player1Choice;
+  const c2 = data.player2Choice;
 
+  document.getElementById("cardP1").innerHTML =
+    `<img src="carta-${c1}.webp">`;
+
+  document.getElementById("cardP2").innerHTML =
+    `<img src="carta-${c2}.webp">`;
+
+  const countdown = document.getElementById("countdown");
   countdownSound.currentTime = 0;
   countdownSound.play().catch(() => {});
 
@@ -181,29 +205,27 @@ function reveal(data) {
 
     countdown.innerText = "";
 
-    const c1 = data.player1Choice;
-    const c2 = data.player2Choice;
-
-    document.getElementById("cardP1").innerHTML =
-      `<img src="carta-${c1}.webp">`;
-
-    document.getElementById("cardP2").innerHTML =
-      `<img src="carta-${c2}.webp">`;
-
     let s1 = data.score1;
     let s2 = data.score2;
+
+    let p1Marks = data.p1Marks || [];
+    let p2Marks = data.p2Marks || [];
 
     const result = document.getElementById("result");
 
     if (c1 > c2) {
       s1++;
+      p2Marks.push("❌");
       result.innerText = "Player 1 vince!";
       victorySound.play().catch(() => {});
     } else if (c2 > c1) {
       s2++;
+      p1Marks.push("❌");
       result.innerText = "Player 2 vince!";
       victorySound.play().catch(() => {});
     } else {
+      p1Marks.push("❌");
+      p2Marks.push("❌");
       result.innerText = "Pareggio!";
       drawSound.play().catch(() => {});
     }
@@ -216,10 +238,11 @@ function reveal(data) {
       player1Choice: null,
       player2Choice: null,
       round: nextRound,
-      locked: false
+      locked: false,
+      p1Marks,
+      p2Marks
     });
 
-    // 🔥 CARTE VISIBILI 5 SECONDI
     setTimeout(() => {
 
       document.getElementById("cardP1").innerHTML = "";
@@ -267,6 +290,7 @@ function endGame(s1, s2) {
 // RESTART
 // =========================
 window.restartGame = function () {
+
   if (!roomCode) return;
 
   update(ref(db, "rooms/" + roomCode), {
@@ -275,7 +299,9 @@ window.restartGame = function () {
     score1: 0,
     score2: 0,
     round: 1,
-    locked: false
+    locked: false,
+    p1Marks: [],
+    p2Marks: []
   });
 
   roomData = null;
@@ -289,10 +315,4 @@ window.restartGame = function () {
   document.getElementById("countdown").innerText = "In attesa...";
 
   renderHand();
-};
-
-window.enterGame = function () {
-  document.getElementById("startScreen").style.display = "none";
-  document.getElementById("game").style.display = "block";
-  startMusic();
 };
