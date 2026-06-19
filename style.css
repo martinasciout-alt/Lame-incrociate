@@ -399,9 +399,15 @@ button:hover {
 
 .rules-box button {
   padding: 10px 15px;
-  border: none;
+  border: 2px solid #6d28d9;   /* bordino viola */
   border-radius: 8px;
-  background: #6d28d9;
-  color: white;
+  background: transparent;      /* trasparente */
+  color: #6d28d9;               /* testo viola */
   cursor: pointer;
+  transition: 0.2s ease;
+}
+
+.rules-box button:hover {
+  background: #6d28d9;         /* riempimento al passaggio */
+  color: white;
 }
