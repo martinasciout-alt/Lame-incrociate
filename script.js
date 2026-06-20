@@ -1,4 +1,4 @@
- import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
   getDatabase,
   ref,
@@ -21,7 +21,7 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 // =========================
-// AUDIO
+// AUDIO (INVARIATO)
 // =========================
 const clickSound = new Audio("carta.wav");
 const victorySound = new Audio("vittoria.mp3");
@@ -43,7 +43,6 @@ let roomData = null;
 
 let revealLock = false;
 let gameEnded = false;
-
 let revealInProgress = false;
 let lastProcessedRound = 0;
 
@@ -57,11 +56,6 @@ window.startMusic = async function () {
     await bgMusic.play();
   } catch {}
 };
-
-document.addEventListener("visibilitychange", () => {
-  if (document.hidden) bgMusic.pause();
-  else bgMusic.play().catch(() => {});
-});
 
 // =========================
 // START GAME
@@ -86,6 +80,7 @@ window.createRoom = function (code) {
     score2: 0,
     round: 1,
     locked: false,
+    cpuCard: null,
     p1Marks: [],
     p2Marks: []
   });
@@ -118,7 +113,7 @@ function renderHand() {
 }
 
 // =========================
-// LISTENER (FIXED)
+// LISTENER
 // =========================
 function listenRoom() {
   const roomRef = ref(db, "rooms/" + roomCode);
@@ -137,16 +132,17 @@ function listenRoom() {
     document.getElementById("marks1").innerHTML = (data.p1Marks || []).join(" ");
     document.getElementById("marks2").innerHTML = (data.p2Marks || []).join(" ");
 
-    // 🔥 UI immediata (zero lag percepito)
     requestAnimationFrame(() => {
       document.getElementById("cardP1").innerHTML =
         data.player1Choice ? `<img src="retro-carta.webp">` : "";
 
       document.getElementById("cardP2").innerHTML =
         data.player2Choice ? `<img src="retro-carta.webp">` : "";
+
+      document.getElementById("cardCPU").innerHTML =
+        data.cpuCard ? `<img src="retro-carta.webp">` : "";
     });
 
-    // 🔥 trigger controllato (NO doppio reveal)
     if (
       data.player1Choice &&
       data.player2Choice &&
@@ -179,7 +175,14 @@ window.choose = function (value) {
 };
 
 // =========================
-// REVEAL (FIXED)
+// CPU
+// =========================
+function generateCPU() {
+  return Math.floor(Math.random() * 5) + 1;
+}
+
+// =========================
+// REVEAL (NUOVO SISTEMA)
 // =========================
 function reveal(data) {
   if (revealLock) return;
@@ -187,15 +190,22 @@ function reveal(data) {
   revealLock = true;
   revealInProgress = true;
 
-  update(ref(db, "rooms/" + roomCode), { locked: true });
+  const cpu = generateCPU();
+
+  update(ref(db, "rooms/" + roomCode), {
+    locked: true,
+    cpuCard: cpu
+  });
 
   const c1 = data.player1Choice;
   const c2 = data.player2Choice;
 
   document.getElementById("cardP1").innerHTML = `<img src="carta-${c1}.webp">`;
   document.getElementById("cardP2").innerHTML = `<img src="carta-${c2}.webp">`;
+  document.getElementById("cardCPU").innerHTML = `<img src="carta-${cpu}.webp">`;
 
   const countdown = document.getElementById("countdown");
+
   countdownSound.currentTime = 0;
   countdownSound.play().catch(() => {});
 
@@ -213,27 +223,43 @@ function reveal(data) {
     let p1Marks = data.p1Marks || [];
     let p2Marks = data.p2Marks || [];
 
-    let isGameOver = false;
+    let cpuVal = cpu;
 
-    if (data.round >= MAX_ROUNDS) {
-      isGameOver = true;
-    }
+    const dist1 = Math.abs(c1 - cpuVal);
+    const dist2 = Math.abs(c2 - cpuVal);
 
-    if (c1 > c2) {
-      s1++;
-      p2Marks.push("❌");
-      victorySound.play().catch(() => {});
-    } else if (c2 > c1) {
+    // ❌ regola: stessa carta del CPU = perdita automatica
+    let p1Invalid = c1 === cpuVal;
+    let p2Invalid = c2 === cpuVal;
+
+    if (p1Invalid && !p2Invalid) {
       s2++;
       p1Marks.push("❌");
-      victorySound.play().catch(() => {});
-    } else {
+    } else if (p2Invalid && !p1Invalid) {
+      s1++;
+      p2Marks.push("❌");
+    } else if (p1Invalid && p2Invalid) {
       p1Marks.push("❌");
       p2Marks.push("❌");
-      drawSound.play().catch(() => {});
+    } else {
+      // più vicino vince
+      if (dist1 < dist2) {
+        s1++;
+        p2Marks.push("❌");
+        victorySound.play().catch(() => {});
+      } else if (dist2 < dist1) {
+        s2++;
+        p1Marks.push("❌");
+        victorySound.play().catch(() => {});
+      } else {
+        p1Marks.push("❌");
+        p2Marks.push("❌");
+        drawSound.play().catch(() => {});
+      }
     }
 
-    const nextRound = isGameOver ? data.round : data.round + 1;
+    const nextRound = data.round + 1;
+    const isGameOver = (s1 >= 2 || s2 >= 2 || data.round >= MAX_ROUNDS);
 
     update(ref(db, "rooms/" + roomCode), {
       score1: s1,
@@ -242,6 +268,7 @@ function reveal(data) {
       player2Choice: null,
       round: nextRound,
       locked: false,
+      cpuCard: null,
       p1Marks,
       p2Marks
     });
@@ -250,6 +277,7 @@ function reveal(data) {
 
       document.getElementById("cardP1").innerHTML = "";
       document.getElementById("cardP2").innerHTML = "";
+      document.getElementById("cardCPU").innerHTML = "";
       document.getElementById("result").innerText = "";
 
       revealLock = false;
@@ -259,7 +287,7 @@ function reveal(data) {
         endGame(s1, s2);
       }
 
-    }, 5000);
+    }, 4000);
 
   }, 3000);
 }
@@ -275,31 +303,21 @@ function endGame(s1, s2) {
 
   overlay.classList.remove("hidden");
 
-  let win = false;
+  let win =
+    (playerNumber === 1 && s1 > s2) ||
+    (playerNumber === 2 && s2 > s1);
 
-  if (playerNumber === 1) {
-    win = s1 > s2;
-    finalText.innerText =
-      s1 > s2 ? "🏆 HAI VINTO!" :
-      s1 < s2 ? "💀 HAI PERSO!" :
-      "🤝 PAREGGIO!";
-  } else {
-    win = s2 > s1;
-    finalText.innerText =
-      s2 > s1 ? "🏆 HAI VINTO!" :
-      s2 < s1 ? "💀 HAI PERSO!" :
-      "🤝 PAREGGIO!";
-  }
+  finalText.innerText =
+    win ? "🏆 HAI VINTO!" :
+    "💀 HAI PERSO!";
 
   bgMusic.pause();
 
   if (s1 === s2) {
     drawSound.play().catch(() => {});
   } else if (win) {
-    winFinalSound.currentTime = 0;
     winFinalSound.play().catch(() => {});
   } else {
-    loseFinalSound.currentTime = 0;
     loseFinalSound.play().catch(() => {});
   }
 }
@@ -318,6 +336,7 @@ window.restartGame = function () {
     score2: 0,
     round: 1,
     locked: false,
+    cpuCard: null,
     p1Marks: [],
     p2Marks: []
   });
@@ -332,6 +351,7 @@ window.restartGame = function () {
   document.getElementById("result").innerText = "";
   document.getElementById("cardP1").innerHTML = "";
   document.getElementById("cardP2").innerHTML = "";
+  document.getElementById("cardCPU").innerHTML = "";
   document.getElementById("countdown").innerText = "In attesa...";
 
   renderHand();
