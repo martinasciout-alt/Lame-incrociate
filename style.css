@@ -5,7 +5,6 @@
   text-align: center;
 
   background: url("sfondo.jpeg") center/cover no-repeat fixed;
-  /* FIX: "fixed" riduce repaint durante update DOM */
 }
 
 /* =========================
@@ -27,20 +26,16 @@ h1 {
   text-transform: uppercase;
   margin-bottom: 10px;
   text-shadow: 0 0 10px #a855f7;
-  /* ok: leggero, non impatta molto */
 }
 
 /* =========================
-   STATUS (OTTIMIZZATO SHADOW)
+   STATUS
 ========================= */
 #status {
   background: linear-gradient(145deg, #5c3b1e, #3a2412);
   border: 3px solid #8b5a2b;
   border-radius: 15px;
-
-  /* FIX: shadow semplificato */
   box-shadow: 0 3px 10px rgba(0,0,0,0.35);
-
   color: #f5e6c8;
   padding: 15px;
   will-change: transform;
@@ -57,7 +52,7 @@ h1 {
 }
 
 /* =========================
-   PLAYERS
+   PLAYERS + CPU SLOT
 ========================= */
 .players {
   display: flex;
@@ -69,18 +64,39 @@ h1 {
   flex: 1;
   background: linear-gradient(145deg, #5c3b1e, #3a2412);
   border: 3px solid #1f2937;
-
-  /* FIX: shadow ridotto */
   box-shadow: 0 3px 10px rgba(0,0,0,0.35);
-
   padding: 15px;
   border-radius: 15px;
-
   will-change: transform;
 }
 
 /* =========================
-   CARDS
+   TABLE
+========================= */
+#table {
+  display: flex;
+  justify-content: center;
+  gap: 60px;
+  margin: 20px 0;
+  align-items: center;
+}
+
+.card-slot {
+  text-align: center;
+}
+
+#cardP1 img,
+#cardP2 img,
+#cardCPU img {
+  width: 100px;
+  max-height: 140px;
+  object-fit: contain;
+  border-radius: 12px;
+  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
+}
+
+/* =========================
+   HAND CARDS
 ========================= */
 .cards {
   display: flex;
@@ -104,40 +120,12 @@ h1 {
   height: 100%;
   object-fit: contain;
   border-radius: 8px;
-
-  /* FIX: più leggero */
   transition: transform 0.15s ease;
   will-change: transform;
 }
 
 .cards button:hover img {
   transform: scale(1.05);
-}
-
-/* =========================
-   TABLE
-========================= */
-#table {
-  display: flex;
-  justify-content: center;
-  gap: 80px;
-  margin: 20px 0;
-  align-items: center;
-}
-
-.card-slot {
-  text-align: center;
-}
-
-#cardP1 img,
-#cardP2 img {
-  width: 100px;
-  max-height: 140px;
-  object-fit: contain;
-  border-radius: 12px;
-
-  /* FIX: shadow più leggero */
-  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
 }
 
 /* =========================
@@ -171,26 +159,22 @@ button:hover {
 }
 
 /* =========================
-   RULES (LEGGERMENTE OTTIMIZZATO)
+   RULES BOX (START SCREEN)
 ========================= */
-.rules {
-  position: absolute;
-  top: 120px;
-  right: 20px;
-
-  width: 280px;
+.rules-box {
+  width: 320px;
   padding: 25px;
 
   background: url("pergamena.jpg") center/cover no-repeat;
 
+  border-radius: 12px;
+  border: 2px solid #c8a15a;
+
+  text-align: center;
   color: #2b1b0e;
   font-weight: bold;
 
-  border: 2px solid #c8a15a;
-  border-radius: 12px;
-
   box-shadow: 0 8px 18px rgba(0,0,0,0.35);
-  z-index: 10;
 }
 
 /* =========================
@@ -233,22 +217,6 @@ button:hover {
   z-index: 9999;
 }
 
-.rules-box {
-  width: 320px;
-  padding: 25px;
-
-  background: url("pergamena.jpg") center/cover no-repeat;
-
-  border-radius: 12px;
-  border: 2px solid #c8a15a;
-
-  text-align: center;
-  color: #2b1b0e;
-  font-weight: bold;
-
-  box-shadow: 0 8px 18px rgba(0,0,0,0.35);
-}
-
 /* =========================
    MOBILE
 ========================= */
@@ -282,12 +250,6 @@ button:hover {
   button {
     width: 100%;
     font-size: 16px;
-  }
-
-  .rules {
-    position: relative;
-    width: 100%;
-    margin: 15px auto;
   }
 }
 
