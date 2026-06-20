@@ -17,7 +17,7 @@
 
 <body>
 
-  <!-- OVERLAY FINE PARTITA -->
+  <!-- FINE PARTITA -->
   <div id="overlay" class="hidden">
     <div class="overlay-content">
       <h1 id="finalText"></h1>
@@ -31,11 +31,13 @@
       <h2>Regole del gioco</h2>
 
       <ul>
-        <li>Per giocare bisogna creare o entrare in una stanza</li>
-        <li>Ogni giocatore sceglie una carta (1–5)</li>
-        <li>La carta più alta vince il round</li>
-        <li>Si gioca fino a 3 round</li>
-        <li>In caso di pareggio entrambi ricevono ❌</li>
+        <li>Devi creare o entrare in una stanza</li>
+        <li>Ogni giocatore sceglie una carta da 1 a 5</li>
+        <li>Il computer sceglie una carta casuale (1–5)</li>
+        <li>Chi si avvicina di più al valore del computer vince il round</li>
+        <li>Se scegli la stessa carta del computer, perdi automaticamente il round</li>
+        <li>Si gioca al meglio dei 3 round</li>
+        <li>Per vincere la partita servono almeno 2 round vinti</li>
       </ul>
 
       <button onclick="enterGame()">ENTRA NEL GIOCO</button>
@@ -53,10 +55,9 @@
       <button onclick="startMusic()">🔊 Attiva musica</button>
 
       <p>Stanza: <span id="roomCode">---</span></p>
-      <p>Turno: <span id="round">1</span> / 3</p>
+      <p>Round: <span id="round">1</span> / 3</p>
 
       <p>
-        Punteggio →
         Player 1: <span id="score1">0</span>
         <span id="marks1"></span>
         |
@@ -64,7 +65,6 @@
         <span id="marks2"></span>
       </p>
 
-      <!-- DEBUG / SYNC STATUS -->
       <div id="statusText"></div>
 
     </div>
@@ -85,6 +85,11 @@
         <div id="cardP2"></div>
       </div>
 
+      <div class="card-slot">
+        <p>Computer</p>
+        <div id="cardCPU"></div>
+      </div>
+
     </div>
 
     <!-- RISULTATO -->
@@ -100,7 +105,7 @@
 
     </div>
 
-    <!-- BOTTONI STANZA -->
+    <!-- STANZE -->
     <button onclick="createRoom(prompt('Inserisci codice stanza'))">
       Crea stanza
     </button>
