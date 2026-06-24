@@ -1,4 +1,6 @@
- import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+console.log("SCRIPT CARICATO");
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
   getDatabase,
   ref,
@@ -30,6 +32,9 @@ let countdownInterval = null;
 window.enterGame = function () {
   document.getElementById("startScreen").classList.add("hidden");
   document.getElementById("game").classList.remove("hidden");
+
+ console.log("ENTRATO NEL GIOCO");
+ 
 };
 
 // ROOM
