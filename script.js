@@ -6,7 +6,8 @@ import {
   ref,
   set,
   update,
-  onValue
+  onValue,
+  get
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 // FIREBASE
@@ -23,12 +24,8 @@ const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
 // STATE
-let roomCode = null;
-let playerNumber = null;
-let roomData = null;
-
-let nickname = "";
-let color = "";
+let roomCode, playerNumber, roomData;
+let nickname, color;
 let roundActive = false;
 
 // ================= LOBBY =================
@@ -112,14 +109,11 @@ function listen() {
     document.getElementById("round").innerText = d.round;
     document.getElementById("roomCode").innerText = roomCode;
 
-    // PLAYER LABEL COLORATO
     const name = playerNumber === 1 ? d.player1Name : d.player2Name;
     const col = playerNumber === 1 ? d.player1Color : d.player2Color;
 
     document.getElementById("playerLabel").innerHTML =
-      `<span style="color:${col}; font-weight:bold">
-        ${name} (P${playerNumber})
-      </span>`;
+      `<span style="color:${col}; font-weight:bold">${name} (P${playerNumber})</span>`;
 
     if (
       !roundActive &&
@@ -180,16 +174,22 @@ function reveal(cpu) {
   const d1 = Math.abs(c1 - cpu);
   const d2 = Math.abs(c2 - cpu);
 
-  if (d1 < d2) s1++;
-  else if (d2 < d1) s2++;
+  let winner = null;
+
+  if (d1 < d2) {
+    s1++;
+    winner = roomData.player1Name;
+  } else if (d2 < d1) {
+    s2++;
+    winner = roomData.player2Name;
+  }
 
   document.getElementById("cardCPU").innerHTML = `<img src="carta-${cpu}.webp">`;
   document.getElementById("cardP1").innerHTML = `<img src="carta-${c1}.webp">`;
   document.getElementById("cardP2").innerHTML = `<img src="carta-${c2}.webp">`;
 
   document.getElementById("result").innerText =
-    d1 < d2 ? "P1 VINCE" :
-    d2 < d1 ? "P2 VINCE" : "PAREGGIO";
+    winner ? `${winner} VINCE` : "PAREGGIO";
 
   update(ref(db, "rooms/" + roomCode), {
     score1: s1,
@@ -202,4 +202,38 @@ function reveal(cpu) {
   });
 
   roundActive = false;
+
+  updateLeaderboard(winner);
 }
+
+// ================= GLOBAL LEADERBOARD =================
+function updateLeaderboard(winner) {
+  if (!winner) return;
+
+  const refPlayer = ref(db, "players/" + winner);
+
+  get(refPlayer).then((snap) => {
+    const data = snap.val() || { wins: 0 };
+
+    set(refPlayer, {
+      wins: data.wins + 1,
+      color: color
+    });
+  });
+}
+
+// ================= LEADERBOARD LOAD =================
+onValue(ref(db, "players"), (snap) => {
+  const data = snap.val();
+  if (!data) return;
+
+  const sorted = Object.entries(data)
+    .sort((a, b) => b[1].wins - a[1].wins);
+
+  document.getElementById("leaderboard").innerHTML =
+    sorted.map(([name, p]) =>
+      `<div style="color:${p.color || 'white'}">
+        ${name} - ${p.wins} vittorie
+      </div>`
+    ).join("");
+});
