@@ -5,20 +5,17 @@
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
   <title>Lama Alta</title>
 
-   <link href="https://fonts.googleapis.com/css2?family=Pirata+One&display=swap" rel="stylesheet">
+  <link href="https://fonts.googleapis.com/css2?family=Pirata+One&display=swap" rel="stylesheet">
   <link rel="icon" href="favicon.ico">
 
-<link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-<link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
+  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
+  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
 
-<link rel="apple-touch-icon" href="apple-touch-icon.png">
-
-<link rel="manifest" href="site.webmanifest">
+  <link rel="apple-touch-icon" href="apple-touch-icon.png">
+  <link rel="manifest" href="site.webmanifest">
 
   <link rel="stylesheet" href="style.css">
 </head>
-
-  
 
 <body>
 
@@ -30,7 +27,6 @@
     <h1>Lama Alta</h1>
 
     <input id="roomInput" placeholder="Nome stanza">
-
     <input id="nickInput" placeholder="Nickname">
 
     <select id="colorInput">
@@ -42,11 +38,9 @@
     </select>
 
     <button onclick="createRoom()">Crea stanza</button>
-
     <button onclick="joinRoom()">Entra stanza</button>
 
     <h3>🏆 Classifica globale</h3>
-
     <div id="leaderboard"></div>
 
   </div>
@@ -77,12 +71,9 @@
 
 </div>
 
- 
- 
- 
+<!-- REGOLE -->
+<div id="rulesModal" style="display:none;">
 
- <!-- REGOLE -->
-<div id="rulesModal">
   <div class="rules-box">
 
     <span id="closeRules">✖</span>
@@ -93,14 +84,21 @@
       Ogni giocatore sceglie una carta da 1 a 5.<br>
       Madama Queen sceglie una carta.<br><br>
 
-      Vince chi ha la carta più vicina a Madama Queen <br>
+      Vince chi ha la carta più vicina a Madama Queen.<br>
       In caso di pareggio perdono entrambi i giocatori.<br><br>
 
       Dopo ogni round si aggiorna il punteggio.
     </div>
 
   </div>
+
 </div>
 
-<!-- bottone riapri regole  -->
+<!-- bottone regole -->
 <button id="openRules">?</button>
+
+<!-- SCRIPT (FONDAMENTALE) -->
+<script type="module" src="script.js"></script>
+
+</body>
+</html>
