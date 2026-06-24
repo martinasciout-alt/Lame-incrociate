@@ -9,18 +9,22 @@ import {
   onValue
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-// FIREBASE
+// =====================
+// FIREBASE CONFIG
+// =====================
 const firebaseConfig = {
   apiKey: "XXX",
   authDomain: "XXX",
-  databaseURL: "XXX",
+  databaseURL: "https://YOUR-PROJECT-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "XXX",
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+// =====================
 // STATE
+// =====================
 let roomCode = null;
 let playerNumber = null;
 let roomData = null;
@@ -28,16 +32,19 @@ let roomData = null;
 let roundActive = false;
 let countdownInterval = null;
 
-// START
+// =====================
+// START GAME
+// =====================
 window.enterGame = function () {
   document.getElementById("startScreen").classList.add("hidden");
   document.getElementById("game").classList.remove("hidden");
 
- console.log("ENTRATO NEL GIOCO");
- 
+  console.log("ENTRATO NEL GIOCO");
 };
 
+// =====================
 // ROOM
+// =====================
 window.createRoom = function (code) {
   if (!code) return alert("Inserisci codice stanza");
 
@@ -68,7 +75,9 @@ window.joinRoom = function (code) {
   renderHand();
 };
 
+// =====================
 // HAND
+// =====================
 function renderHand() {
   const hand = document.getElementById("hand");
   hand.innerHTML = "";
@@ -81,7 +90,9 @@ function renderHand() {
   }
 }
 
+// =====================
 // LISTENER
+// =====================
 function listen() {
   const roomRef = ref(db, "rooms/" + roomCode);
 
@@ -96,29 +107,31 @@ function listen() {
     document.getElementById("round").innerText = data.round;
     document.getElementById("roomCode").innerText = roomCode;
 
-    // SEMPRE COPERTE SUL TAVOLO
+    // carte sempre coperte
     document.getElementById("cardP1").innerHTML =
-      data.player1Choice ? `<img src="retro-carta.webp">` : "";
+      data.player1Choice != null ? `<img src="retro-carta.webp">` : "";
 
     document.getElementById("cardP2").innerHTML =
-      data.player2Choice ? `<img src="retro-carta.webp">` : "";
+      data.player2Choice != null ? `<img src="retro-carta.webp">` : "";
 
     document.getElementById("cardCPU").innerHTML =
-      data.cpu ? `<img src="retro-carta.webp">` : "";
+      data.cpu != null ? `<img src="retro-carta.webp">` : "";
 
-    // START ROUND SOLO UNA VOLTA
+    // START ROUND (FIX STABILE)
     if (
       !roundActive &&
-      data.player1Choice !== null &&
-      data.player2Choice !== null &&
-      data.locked === false
+      data.locked === false &&
+      typeof data.player1Choice === "number" &&
+      typeof data.player2Choice === "number"
     ) {
       startRound(data);
     }
   });
 }
 
+// =====================
 // CHOOSE
+// =====================
 window.choose = function (value) {
   if (!roomData || roomData.locked) return;
 
@@ -130,8 +143,12 @@ window.choose = function (value) {
   });
 };
 
+// =====================
 // ROUND START
+// =====================
 function startRound(data) {
+
+  if (roundActive) return; // anti doppio trigger
 
   roundActive = true;
 
@@ -142,7 +159,7 @@ function startRound(data) {
     locked: true
   });
 
-  // TIMER VISIVO
+  // COUNTDOWN VISIVO
   let countdown = 3;
   const el = document.getElementById("countdown");
   el.innerText = countdown;
@@ -158,13 +175,13 @@ function startRound(data) {
     }
   }, 1000);
 
-  // TIMEOUT SCELTA (chi non sceglie = 0)
+  // TIMEOUT SCELTE
   setTimeout(() => {
 
     const updates = {};
 
-    if (!roomData.player1Choice) updates.player1Choice = 0;
-    if (!roomData.player2Choice) updates.player2Choice = 0;
+    if (roomData.player1Choice == null) updates.player1Choice = 0;
+    if (roomData.player2Choice == null) updates.player2Choice = 0;
 
     if (Object.keys(updates).length > 0) {
       update(ref(db, "rooms/" + roomCode), updates);
@@ -173,7 +190,9 @@ function startRound(data) {
   }, 3000);
 }
 
+// =====================
 // REVEAL
+// =====================
 function reveal(cpu) {
 
   const c1 = roomData.player1Choice || 0;
