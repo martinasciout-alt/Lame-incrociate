@@ -13,10 +13,10 @@ import {
 // FIREBASE CONFIG
 // =====================
 const firebaseConfig = {
-  apiKey: "XXX",
-  authDomain: "XXX",
-  databaseURL: "https://YOUR-PROJECT-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "XXX",
+  apiKey: "AIzaSyBzdhurbAi48OoRyw6eKJ3HIkd1q87-43c",
+  authDomain: "gioco-della-lama-alta.firebaseapp.com",
+  databaseURL: "https://gioco-della-lama-alta-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "gioco-della-lama-alta",
 };
 
 const app = initializeApp(firebaseConfig);
