@@ -38,10 +38,10 @@ let countdownInterval = null;
 // START GAME
 // =====================
 window.enterGame = function () {
-  document.getElementById("startScreen").classList.add("hidden");
-  document.getElementById("game").classList.remove("hidden");
-
   console.log("ENTRATO NEL GIOCO");
+
+  document.getElementById("startScreen").style.display = "none";
+  document.getElementById("game").style.display = "block";
 };
 
 // =====================
