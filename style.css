@@ -219,7 +219,7 @@ button:hover{
 .rules-text {
     position: absolute;
 
-    top: 300px;   /* 👈 QUI SI MUOVE DAVVERO */
+    top: 320px;   /* 👈 QUI SI MUOVE DAVVERO */
     left: 50%;
     transform: translateX(-50%);
 
