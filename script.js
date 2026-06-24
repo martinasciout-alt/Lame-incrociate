@@ -47,7 +47,8 @@ window.createRoom = function (code) {
     player1Choice: null,
     player2Choice: null,
     cpu: null,
-    locked: false
+    locked: false,
+    phase: "idle"
   });
 
   listen();
@@ -90,23 +91,22 @@ function listen() {
     document.getElementById("round").innerText = data.round;
     document.getElementById("roomCode").innerText = roomCode;
 
-    // carte coperte
+    // CPU SEMPRE VISIBILE (COPERTA)
+    if (data.cpu != null) {
+      document.getElementById("cardCPU").innerHTML =
+        `<img src="retro-carta.webp">`;
+    }
+
     document.getElementById("cardP1").innerHTML =
       data.player1Choice != null ? `<img src="retro-carta.webp">` : "";
 
     document.getElementById("cardP2").innerHTML =
       data.player2Choice != null ? `<img src="retro-carta.webp">` : "";
 
-    document.getElementById("cardCPU").innerHTML =
-      data.cpu != null ? `<img src="retro-carta.webp">` : "";
-
-    // START ROUND UNA VOLTA
+    // START ROUND SOLO UNA VOLTA
     if (
       !roundStarted &&
-      data.locked === true &&
-      data.cpu !== null &&
-      data.player1Choice === null &&
-      data.player2Choice === null
+      data.phase === "idle"
     ) {
       roundStarted = true;
       startRound();
@@ -125,24 +125,20 @@ window.choose = function (value) {
   });
 };
 
-// ROUND
+// ROUND FLOW
 function startRound() {
 
-  if (roundActive) return;
   roundActive = true;
 
   const cpu = Math.floor(Math.random() * 5) + 1;
 
+  // CPU PRIMA
   update(ref(db, "rooms/" + roomCode), {
     cpu: cpu,
-    locked: true,
-    player1Choice: null,
-    player2Choice: null
+    phase: "waiting"
   });
 
-  document.getElementById("cardCPU").innerHTML =
-    `<img src="retro-carta.webp">`;
-
+  // countdown
   let countdown = 3;
   const el = document.getElementById("countdown");
   el.innerText = countdown;
@@ -159,6 +155,7 @@ function startRound() {
     }
   }, 1000);
 
+  // timeout auto 0
   setTimeout(() => {
     const updates = {};
 
@@ -201,7 +198,7 @@ function reveal(cpu) {
     player1Choice: null,
     player2Choice: null,
     cpu: null,
-    locked: false,
+    phase: "idle",
     round: roomData.round + 1
   });
 
