@@ -9,9 +9,9 @@ import {
   onValue
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-// ================= FIREBASE =================
+// FIREBASE
 const firebaseConfig = {
-  apiKey: "AIzaSyBzdhurbAi48OoRyw6E3HIkd1q87-43c",
+  apiKey: "AIzaSy....",
   authDomain: "gioco-della-lama-alta.firebaseapp.com",
   databaseURL: "https://gioco-della-lama-alta-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "gioco-della-lama-alta",
@@ -22,58 +22,69 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// ================= STATE =================
+// STATE
 let roomCode = null;
 let playerNumber = null;
 let roomData = null;
 
+let nickname = "";
+let color = "";
 let roundActive = false;
 
-// ================= UI =================
-window.enterGame = () => {
-  document.getElementById("lobby").classList.add("hidden");
-  document.getElementById("game").classList.remove("hidden");
-};
+// ================= LOBBY =================
+window.createRoom = () => {
 
-window.showRules = () => {
-  document.getElementById("rulesPopup").classList.remove("hidden");
-};
+  roomCode = document.getElementById("roomInput").value;
+  nickname = document.getElementById("nickInput").value;
+  color = document.getElementById("colorInput").value;
 
-window.closeRules = () => {
-  document.getElementById("rulesPopup").classList.add("hidden");
-};
-
-// ================= ROOM =================
-window.createRoom = (code) => {
-  if (!code) return;
-
-  roomCode = code;
   playerNumber = 1;
 
-  set(ref(db, "rooms/" + code), {
+  set(ref(db, "rooms/" + roomCode), {
     score1: 0,
     score2: 0,
     round: 1,
     maxRounds: 3,
+
+    player1Name: nickname,
+    player2Name: "",
+
+    player1Color: color,
+    player2Color: "",
+
     player1Choice: null,
     player2Choice: null,
     cpu: null,
     locked: false
   });
 
-  listen();
-  renderHand();
+  startGame();
 };
 
-window.joinRoom = (code) => {
-  if (!code) return;
+window.joinRoom = () => {
 
-  roomCode = code;
+  roomCode = document.getElementById("roomInput").value;
+  nickname = document.getElementById("nickInput").value;
+  color = document.getElementById("colorInput").value;
+
   playerNumber = 2;
 
+  update(ref(db, "rooms/" + roomCode), {
+    player2Name: nickname,
+    player2Color: color
+  });
+
+  startGame();
+};
+
+// ================= START =================
+function startGame() {
+  document.getElementById("lobby").classList.add("hidden");
+  document.getElementById("game").classList.remove("hidden");
+
   listen();
   renderHand();
-};
+}
 
 // ================= HAND =================
 function renderHand() {
@@ -81,60 +92,52 @@ function renderHand() {
   hand.innerHTML = "";
 
   for (let i = 1; i <= 5; i++) {
-    const btn = document.createElement("button");
-    btn.innerHTML = `<img src="carta-${i}.webp">`;
-    btn.onclick = () => choose(i);
-    hand.appendChild(btn);
+    const b = document.createElement("button");
+    b.innerHTML = `<img src="carta-${i}.webp">`;
+    b.onclick = () => choose(i);
+    hand.appendChild(b);
   }
 }
 
-// ================= LISTENER =================
+// ================= LISTEN =================
 function listen() {
   onValue(ref(db, "rooms/" + roomCode), (snap) => {
-    const data = snap.val();
-    if (!data) return;
+    const d = snap.val();
+    if (!d) return;
 
-    roomData = data;
+    roomData = d;
 
-    document.getElementById("score1").innerText = data.score1;
-    document.getElementById("score2").innerText = data.score2;
-    document.getElementById("round").innerText = data.round;
+    document.getElementById("score1").innerText = d.score1;
+    document.getElementById("score2").innerText = d.score2;
+    document.getElementById("round").innerText = d.round;
     document.getElementById("roomCode").innerText = roomCode;
 
-    // carte coperte
-    document.getElementById("cardCPU").innerHTML =
-      data.cpu !== null ? `<img src="retro-carta.webp">` : "";
+    // PLAYER LABEL COLORATO
+    const name = playerNumber === 1 ? d.player1Name : d.player2Name;
+    const col = playerNumber === 1 ? d.player1Color : d.player2Color;
 
-    document.getElementById("cardP1").innerHTML =
-      data.player1Choice !== null ? `<img src="retro-carta.webp">` : "";
+    document.getElementById("playerLabel").innerHTML =
+      `<span style="color:${col}; font-weight:bold">
+        ${name} (P${playerNumber})
+      </span>`;
 
-    document.getElementById("cardP2").innerHTML =
-      data.player2Choice !== null ? `<img src="retro-carta.webp">` : "";
-
-    // START ROUND (FIX STABILE)
     if (
       !roundActive &&
-      data.round <= data.maxRounds &&
-      data.locked === false &&
-      data.player1Choice !== null &&
-      data.player2Choice !== null
+      d.player1Choice != null &&
+      d.player2Choice != null &&
+      d.cpu === null
     ) {
       startRound();
-    }
-
-    // FINE PARTITA
-    if (data.round > data.maxRounds) {
-      showFinal(data);
     }
   });
 }
 
 // ================= CHOOSE =================
-window.choose = (value) => {
+window.choose = (v) => {
   if (!roomData || roomData.locked) return;
 
   update(ref(db, "rooms/" + roomCode), {
-    [playerNumber === 1 ? "player1Choice" : "player2Choice"]: value
+    [playerNumber === 1 ? "player1Choice" : "player2Choice"]: v
   });
 };
 
@@ -153,12 +156,12 @@ function startRound() {
   let t = 3;
   document.getElementById("countdown").innerText = t;
 
-  const interval = setInterval(() => {
+  const int = setInterval(() => {
     t--;
     document.getElementById("countdown").innerText = t;
 
     if (t <= 0) {
-      clearInterval(interval);
+      clearInterval(int);
       document.getElementById("countdown").innerText = "";
       reveal(cpu);
     }
@@ -177,23 +180,16 @@ function reveal(cpu) {
   const d1 = Math.abs(c1 - cpu);
   const d2 = Math.abs(c2 - cpu);
 
-  let result = "";
+  if (d1 < d2) s1++;
+  else if (d2 < d1) s2++;
 
-  if (d1 < d2) {
-    s1++;
-    result = "HAI VINTO PLAYER 1";
-  } else if (d2 < d1) {
-    s2++;
-    result = "HAI VINTO PLAYER 2";
-  } else {
-    result = "PAREGGIO";
-  }
-
+  document.getElementById("cardCPU").innerHTML = `<img src="carta-${cpu}.webp">`;
   document.getElementById("cardP1").innerHTML = `<img src="carta-${c1}.webp">`;
   document.getElementById("cardP2").innerHTML = `<img src="carta-${c2}.webp">`;
-  document.getElementById("cardCPU").innerHTML = `<img src="carta-${cpu}.webp">`;
 
-  document.getElementById("result").innerText = result;
+  document.getElementById("result").innerText =
+    d1 < d2 ? "P1 VINCE" :
+    d2 < d1 ? "P2 VINCE" : "PAREGGIO";
 
   update(ref(db, "rooms/" + roomCode), {
     score1: s1,
@@ -206,26 +202,4 @@ function reveal(cpu) {
   });
 
   roundActive = false;
-
-  setTimeout(resetTableUI, 1500);
-}
-
-// ================= RESET =================
-function resetTableUI() {
-  document.getElementById("cardP1").innerHTML = "";
-  document.getElementById("cardP2").innerHTML = "";
-  document.getElementById("cardCPU").innerHTML = "";
-  document.getElementById("countdown").innerText = "";
-  document.getElementById("result").innerText = "";
-}
-
-// ================= FINAL =================
-function showFinal(data) {
-
-  let msg =
-    data.score1 > data.score2 ? "HAI VINTO LA PARTITA" :
-    data.score2 > data.score1 ? "HAI PERSO LA PARTITA" :
-    "PAREGGIO";
-
-  document.getElementById("result").innerText = msg;
 }
