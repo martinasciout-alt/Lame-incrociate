@@ -348,7 +348,7 @@ button:hover{
     z-index: 999;
 }
 
-/* contenitore */
+/* contenitore pergamena */
 .rules-box {
     width: 90%;
     max-width: 500px;
@@ -357,23 +357,23 @@ button:hover{
     background: url("regole.webp") center center / contain no-repeat;
 
     position: relative;
-
-    padding: 25px;
-    box-shadow: none;
 }
 
 /* titolo */
 .rules-box h2 {
-    margin-top: 0;
-    color: #d7b3ff;
+    position: absolute;
+    top: 60px;
+    width: 100%;
     text-align: center;
+
+    color: #3b1f14;
 }
 
 /* testo regole */
 .rules-text {
     position: absolute;
 
-    top: 52%; 
+    top: 58%;
     left: 60px;
     right: 70px;
 
@@ -383,15 +383,6 @@ button:hover{
     text-align: center;
 
     color: #2b1b10;
-}
-
-.rules-box h2 {
-    position: absolute;
-    top: 60px;
-    width: 100%;
-    text-align: center;
-
-    color: #3b1f14;
 }
 
 /* bottone X */
