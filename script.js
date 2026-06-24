@@ -1,4 +1,4 @@
-  console.log("SCRIPT CARICATO");
+ console.log("SCRIPT CARICATO");
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
@@ -13,7 +13,7 @@ import {
 // FIREBASE CONFIG
 // =====================
 const firebaseConfig = {
-  apiKey: "AIzaSyBzdhurbAi48OoRyw6eKJ3HIkd1q87-43c",
+  apiKey: "AIzaSyBzdhurbAi48OoRyw6E3HIkd1q87-43c",
   authDomain: "gioco-della-lama-alta.firebaseapp.com",
   databaseURL: "https://gioco-della-lama-alta-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "gioco-della-lama-alta",
@@ -38,7 +38,9 @@ let roundStarted = false;
 // START GAME
 // =====================
 window.enterGame = function () {
-  document.getElementById("startScreen").classList.add("hidden");
+  console.log("ENTRA GAME");
+
+  document.getElementById("startScreen").style.display = "none";
   document.getElementById("game").style.display = "block";
 };
 
@@ -116,7 +118,7 @@ function listen() {
     document.getElementById("cardCPU").innerHTML =
       data.cpu != null ? `<img src="retro-carta.webp">` : "";
 
-    // START ROUND UNA SOLA VOLTA
+    // START ROUND SOLO UNA VOLTA
     if (
       !roundStarted &&
       data.cpu !== null &&
