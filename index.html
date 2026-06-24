@@ -23,24 +23,31 @@
 <!-- LOBBY -->
 <div id="lobby">
 
-  <h1>Lama Alta</h1>
+  <div class="lobby-box">
 
-  <input id="roomInput" placeholder="Stanza">
-  <input id="nickInput" placeholder="Nickname">
+    <h1>Lama Alta</h1>
 
-  <select id="colorInput">
-    <option value="red">Rosso</option>
-    <option value="blue">Blu</option>
-    <option value="green">Verde</option>
-    <option value="gold">Oro</option>
-    <option value="purple">Viola</option>
-  </select>
+    <input id="roomInput" placeholder="Nome stanza">
 
-  <button onclick="createRoom()">Crea stanza</button>
-  <button onclick="joinRoom()">Entra stanza</button>
+    <input id="nickInput" placeholder="Nickname">
 
-  <h3>🏆 Classifica globale</h3>
-  <div id="leaderboard"></div>
+    <select id="colorInput">
+      <option value="red">Rosso</option>
+      <option value="blue">Blu</option>
+      <option value="green">Verde</option>
+      <option value="gold">Oro</option>
+      <option value="purple">Viola</option>
+    </select>
+
+    <button onclick="createRoom()">Crea stanza</button>
+
+    <button onclick="joinRoom()">Entra stanza</button>
+
+    <h3>🏆 Classifica globale</h3>
+
+    <div id="leaderboard"></div>
+
+  </div>
 
 </div>
 
