@@ -1,48 +1,32 @@
-body {
+ body {
   margin: 0;
   font-family: sans-serif;
-  color: white;
   text-align: center;
-  background: url("sfondo.jpeg") center/cover no-repeat fixed;
-}
-
-/* START */
-.start-screen {
-  position: fixed;
-  inset: 0;
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  background: rgba(0,0,0,0.85);
-}
-
-.rules-box {
-  background: #2b1b0e;
-  padding: 20px;
-  border-radius: 12px;
+  background: url("sfondo.jpeg") center/cover fixed;
   color: white;
 }
 
-/* GAME */
 .hidden {
   display: none !important;
 }
 
+/* GAME */
 #game {
-  padding: 20px;
+  max-width: 900px;
+  margin: auto;
+  padding: 10px;
 }
 
-/* TABLE */
+/* CARDS TABLE */
 #table {
   display: flex;
   justify-content: center;
-  gap: 30px;
+  gap: 20px;
   margin: 20px 0;
-  align-items: center;
 }
 
-.card-slot img {
-  width: 50px;   /* 👈 dimezzate */
+#table img {
+  width: 60px; /* PIÙ PICCOLE */
   height: auto;
 }
 
@@ -56,38 +40,36 @@ body {
 
 #hand button {
   width: 60px;
-  height: 90px;
+  height: 85px;
   border: none;
   background: transparent;
-  cursor: pointer;
 }
 
 #hand img {
   width: 100%;
   height: 100%;
-  object-fit: contain;
+}
+
+/* RESULT */
+#result {
+  font-size: 20px;
+  margin: 10px;
 }
 
 /* COUNTDOWN */
 #countdown {
-  font-size: 28px;
+  font-size: 30px;
   margin: 10px;
-  color: gold;
 }
 
 /* MOBILE */
 @media (max-width: 700px) {
+  #table img {
+    width: 45px;
+  }
 
   #hand button {
     width: 45px;
-    height: 70px;
-  }
-
-  .card-slot img {
-    width: 40px;
-  }
-
-  #table {
-    gap: 15px;
+    height: 65px;
   }
 }
