@@ -1,7 +1,6 @@
  body {
   margin: 0;
   font-family: sans-serif;
-  text-align: center;
   background: url("sfondo.jpeg") center/cover fixed;
   color: white;
 }
@@ -10,66 +9,67 @@
   display: none !important;
 }
 
-/* GAME */
-#game {
-  max-width: 900px;
-  margin: auto;
+/* LOBBY */
+#lobby {
+  display: flex;
+  height: 100vh;
+}
+
+#leaderboard {
+  width: 260px;
+  background: rgba(0,0,0,0.6);
   padding: 10px;
 }
 
-/* CARDS TABLE */
+#lobbyCenter {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+}
+
+/* POPUP */
+#rulesPopup {
+  position: fixed;
+  inset: 0;
+  background: rgba(0,0,0,0.85);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+#rulesBox {
+  background: #222;
+  padding: 20px;
+  position: relative;
+  width: 300px;
+}
+
+#closeRules {
+  position: absolute;
+  top: 5px;
+  right: 10px;
+}
+
+/* GAME */
 #table {
   display: flex;
   justify-content: center;
   gap: 20px;
-  margin: 20px 0;
 }
 
 #table img {
-  width: 60px; /* PIÙ PICCOLE */
-  height: auto;
-}
-
-/* HAND */
-#hand {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 8px;
+  width: 60px;
 }
 
 #hand button {
   width: 60px;
-  height: 85px;
+  height: 80px;
+  background: none;
   border: none;
-  background: transparent;
 }
 
 #hand img {
   width: 100%;
-  height: 100%;
-}
-
-/* RESULT */
-#result {
-  font-size: 20px;
-  margin: 10px;
-}
-
-/* COUNTDOWN */
-#countdown {
-  font-size: 30px;
-  margin: 10px;
-}
-
-/* MOBILE */
-@media (max-width: 700px) {
-  #table img {
-    width: 45px;
-  }
-
-  #hand button {
-    width: 45px;
-    height: 65px;
-  }
 }
