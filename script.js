@@ -173,7 +173,7 @@ function startRound() {
 }
 
 // ================= REVEAL =================
-function reveal(cpu) {
+ function reveal(cpu) {
 
   const c1 = roomData.player1Choice;
   const c2 = roomData.player2Choice;
@@ -184,25 +184,65 @@ function reveal(cpu) {
   const d1 = Math.abs(c1 - cpu);
   const d2 = Math.abs(c2 - cpu);
 
-  // ===== LOGICA NUOVA =====
+  let resultText = "";
 
+  // 🎯 CASO HIT PERFETTO
   if (c1 === cpu) s1 += 2;
   if (c2 === cpu) s2 += 2;
 
+  // 🎯 CASO VICINANZA
   if (c1 !== cpu && c2 !== cpu) {
 
-    if (d1 < d2) s1++;
-    else if (d2 < d1) s2++;
+    if (d1 < d2) {
+      s1 += 1;
+      resultText = roomData.player1Name + " VINCE";
+    }
+
+    else if (d2 < d1) {
+      s2 += 1;
+      resultText = roomData.player2Name + " VINCE";
+    }
+
     else {
-      // PAREGGIO (stessa distanza)
+      resultText = "PAREGGIO";
     }
   }
 
-  let winner =
-    s1 > roomData.score1 ? roomData.player1Name :
-    s2 > roomData.score2 ? roomData.player2Name :
-    null;
+  // se qualcuno ha preso il numero esatto
+  if (c1 === cpu && c2 !== cpu) {
+    resultText = roomData.player1Name + " VINCE (HIT!)";
+  }
 
+  if (c2 === cpu && c1 !== cpu) {
+    resultText = roomData.player2Name + " VINCE (HIT!)";
+  }
+
+  if (c1 === cpu && c2 === cpu) {
+    resultText = "ENTRAMBI HIT! PAREGGIO";
+  }
+
+  // 🎴 MOSTRA CARTE
+  document.getElementById("cardCPU").innerHTML = `<img src="carta-${cpu}.webp">`;
+  document.getElementById("cardP1").innerHTML = `<img src="carta-${c1}.webp">`;
+  document.getElementById("cardP2").innerHTML = `<img src="carta-${c2}.webp">`;
+
+  document.getElementById("result").innerText = resultText;
+
+  // 🔄 RESET ROUND
+  update(ref(db, "rooms/" + roomCode), {
+    score1: s1,
+    score2: s2,
+    player1Choice: null,
+    player2Choice: null,
+    cpu: null,
+    locked: false,
+    round: roomData.round + 1
+  });
+
+  roundActive = false;
+}
+  
+    
   // ===== SHOW CARDS =====
   document.getElementById("cardCPU").innerHTML = `<img src="carta-${cpu}.webp">`;
   document.getElementById("cardP1").innerHTML = `<img src="carta-${c1}.webp">`;
