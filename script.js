@@ -28,8 +28,8 @@ let countdownInterval = null;
 
 // START
 window.enterGame = function () {
-  document.getElementById("startScreen").style.display = "none";
-  document.getElementById("game").style.display = "block";
+  document.getElementById("startScreen").classList.add("hidden");
+  document.getElementById("game").classList.remove("hidden");
 };
 
 // ROOM
