@@ -195,7 +195,22 @@ function reveal(cpu) {
   });
 
   roundActive = false;
+setTimeout(() => {
+  resetTableUI();
+}, 1500);
+ 
 }
+
+
+
+function resetTableUI() {
+  document.getElementById("cardP1").innerHTML = "";
+  document.getElementById("cardP2").innerHTML = "";
+  document.getElementById("cardCPU").innerHTML = "";
+  document.getElementById("countdown").innerText = "";
+}
+
+
 
 // ================= FINAL =================
 function showFinal(data) {
