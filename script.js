@@ -6,8 +6,7 @@ import {
   ref,
   set,
   update,
-  onValue,
-  get
+  onValue
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 // ================= FIREBASE =================
@@ -40,6 +39,8 @@ window.createRoom = () => {
   nickname = document.getElementById("nickInput").value;
   color = document.getElementById("colorInput").value;
 
+  if (!roomCode || !nickname) return alert("Inserisci dati");
+
   playerNumber = 1;
 
   set(ref(db, "rooms/" + roomCode), {
@@ -64,6 +65,8 @@ window.joinRoom = () => {
   roomCode = document.getElementById("roomInput").value;
   nickname = document.getElementById("nickInput").value;
   color = document.getElementById("colorInput").value;
+
+  if (!roomCode || !nickname) return alert("Inserisci dati");
 
   playerNumber = 2;
 
@@ -112,7 +115,6 @@ function listen() {
     document.getElementById("score2").innerText = d.score2;
     document.getElementById("round").innerText = d.round;
 
-    // ===== DISPLAY CARDS =====
     document.getElementById("cardP1").innerHTML =
       d.player1Choice ? `<img src="retro-carta.webp">` : "";
 
@@ -122,7 +124,6 @@ function listen() {
     document.getElementById("cardCPU").innerHTML =
       d.cpu ? `<img src="retro-carta.webp">` : "";
 
-    // START ROUND AUTOMATIC
     if (
       !roundActive &&
       d.player1Choice != null &&
@@ -173,7 +174,7 @@ function startRound() {
 }
 
 // ================= REVEAL =================
- function reveal(cpu) {
+function reveal(cpu) {
 
   const c1 = roomData.player1Choice;
   const c2 = roomData.player2Choice;
@@ -186,49 +187,36 @@ function startRound() {
 
   let resultText = "";
 
-  // 🎯 CASO HIT PERFETTO
+  // hit
   if (c1 === cpu) s1 += 2;
   if (c2 === cpu) s2 += 2;
 
-  // 🎯 CASO VICINANZA
+  // distanza
   if (c1 !== cpu && c2 !== cpu) {
 
     if (d1 < d2) {
       s1 += 1;
       resultText = roomData.player1Name + " VINCE";
-    }
-
-    else if (d2 < d1) {
+    } else if (d2 < d1) {
       s2 += 1;
       resultText = roomData.player2Name + " VINCE";
-    }
-
-    else {
+    } else {
       resultText = "PAREGGIO";
     }
   }
 
-  // se qualcuno ha preso il numero esatto
-  if (c1 === cpu && c2 !== cpu) {
-    resultText = roomData.player1Name + " VINCE (HIT!)";
-  }
-
-  if (c2 === cpu && c1 !== cpu) {
-    resultText = roomData.player2Name + " VINCE (HIT!)";
-  }
-
   if (c1 === cpu && c2 === cpu) {
-    resultText = "ENTRAMBI HIT! PAREGGIO";
+    resultText = "ENTRAMBI HIT!";
   }
 
-  // 🎴 MOSTRA CARTE
+  // show carte
   document.getElementById("cardCPU").innerHTML = `<img src="carta-${cpu}.webp">`;
   document.getElementById("cardP1").innerHTML = `<img src="carta-${c1}.webp">`;
   document.getElementById("cardP2").innerHTML = `<img src="carta-${c2}.webp">`;
 
   document.getElementById("result").innerText = resultText;
 
-  // 🔄 RESET ROUND
+  // reset
   update(ref(db, "rooms/" + roomCode), {
     score1: s1,
     score2: s2,
@@ -241,29 +229,3 @@ function startRound() {
 
   roundActive = false;
 }
-  
-    
-  // ===== SHOW CARDS =====
-  document.getElementById("cardCPU").innerHTML = `<img src="carta-${cpu}.webp">`;
-  document.getElementById("cardP1").innerHTML = `<img src="carta-${c1}.webp">`;
-  document.getElementById("cardP2").innerHTML = `<img src="carta-${c2}.webp">`;
-
-  document.getElementById("result").innerText =
-    winner ? `${winner} VINCE` : "PAREGGIO";
-
-  // ===== RESET ROUND =====
-  update(ref(db, "rooms/" + roomCode), {
-    score1: s1,
-    score2: s2,
-    player1Choice: null,
-    player2Choice: null,
-    cpu: null,
-    locked: false,
-    round: roomData.round + 1
-  });
-
-  roundActive = false;
-}
-
-// ================= LEADERBOARD =================
-function updateLeaderboard() {}
