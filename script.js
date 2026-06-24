@@ -1,4 +1,4 @@
- console.log("SCRIPT CARICATO");
+console.log("SCRIPT CARICATO");
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
@@ -10,7 +10,7 @@ import {
   get
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-// FIREBASE
+// ================= FIREBASE =================
 const firebaseConfig = {
   apiKey: "AIzaSy....",
   authDomain: "gioco-della-lama-alta.firebaseapp.com",
@@ -23,17 +23,24 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// STATE
-let roomCode, playerNumber, roomData;
-let nickname, color;
+// ================= STATE =================
+let roomCode = null;
+let playerNumber = null;
+let roomData = null;
+
+let nickname = "";
+let color = "";
+
 let roundActive = false;
 
-// ================= LOBBY =================
+// ================= LOBBY START =================
 window.createRoom = () => {
 
   roomCode = document.getElementById("roomInput").value;
   nickname = document.getElementById("nickInput").value;
   color = document.getElementById("colorInput").value;
+
+  if (!roomCode || !nickname) return alert("Inserisci stanza e nickname");
 
   playerNumber = 1;
 
@@ -64,6 +71,8 @@ window.joinRoom = () => {
   nickname = document.getElementById("nickInput").value;
   color = document.getElementById("colorInput").value;
 
+  if (!roomCode || !nickname) return alert("Inserisci stanza e nickname");
+
   playerNumber = 2;
 
   update(ref(db, "rooms/" + roomCode), {
@@ -74,8 +83,9 @@ window.joinRoom = () => {
   startGame();
 };
 
-// ================= START =================
+// ================= START GAME =================
 function startGame() {
+
   document.getElementById("lobby").classList.add("hidden");
   document.getElementById("game").classList.remove("hidden");
 
@@ -85,20 +95,23 @@ function startGame() {
 
 // ================= HAND =================
 function renderHand() {
+
   const hand = document.getElementById("hand");
   hand.innerHTML = "";
 
   for (let i = 1; i <= 5; i++) {
-    const b = document.createElement("button");
-    b.innerHTML = `<img src="carta-${i}.webp">`;
-    b.onclick = () => choose(i);
-    hand.appendChild(b);
+    const btn = document.createElement("button");
+    btn.innerHTML = `<img src="carta-${i}.webp">`;
+    btn.onclick = () => choose(i);
+    hand.appendChild(btn);
   }
 }
 
-// ================= LISTEN =================
+// ================= LISTENER =================
 function listen() {
+
   onValue(ref(db, "rooms/" + roomCode), (snap) => {
+
     const d = snap.val();
     if (!d) return;
 
@@ -109,12 +122,26 @@ function listen() {
     document.getElementById("round").innerText = d.round;
     document.getElementById("roomCode").innerText = roomCode;
 
+    // LABEL PLAYER
     const name = playerNumber === 1 ? d.player1Name : d.player2Name;
     const col = playerNumber === 1 ? d.player1Color : d.player2Color;
 
     document.getElementById("playerLabel").innerHTML =
-      `<span style="color:${col}; font-weight:bold">${name} (P${playerNumber})</span>`;
+      `<span style="color:${col}; text-shadow:0 0 10px ${col}">
+        ${name} (P${playerNumber})
+      </span>`;
 
+    // CARDS BACK
+    document.getElementById("cardP1").innerHTML =
+      d.player1Choice != null ? `<img src="retro-carta.webp">` : "";
+
+    document.getElementById("cardP2").innerHTML =
+      d.player2Choice != null ? `<img src="retro-carta.webp">` : "";
+
+    document.getElementById("cardCPU").innerHTML =
+      d.cpu != null ? `<img src="retro-carta.webp">` : "";
+
+    // START ROUND
     if (
       !roundActive &&
       d.player1Choice != null &&
@@ -128,6 +155,7 @@ function listen() {
 
 // ================= CHOOSE =================
 window.choose = (v) => {
+
   if (!roomData || roomData.locked) return;
 
   update(ref(db, "rooms/" + roomCode), {
@@ -150,12 +178,13 @@ function startRound() {
   let t = 3;
   document.getElementById("countdown").innerText = t;
 
-  const int = setInterval(() => {
+  const interval = setInterval(() => {
+
     t--;
     document.getElementById("countdown").innerText = t;
 
     if (t <= 0) {
-      clearInterval(int);
+      clearInterval(interval);
       document.getElementById("countdown").innerText = "";
       reveal(cpu);
     }
@@ -203,37 +232,39 @@ function reveal(cpu) {
 
   roundActive = false;
 
-  updateLeaderboard(winner);
+  if (winner) updateLeaderboard(winner);
 }
 
-// ================= GLOBAL LEADERBOARD =================
+// ================= LEADERBOARD =================
 function updateLeaderboard(winner) {
+
   if (!winner) return;
 
-  const refPlayer = ref(db, "players/" + winner);
+  const r = ref(db, "players/" + winner);
 
-  get(refPlayer).then((snap) => {
+  get(r).then((snap) => {
+
     const data = snap.val() || { wins: 0 };
 
-    set(refPlayer, {
+    set(r, {
       wins: data.wins + 1,
       color: color
     });
   });
 }
 
-// ================= LEADERBOARD LOAD =================
+// ================= LOAD LEADERBOARD =================
 onValue(ref(db, "players"), (snap) => {
-  const data = snap.val();
-  if (!data) return;
+
+  const data = snap.val() || {};
 
   const sorted = Object.entries(data)
-    .sort((a, b) => b[1].wins - a[1].wins);
+    .sort((a, b) => (b[1].wins || 0) - (a[1].wins || 0));
 
   document.getElementById("leaderboard").innerHTML =
-    sorted.map(([name, p]) =>
-      `<div style="color:${p.color || 'white'}">
-        ${name} - ${p.wins} vittorie
-      </div>`
-    ).join("");
+    sorted.map(([name, p]) => `
+      <div style="color:${p.color}">
+        ${name} — ${p.wins || 0}
+      </div>
+    `).join("");
 });
