@@ -217,18 +217,10 @@ button:hover{
 
 /* TESTO  */
 .rules-text {
-    position: absolute;
-
-    top: 320px;   /* 👈 QUI SI MUOVE DAVVERO */
-    left: 50%;
-    transform: translateX(-50%);
-
-    width: 80%;
-
-    font-size: 16px;
-    text-align: center;
-    color: #2b1b10;
+   .rules-text {
+    display: none !important;
 }
+
 
 /* bottone ? */
 #openRules {
