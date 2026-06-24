@@ -1,4 +1,4 @@
-body{
+ body{
     margin:0;
     min-height:100vh;
     font-family:'Pirata One', serif;
@@ -6,7 +6,6 @@ body{
     color:white;
     text-align:center;
 }
-
 
 .hidden{
     display:none !important;
@@ -102,9 +101,7 @@ button{
 
 button:hover{
     transform:scale(1.05);
-
     background:#ca93ff;
-
     box-shadow:
     0 0 20px #ca93ff,
     0 0 40px rgba(202,147,255,.8);
@@ -114,16 +111,11 @@ button:hover{
 
 #leaderboard{
     margin-top:30px;
-
     max-height:160px;
     overflow-y:auto;
-
     background:rgba(0,0,0,.4);
-
     border-radius:15px;
-
     padding:15px;
-
     font-family:sans-serif;
     font-size:14px;
 }
@@ -154,22 +146,19 @@ button:hover{
     justify-content:center;
     align-items:center;
     gap:30px;
-
     margin-top:20px;
     margin-bottom:30px;
 }
 
 #table img{
     width:80px;
-
     border-radius:12px;
-
     box-shadow:
     0 0 10px rgba(0,0,0,.8),
     0 0 20px rgba(178,102,255,.4);
 }
 
-/* ---------- CARTE IN MANO ---------- */
+/* ---------- CARTE ---------- */
 
 #hand{
     display:flex;
@@ -187,9 +176,7 @@ button:hover{
 
 #hand img{
     width:65px;
-
     border-radius:10px;
-
     transition:.2s;
 }
 
@@ -203,7 +190,6 @@ button:hover{
     margin-top:25px;
     font-size:34px;
     color:#d7b3ff;
-
     text-shadow:
     0 0 10px #b266ff,
     0 0 20px #b266ff;
@@ -213,31 +199,20 @@ button:hover{
 
 @media(max-width:700px){
 
-    h1{
-        font-size:42px;
-    }
+    h1{ font-size:42px; }
 
-    button{
-        width:180px;
-        font-size:18px;
-    }
+    button{ width:180px; font-size:18px; }
 
-    #table{
-        gap:15px;
-    }
+    #table{ gap:15px; }
 
-    #table img{
-        width:60px;
-    }
+    #table img{ width:60px; }
 
-    #hand img{
-        width:50px;
-    }
+    #hand img{ width:50px; }
 
-    #countdown{
-        font-size:45px;
-    }
+    #countdown{ font-size:45px; }
 }
+
+/* ================= REGOLE ================= */
 
 #rulesModal {
     position: fixed;
@@ -248,107 +223,7 @@ button:hover{
     z-index: 999;
 }
 
-/* LA TUA PERGAMENA */
-.rules-box {
-    width: 420px;
-    height: 520px;
-
-    background: url("regole.webp") center center / contain no-repeat;
-
-    position: relative;
-}
-
-/* TESTO PERFETTAMENTE POSIZIONATO */
-.rules-text {
-    position: absolute;
-
-    top: 120px;     
-    left: 60px;      
-    right: 60px;    
-    
-    font-family: sans-serif;
-    font-size: 16px;
-    color: #2b1b10;
-
-    text-align: center;
-}
-
-/* TITOLO */
-.rules-box h2 {
-    position: absolute;
-    top: 60px;
-    width: 100%;
-    text-align: center;
-    color: #3b1f14;
-}
-
-/* X */
-#closeRules {
-    position: absolute;
-    top: 20px;
-    right: 30px;
-    cursor: pointer;
-}
- 
-  
-
-    
-
-/* bottone ? */
-#openRules {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-
-    font-size: 24px;
-    padding: 0;
-}
-
-/* contenuto regole */
-.rules-box {
-    width: 90%;
-    max-width: 500px;
-
-    background: rgba(0,0,0,.85);
-    border: 2px solid #b266ff;
-    border-radius: 20px;
-
-    padding: 25px;
-    position: relative;
-
-    box-shadow: 0 0 30px rgba(178,102,255,.5);
-
-    font-family: sans-serif;
-    color: white;
-}
-
-/* bottone X */
-#closeRules {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-
-    cursor: pointer;
-    font-size: 22px;
-    color: white;
-}
-
- /* ================= REGOLE  ================= */
-
-#rulesModal {
-    position: fixed;
-    inset: 0;
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 999;
-}
-
-/* contenitore pergamena */
+/* contenitore */
 .rules-box {
     width: 90%;
     max-width: 500px;
@@ -365,32 +240,29 @@ button:hover{
     top: 60px;
     width: 100%;
     text-align: center;
-
     color: #3b1f14;
 }
 
-/* testo regole */
+/* TESTO (ORA FUNZIONA E SI MUOVE) */
 .rules-text {
     position: absolute;
 
-    top: 58%;
+    top: 65%;
     left: 60px;
     right: 70px;
 
-    transform: translateY(-0%);
+    transform: translateY(-20%);
 
     font-size: 16px;
     text-align: center;
-
     color: #2b1b10;
 }
 
-/* bottone X */
+/* X */
 #closeRules {
     position: absolute;
     top: 10px;
     right: 15px;
-
     cursor: pointer;
     font-size: 22px;
     color: white;
@@ -405,7 +277,6 @@ button:hover{
     width: 50px;
     height: 50px;
     border-radius: 50%;
-
     font-size: 24px;
     padding: 0;
 }
