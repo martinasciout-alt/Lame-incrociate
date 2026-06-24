@@ -216,15 +216,17 @@ button:hover{
     color: #3b1f14;
 }
 
-/* ✅ TESTO (QUESTO ORA FUNZIONA DAVVERO) */
+
+
 .rules-text {
     position: absolute;
 
-    top: 75%;   /* 👈 CAMBIA QUESTO per spostarlo su/giù */
+    top: 75%;
+
     left: 60px;
     right: 70px;
 
-    transform: none; /* IMPORTANTISSIMO: niente blocchi */
+    transform: none;
 
     font-size: 16px;
     text-align: center;
