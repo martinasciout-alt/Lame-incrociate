@@ -109,7 +109,6 @@ function listen() {
     document.getElementById("round").innerText = data.round;
     document.getElementById("roomCode").innerText = roomCode;
 
-    // carte sempre coperte
     document.getElementById("cardP1").innerHTML =
       data.player1Choice != null ? `<img src="retro-carta.webp">` : "";
 
@@ -119,16 +118,57 @@ function listen() {
     document.getElementById("cardCPU").innerHTML =
       data.cpu != null ? `<img src="retro-carta.webp">` : "";
 
-    // START ROUND (FIX STABILE)
+    // START SOLO UNA VOLTA
     if (
-      !roundActive &&
-      data.locked === false &&
-      typeof data.player1Choice === "number" &&
-      typeof data.player2Choice === "number"
+      !roundStarted &&
+      data.player1Choice === null &&
+      data.player2Choice === null &&
+      data.cpu !== null &&
+      data.locked === true
     ) {
       startRound(data);
+      roundStarted = true;
     }
   });
+}
+
+    // START ROUND 
+  function startRound(data) {
+
+  if (roundActive) return;
+  roundActive = true;
+
+  // CPU sceglie per prima
+  const cpu = Math.floor(Math.random() * 5) + 1;
+
+  update(ref(db, "rooms/" + roomCode), {
+    cpu: cpu,
+    locked: true,
+    player1Choice: null,
+    player2Choice: null
+  });
+
+  // mostra carta CPU COPERTA subito
+  document.getElementById("cardCPU").innerHTML =
+    `<img src="retro-carta.webp">`;
+
+  // countdown UNA VOLTA SOLA
+  let countdown = 3;
+  const el = document.getElementById("countdown");
+  el.innerText = countdown;
+
+  const interval = setInterval(() => {
+    countdown--;
+
+    if (countdown <= 0) {
+      clearInterval(interval);
+      el.innerText = "";
+
+      reveal(cpu);
+    } else {
+      el.innerText = countdown;
+    }
+  }, 1000);
 }
 
 // =====================
@@ -174,8 +214,10 @@ function startRound(data) {
       clearInterval(countdownInterval);
       countdownInterval = null;
       reveal(cpu);
+      let roundStarted = false;
     }
   }, 1000);
+  
 
   // TIMEOUT SCELTE
   setTimeout(() => {
@@ -231,4 +273,5 @@ function reveal(cpu) {
   });
 
   roundActive = false;
+  roundStarted = false;
 }
