@@ -1,4 +1,4 @@
-console.log("SCRIPT CARICATO");
+  console.log("SCRIPT CARICATO");
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
@@ -17,7 +17,7 @@ const firebaseConfig = {
   authDomain: "gioco-della-lama-alta.firebaseapp.com",
   databaseURL: "https://gioco-della-lama-alta-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "gioco-della-lama-alta",
-   messagingSenderId: "182282784891",
+  messagingSenderId: "182282784891",
   appId: "1:182282784891:web:0503cff93af07a0ee8d2de"
 };
 
@@ -32,16 +32,14 @@ let playerNumber = null;
 let roomData = null;
 
 let roundActive = false;
-let countdownInterval = null;
+let roundStarted = false;
 
 // =====================
 // START GAME
 // =====================
 window.enterGame = function () {
-  console.log("ENTRA GAME");
-
   document.getElementById("startScreen").classList.add("hidden");
-  document.getElementById("game").classList.remove("hidden");
+  document.getElementById("game").style.display = "block";
 };
 
 // =====================
@@ -118,57 +116,18 @@ function listen() {
     document.getElementById("cardCPU").innerHTML =
       data.cpu != null ? `<img src="retro-carta.webp">` : "";
 
-    // START SOLO UNA VOLTA
+    // START ROUND UNA SOLA VOLTA
     if (
       !roundStarted &&
-      data.player1Choice === null &&
-      data.player2Choice === null &&
       data.cpu !== null &&
-      data.locked === true
+      data.locked === true &&
+      data.player1Choice === null &&
+      data.player2Choice === null
     ) {
-      startRound(data);
       roundStarted = true;
+      startRound();
     }
   });
-}
-
-    // START ROUND 
-  function startRound(data) {
-
-  if (roundActive) return;
-  roundActive = true;
-
-  // CPU sceglie per prima
-  const cpu = Math.floor(Math.random() * 5) + 1;
-
-  update(ref(db, "rooms/" + roomCode), {
-    cpu: cpu,
-    locked: true,
-    player1Choice: null,
-    player2Choice: null
-  });
-
-  // mostra carta CPU COPERTA subito
-  document.getElementById("cardCPU").innerHTML =
-    `<img src="retro-carta.webp">`;
-
-  // countdown UNA VOLTA SOLA
-  let countdown = 3;
-  const el = document.getElementById("countdown");
-  el.innerText = countdown;
-
-  const interval = setInterval(() => {
-    countdown--;
-
-    if (countdown <= 0) {
-      clearInterval(interval);
-      el.innerText = "";
-
-      reveal(cpu);
-    } else {
-      el.innerText = countdown;
-    }
-  }, 1000);
 }
 
 // =====================
@@ -186,40 +145,41 @@ window.choose = function (value) {
 };
 
 // =====================
-// ROUND START
+// START ROUND
 // =====================
-function startRound(data) {
+function startRound() {
 
-  if (roundActive) return; // anti doppio trigger
-
+  if (roundActive) return;
   roundActive = true;
 
   const cpu = Math.floor(Math.random() * 5) + 1;
 
   update(ref(db, "rooms/" + roomCode), {
     cpu: cpu,
-    locked: true
+    locked: true,
+    player1Choice: null,
+    player2Choice: null
   });
 
-  // COUNTDOWN VISIVO
+  document.getElementById("cardCPU").innerHTML =
+    `<img src="retro-carta.webp">`;
+
   let countdown = 3;
   const el = document.getElementById("countdown");
   el.innerText = countdown;
 
-  countdownInterval = setInterval(() => {
+  const interval = setInterval(() => {
     countdown--;
-    el.innerText = countdown;
 
     if (countdown <= 0) {
-      clearInterval(countdownInterval);
-      countdownInterval = null;
+      clearInterval(interval);
+      el.innerText = "";
       reveal(cpu);
-      let roundStarted = false;
+    } else {
+      el.innerText = countdown;
     }
   }, 1000);
-  
 
-  // TIMEOUT SCELTE
   setTimeout(() => {
 
     const updates = {};
@@ -227,9 +187,7 @@ function startRound(data) {
     if (roomData.player1Choice == null) updates.player1Choice = 0;
     if (roomData.player2Choice == null) updates.player2Choice = 0;
 
-    if (Object.keys(updates).length > 0) {
-      update(ref(db, "rooms/" + roomCode), updates);
-    }
+    update(ref(db, "rooms/" + roomCode), updates);
 
   }, 3000);
 }
