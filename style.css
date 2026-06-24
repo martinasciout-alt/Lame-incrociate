@@ -207,33 +207,6 @@ button:hover{
     position: relative;
 }
 
-/* titolo */
-.rules-box h2 {
-    position: absolute;
-    top: 60px;
-    width: 100%;
-    text-align: center;
-    color: #3b1f14;
-}
-
-
-
-.rules-text {
-    position: absolute;
-
-    top: 0;
-    bottom: 0;
-
-    display: flex;
-    align-items: flex-end;  /* 👈 QUESTO lo abbassa davvero */
-
-    padding: 0 60px 80px 60px;
-
-    font-size: 16px;
-    text-align: center;
-    color: #2b1b10;
-}
-
 /* X */
 #closeRules {
     position: absolute;
@@ -242,6 +215,20 @@ button:hover{
     cursor: pointer;
     font-size: 22px;
     color: white;
+}
+
+/* TESTO - ORA È STABILE */
+.rules-text {
+    position: absolute;
+
+    top: 210px;   /* 👈 QUESTO è il valore da modificare */
+    left: 60px;
+    right: 70px;
+
+    font-size: 16px;
+    text-align: center;
+    color: #2b1b10;
+    line-height: 1.4;
 }
 
 /* bottone ? */
