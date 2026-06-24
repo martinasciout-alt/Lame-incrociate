@@ -240,10 +240,10 @@ button:hover{
 
 /* ---------- REGOLE MODAL ---------- */
 
-#rulesModal {
+ #rulesModal {
     position: fixed;
     inset: 0;
-    display: flex;
+    display: none;
     justify-content: center;
     align-items: center;
     z-index: 999;
@@ -252,31 +252,10 @@ button:hover{
       linear-gradient(rgba(0,0,0,.75), rgba(0,0,0,.75)),
       url("regole.webp") center center / cover no-repeat;
 }
+ 
+  
 
-.rules-box {
-    width: 90%;
-    max-width: 500px;
-
-    background: rgba(0,0,0,.85);
-    border: 2px solid #b266ff;
-    border-radius: 20px;
-
-    padding: 25px;
-    position: relative;
-
-    box-shadow: 0 0 30px rgba(178,102,255,.5);
-
-    font-family: sans-serif;
-}
-
-#closeRules {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    cursor: pointer;
-    font-size: 22px;
-    color: white;
-}
+    
 
 /* bottone ? */
 #openRules {
