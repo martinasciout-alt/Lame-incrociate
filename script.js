@@ -24,6 +24,7 @@ let playerNumber = null;
 let roomData = null;
 
 let roundActive = false;
+let countdownInterval = null;
 
 // START
 window.enterGame = function () {
@@ -33,7 +34,7 @@ window.enterGame = function () {
 
 // ROOM
 window.createRoom = function (code) {
-  if (!code) return;
+  if (!code) return alert("Inserisci codice stanza");
 
   roomCode = code;
   playerNumber = 1;
@@ -53,7 +54,7 @@ window.createRoom = function (code) {
 };
 
 window.joinRoom = function (code) {
-  if (!code) return;
+  if (!code) return alert("Inserisci codice stanza");
 
   roomCode = code;
   playerNumber = 2;
@@ -90,7 +91,7 @@ function listen() {
     document.getElementById("round").innerText = data.round;
     document.getElementById("roomCode").innerText = roomCode;
 
-    // sempre carte COPERTE
+    // SEMPRE COPERTE SUL TAVOLO
     document.getElementById("cardP1").innerHTML =
       data.player1Choice ? `<img src="retro-carta.webp">` : "";
 
@@ -100,8 +101,13 @@ function listen() {
     document.getElementById("cardCPU").innerHTML =
       data.cpu ? `<img src="retro-carta.webp">` : "";
 
-    // start round
-    if (!roundActive && data.player1Choice && data.player2Choice) {
+    // START ROUND SOLO UNA VOLTA
+    if (
+      !roundActive &&
+      data.player1Choice !== null &&
+      data.player2Choice !== null &&
+      data.locked === false
+    ) {
       startRound(data);
     }
   });
@@ -109,7 +115,7 @@ function listen() {
 
 // CHOOSE
 window.choose = function (value) {
-  if (!roomData) return;
+  if (!roomData || roomData.locked) return;
 
   const path =
     playerNumber === 1 ? "player1Choice" : "player2Choice";
@@ -119,7 +125,7 @@ window.choose = function (value) {
   });
 };
 
-// ROUND
+// ROUND START
 function startRound(data) {
 
   roundActive = true;
@@ -131,43 +137,42 @@ function startRound(data) {
     locked: true
   });
 
-  // timeout 3s scelta
-  setTimeout(() => {
-
-    if (!roomData.player1Choice) {
-      update(ref(db, "rooms/" + roomCode), {
-        player1Choice: 0
-      });
-    }
-
-    if (!roomData.player2Choice) {
-      update(ref(db, "rooms/" + roomCode), {
-        player2Choice: 0
-      });
-    }
-
-  }, 3000);
-
+  // TIMER VISIVO
   let countdown = 3;
   const el = document.getElementById("countdown");
   el.innerText = countdown;
 
-  const t = setInterval(() => {
+  countdownInterval = setInterval(() => {
     countdown--;
     el.innerText = countdown;
 
     if (countdown <= 0) {
-      clearInterval(t);
-      reveal(data, cpu);
+      clearInterval(countdownInterval);
+      countdownInterval = null;
+      reveal(cpu);
     }
   }, 1000);
+
+  // TIMEOUT SCELTA (chi non sceglie = 0)
+  setTimeout(() => {
+
+    const updates = {};
+
+    if (!roomData.player1Choice) updates.player1Choice = 0;
+    if (!roomData.player2Choice) updates.player2Choice = 0;
+
+    if (Object.keys(updates).length > 0) {
+      update(ref(db, "rooms/" + roomCode), updates);
+    }
+
+  }, 3000);
 }
 
 // REVEAL
-function reveal(data, cpu) {
+function reveal(cpu) {
 
-  const c1 = data.player1Choice || 0;
-  const c2 = data.player2Choice || 0;
+  const c1 = roomData.player1Choice || 0;
+  const c2 = roomData.player2Choice || 0;
 
   document.getElementById("cardP1").innerHTML =
     `<img src="carta-${c1}.webp">`;
@@ -178,8 +183,8 @@ function reveal(data, cpu) {
   document.getElementById("cardCPU").innerHTML =
     `<img src="carta-${cpu}.webp">`;
 
-  let s1 = data.score1;
-  let s2 = data.score2;
+  let s1 = roomData.score1;
+  let s2 = roomData.score2;
 
   const d1 = Math.abs(c1 - cpu);
   const d2 = Math.abs(c2 - cpu);
@@ -196,7 +201,7 @@ function reveal(data, cpu) {
     player2Choice: null,
     cpu: null,
     locked: false,
-    round: data.round + 1
+    round: roomData.round + 1
   });
 
   roundActive = false;
