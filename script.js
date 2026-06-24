@@ -1,4 +1,4 @@
- console.log("SCRIPT CARICATO");
+console.log("SCRIPT CARICATO");
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
@@ -33,7 +33,7 @@ let color = "";
 
 let roundActive = false;
 
-// ================= LOBBY START =================
+// ================= LOBBY =================
 window.createRoom = () => {
 
   roomCode = document.getElementById("roomInput").value;
@@ -268,16 +268,14 @@ onValue(ref(db, "players"), (snap) => {
     `).join("");
 });
 
-// ================= REGOLE =================
+// ================= REGOLE (FIXED) =================
 
 function showRules() {
-  const modal = document.getElementById("rulesModal");
-  if (modal) modal.style.display = "flex";
+  document.getElementById("rulesModal").classList.add("show");
 }
 
 function hideRules() {
-  const modal = document.getElementById("rulesModal");
-  if (modal) modal.style.display = "none";
+  document.getElementById("rulesModal").classList.remove("show");
 }
 
 function initRules() {
@@ -285,23 +283,18 @@ function initRules() {
   const openBtn = document.getElementById("openRules");
   const closeBtn = document.getElementById("closeRules");
 
-  // debug utile (puoi lasciarlo o toglierlo dopo)
   console.log("openRules:", openBtn);
   console.log("closeRules:", closeBtn);
 
-  if (!openBtn || !closeBtn) {
-    console.warn("⚠️ Regole non inizializzate: elementi mancanti nel DOM");
-    return;
-  }
+  if (!openBtn || !closeBtn) return;
 
   openBtn.addEventListener("click", showRules);
   closeBtn.addEventListener("click", hideRules);
 
-  // mostra regole all'ingresso
   setTimeout(showRules, 300);
 }
 
-// inizializzazione sicura per script type="module"
+// init sicuro
 if (document.readyState === "loading") {
   document.addEventListener("DOMContentLoaded", initRules);
 } else {
