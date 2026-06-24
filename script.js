@@ -270,20 +270,20 @@ onValue(ref(db, "players"), (snap) => {
 
 // ================= REGOLE =================
 
-const rulesModal = document.getElementById("rulesModal");
-const openRules = document.getElementById("openRules");
-const closeRules = document.getElementById("closeRules");
-
-// mostra regole
 function showRules() {
-  rulesModal.style.display = "flex";
+  document.getElementById("rulesModal").style.display = "flex";
 }
 
-// nascondi regole
 function hideRules() {
-  rulesModal.style.display = "none";
+  document.getElementById("rulesModal").style.display = "none";
 }
 
-// eventi
-openRules.addEventListener("click", showRules);
-closeRules.addEventListener("click", hideRules);
+document.addEventListener("DOMContentLoaded", () => {
+
+  const openRules = document.getElementById("openRules");
+  const closeRules = document.getElementById("closeRules");
+
+  openRules.addEventListener("click", showRules);
+  closeRules.addEventListener("click", hideRules);
+
+});
