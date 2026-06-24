@@ -1,4 +1,4 @@
- console.log("SCRIPT CARICATO");
+console.log("SCRIPT CARICATO");
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
@@ -10,10 +10,10 @@ import {
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 // =====================
-// FIREBASE CONFIG
+// FIREBASE
 // =====================
 const firebaseConfig = {
-  apiKey: "AIzaSyBzdhurbAi48OoRyw6E3HIkd1q87-43c",
+  apiKey: "AIzaSyBzdhurbAi48OoRyw6eKJ3HIkd1q87-43c",
   authDomain: "gioco-della-lama-alta.firebaseapp.com",
   databaseURL: "https://gioco-della-lama-alta-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "gioco-della-lama-alta",
@@ -32,23 +32,20 @@ let playerNumber = null;
 let roomData = null;
 
 let roundActive = false;
-let roundStarted = false;
 
 // =====================
-// START GAME
+// START
 // =====================
 window.enterGame = function () {
-  console.log("ENTRA GAME");
-
-  document.getElementById("startScreen").style.display = "none";
-  document.getElementById("game").style.display = "block";
+  document.getElementById("startScreen").classList.add("hidden");
+  document.getElementById("game").classList.remove("hidden");
 };
 
 // =====================
 // ROOM
 // =====================
 window.createRoom = function (code) {
-  if (!code) return alert("Inserisci codice stanza");
+  if (!code) return;
 
   roomCode = code;
   playerNumber = 1;
@@ -68,7 +65,7 @@ window.createRoom = function (code) {
 };
 
 window.joinRoom = function (code) {
-  if (!code) return alert("Inserisci codice stanza");
+  if (!code) return;
 
   roomCode = code;
   playerNumber = 2;
@@ -118,15 +115,12 @@ function listen() {
     document.getElementById("cardCPU").innerHTML =
       data.cpu != null ? `<img src="retro-carta.webp">` : "";
 
-    // START ROUND SOLO UNA VOLTA
     if (
-      !roundStarted &&
-      data.cpu !== null &&
-      data.locked === true &&
-      data.player1Choice === null &&
-      data.player2Choice === null
+      !roundActive &&
+      data.player1Choice != null &&
+      data.player2Choice != null &&
+      data.locked === false
     ) {
-      roundStarted = true;
       startRound();
     }
   });
@@ -138,8 +132,7 @@ function listen() {
 window.choose = function (value) {
   if (!roomData || roomData.locked) return;
 
-  const path =
-    playerNumber === 1 ? "player1Choice" : "player2Choice";
+  const path = playerNumber === 1 ? "player1Choice" : "player2Choice";
 
   update(ref(db, "rooms/" + roomCode), {
     [path]: value
@@ -147,20 +140,18 @@ window.choose = function (value) {
 };
 
 // =====================
-// START ROUND
+// ROUND
 // =====================
 function startRound() {
-
   if (roundActive) return;
+
   roundActive = true;
 
   const cpu = Math.floor(Math.random() * 5) + 1;
 
   update(ref(db, "rooms/" + roomCode), {
-    cpu: cpu,
-    locked: true,
-    player1Choice: null,
-    player2Choice: null
+    cpu,
+    locked: true
   });
 
   document.getElementById("cardCPU").innerHTML =
@@ -183,14 +174,12 @@ function startRound() {
   }, 1000);
 
   setTimeout(() => {
-
     const updates = {};
 
     if (roomData.player1Choice == null) updates.player1Choice = 0;
     if (roomData.player2Choice == null) updates.player2Choice = 0;
 
     update(ref(db, "rooms/" + roomCode), updates);
-
   }, 3000);
 }
 
@@ -198,7 +187,6 @@ function startRound() {
 // REVEAL
 // =====================
 function reveal(cpu) {
-
   const c1 = roomData.player1Choice || 0;
   const c2 = roomData.player2Choice || 0;
 
@@ -233,5 +221,4 @@ function reveal(cpu) {
   });
 
   roundActive = false;
-  roundStarted = false;
 }
