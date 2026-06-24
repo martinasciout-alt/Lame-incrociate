@@ -1,4 +1,4 @@
-body{
+ body{
     margin:0;
     min-height:100vh;
     font-family:'Pirata One', serif;
@@ -185,7 +185,7 @@ button:hover{
     #countdown{ font-size:45px; }
 }
 
-/* ================= REGOLE   ================= */
+/* ================= REGOLE ================= */
 
 #rulesModal {
     position: fixed;
@@ -209,7 +209,7 @@ button:hover{
     flex-direction: column;
     align-items: center;
 
-    padding-top: 150px;
+    padding-top: 0; /* 👈 FIX: niente offset fisso */
 }
 
 .rules-text {
@@ -218,6 +218,8 @@ button:hover{
     font-size: 16px;
     color: #2b1b10;
     line-height: 1.4;
+
+    margin-top: 140px; /* 👈 QUI controlli l’altezza */
 }
 
 #closeRules {
