@@ -373,11 +373,11 @@ button:hover{
 .rules-text {
     position: absolute;
 
-    top: 52%;   
+    top: 52%; 
     left: 60px;
     right: 70px;
 
-    transform: translateY(-50%);
+    transform: translateY(-30%);
 
     font-size: 16px;
     text-align: center;
