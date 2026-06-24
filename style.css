@@ -10,16 +10,6 @@
   display: none;
 }
 
-/* LOBBY */
-#setupBox {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 200px;
-  margin: auto;
-}
-
-/* GAME */
 #table {
   display: flex;
   justify-content: center;
@@ -40,7 +30,7 @@
   width: 60px;
 }
 
-/* PLAYER LABEL */
-#playerLabel {
-  font-size: 20px;
+#leaderboard {
+  margin-top: 10px;
+  font-size: 14px;
 }
