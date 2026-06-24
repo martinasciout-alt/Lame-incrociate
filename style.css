@@ -238,19 +238,55 @@ button:hover{
     }
 }
 
-/* ---------- REGOLE MODAL ---------- */
-
- #rulesModal {
+#rulesModal {
     position: fixed;
     inset: 0;
     display: none;
     justify-content: center;
     align-items: center;
     z-index: 999;
+}
 
-    background: 
-      linear-gradient(rgba(0,0,0,.75), rgba(0,0,0,.75)),
-      url("regole.webp") center center / cover no-repeat;
+/* LA TUA PERGAMENA */
+.rules-box {
+    width: 420px;
+    height: 520px;
+
+    background: url("regole.webp") center center / contain no-repeat;
+
+    position: relative;
+}
+
+/* TESTO PERFETTAMENTE POSIZIONATO */
+.rules-text {
+    position: absolute;
+
+    top: 120px;     /* 👈 regola questo */
+    left: 60px;     /* 👈 regola questo */
+    right: 60px;    /* 👈 regola questo */
+
+    font-family: sans-serif;
+    font-size: 16px;
+    color: #2b1b10;
+
+    text-align: center;
+}
+
+/* TITOLO */
+.rules-box h2 {
+    position: absolute;
+    top: 60px;
+    width: 100%;
+    text-align: center;
+    color: #3b1f14;
+}
+
+/* X */
+#closeRules {
+    position: absolute;
+    top: 20px;
+    right: 30px;
+    cursor: pointer;
 }
  
   
