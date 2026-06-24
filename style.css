@@ -1,123 +1,223 @@
- body {
-  margin: 0;
-  font-family: sans-serif;
-  background: url("sfondo.jpeg") center/cover fixed;
-  color: white;
+ console.log("SCRIPT CARICATO");
+
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import {
+  getDatabase,
+  ref,
+  set,
+  update,
+  onValue
+} from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
+
+// ================= FIREBASE =================
+const firebaseConfig = {
+  apiKey: "AIzaSyBzdhurbAi48OoRyw6E3HIkd1q87-43c",
+  authDomain: "gioco-della-lama-alta.firebaseapp.com",
+  databaseURL: "https://gioco-della-lama-alta-default-rtdb.europe-west1.firebasedatabase.app",
+  projectId: "gioco-della-lama-alta",
+  messagingSenderId: "182282784891",
+  appId: "1:182282784891:web:0503cff93af07a0ee8d2de"
+};
+
+const app = initializeApp(firebaseConfig);
+const db = getDatabase(app);
+
+// ================= STATE =================
+let roomCode = null;
+let playerNumber = null;
+let roomData = null;
+
+let roundActive = false;
+
+// ================= UI HELPERS =================
+function showGame() {
+  document.getElementById("lobby").classList.add("hidden");
+  document.getElementById("game").classList.remove("hidden");
 }
 
-.hidden {
-  display: none !important;
+function resetTable() {
+  document.getElementById("cardP1").innerHTML = "";
+  document.getElementById("cardP2").innerHTML = "";
+  document.getElementById("cardCPU").innerHTML = "";
 }
 
-/* =========================
-   LOBBY LAYOUT
-========================= */
+// ================= LOBBY =================
+window.enterGame = function () {
+  showGame();
+};
 
-/* ================= LOBBY CENTRATA ================= */
+window.showRules = function () {
+  document.getElementById("rulesPopup").style.display = "flex";
+};
 
-.lobby-container {
-  display: flex;
-  flex-direction: column;
-  justify-content: center;
-  align-items: center;
-  height: 100vh;
-  gap: 25px;
-  text-align: center;
+window.closeRules = function () {
+  document.getElementById("rulesPopup").style.display = "none";
+};
+
+// ================= ROOM =================
+window.createRoom = function (code) {
+  if (!code) return;
+
+  roomCode = code;
+  playerNumber = 1;
+
+  set(ref(db, "rooms/" + code), {
+    score1: 0,
+    score2: 0,
+    round: 1,
+    maxRounds: 3,
+    player1Choice: null,
+    player2Choice: null,
+    cpu: null,
+    locked: false
+  });
+
+  listen();
+  renderHand();
+  showGame();
+};
+
+window.joinRoom = function (code) {
+  if (!code) return;
+
+  roomCode = code;
+  playerNumber = 2;
+
+  listen();
+  renderHand();
+  showGame();
+};
+
+// ================= HAND =================
+function renderHand() {
+  const hand = document.getElementById("hand");
+  hand.innerHTML = "";
+
+  for (let i = 1; i <= 5; i++) {
+    const btn = document.createElement("button");
+    btn.innerHTML = `<img src="carta-${i}.webp">`;
+    btn.onclick = () => choose(i);
+    hand.appendChild(btn);
+  }
 }
 
-/* TITOLO */
-.lobby-title {
-  font-size: 42px;
-  margin: 0;
-  text-shadow: 0 0 10px rgba(0,0,0,0.6);
+// ================= LISTENER =================
+function listen() {
+  const roomRef = ref(db, "rooms/" + roomCode);
+
+  onValue(roomRef, (snap) => {
+    const data = snap.val();
+    if (!data) return;
+
+    roomData = data;
+
+    document.getElementById("score1").innerText = data.score1;
+    document.getElementById("score2").innerText = data.score2;
+    document.getElementById("round").innerText = data.round;
+    document.getElementById("roomCode").innerText = roomCode;
+
+    if (data.player1Choice != null)
+      document.getElementById("cardP1").innerHTML = `<img src="retro-carta.webp">`;
+
+    if (data.player2Choice != null)
+      document.getElementById("cardP2").innerHTML = `<img src="retro-carta.webp">`;
+
+    if (data.cpu != null)
+      document.getElementById("cardCPU").innerHTML = `<img src="retro-carta.webp">`;
+
+    // START ROUND
+    if (
+      !roundActive &&
+      data.player1Choice !== null &&
+      data.player2Choice !== null &&
+      data.locked === false
+    ) {
+      startRound();
+    }
+  });
 }
 
-/* BOTTONI CENTRALI */
-.center-buttons {
-  display: flex;
-  flex-direction: column;
-  gap: 10px;
-  width: 220px;
+// ================= CHOOSE =================
+window.choose = function (value) {
+  if (!roomData || roomData.locked) return;
+
+  const path = playerNumber === 1 ? "player1Choice" : "player2Choice";
+
+  update(ref(db, "rooms/" + roomCode), {
+    [path]: value
+  });
+};
+
+// ================= ROUND =================
+function startRound() {
+  roundActive = true;
+
+  const cpu = Math.floor(Math.random() * 5) + 1;
+
+  update(ref(db, "rooms/" + roomCode), {
+    cpu,
+    locked: true
+  });
+
+  document.getElementById("cardCPU").innerHTML =
+    `<img src="retro-carta.webp">`;
+
+  let countdown = 3;
+  const el = document.getElementById("countdown");
+  el.innerText = countdown;
+
+  const interval = setInterval(() => {
+    countdown--;
+
+    if (countdown <= 0) {
+      clearInterval(interval);
+      el.innerText = "";
+      reveal(cpu);
+    } else {
+      el.innerText = countdown;
+    }
+  }, 1000);
 }
 
-.center-buttons button {
-  padding: 10px;
-  font-size: 14px;
-  border-radius: 8px;
-}
+// ================= REVEAL =================
+function reveal(cpu) {
 
-/* CLASSIFICA SOTTO */
-.leaderboard {
-  width: 200px;
-  max-height: 140px;
-  overflow-y: auto;
-  background: rgba(0,0,0,0.4);
-  border-radius: 10px;
-  padding: 8px;
-  font-size: 12px;
-}
+  const c1 = roomData.player1Choice || 0;
+  const c2 = roomData.player2Choice || 0;
 
-/* MOBILE */
-@media (max-width: 700px) {
-  .lobby-title {
-    font-size: 30px;
+  let s1 = roomData.score1;
+  let s2 = roomData.score2;
+
+  let result = "";
+
+  const d1 = Math.abs(c1 - cpu);
+  const d2 = Math.abs(c2 - cpu);
+
+  if (d1 < d2) {
+    s1++;
+    result = "HAI VINTO PLAYER 1";
+  } else if (d2 < d1) {
+    s2++;
+    result = "HAI VINTO PLAYER 2";
+  } else {
+    result = "PAREGGIO";
   }
 
-  .center-buttons {
-    width: 180px;
-  }
+  document.getElementById("cardP1").innerHTML = `<img src="carta-${c1}.webp">`;
+  document.getElementById("cardP2").innerHTML = `<img src="carta-${c2}.webp">`;
+  document.getElementById("cardCPU").innerHTML = `<img src="carta-${cpu}.webp">`;
 
-  .leaderboard {
-    width: 170px;
-    max-height: 120px;
-  }
-}
+  document.getElementById("result").innerText = result;
 
+  update(ref(db, "rooms/" + roomCode), {
+    score1: s1,
+    score2: s2,
+    player1Choice: null,
+    player2Choice: null,
+    cpu: null,
+    locked: false,
+    round: roomData.round + 1
+  });
 
-
-  
-
-/* POPUP */
-#rulesPopup {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.85);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-#rulesBox {
-  background: #222;
-  padding: 20px;
-  position: relative;
-  width: 300px;
-}
-
-#closeRules {
-  position: absolute;
-  top: 5px;
-  right: 10px;
-}
-
-/* GAME */
-#table {
-  display: flex;
-  justify-content: center;
-  gap: 20px;
-}
-
-#table img {
-  width: 60px;
-}
-
-#hand button {
-  width: 60px;
-  height: 80px;
-  background: none;
-  border: none;
-}
-
-#hand img {
-  width: 100%;
+  roundActive = false;
 }
