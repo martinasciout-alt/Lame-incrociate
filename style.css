@@ -279,3 +279,44 @@ button:hover {
   transform: translateY(-6px) scale(1.05) rotate(-1deg);
   box-shadow: 0 10px 20px rgba(0,0,0,0.4);
 }
+
+#table {
+  display: flex;
+  justify-content: center;
+  gap: 40px;
+  align-items: center;
+}
+
+#table img {
+  width: 90px;
+  height: auto;
+  object-fit: contain;
+}
+
+.cards button {
+  width: 70px;
+  height: 100px;
+}
+
+.cards button img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+@media (max-width: 700px) {
+
+  .cards button {
+    width: 55px;
+    height: 80px;
+  }
+
+  #table {
+    flex-direction: row;
+    gap: 15px;
+  }
+
+  #table img {
+    width: 60px;
+  }
+}
