@@ -6,12 +6,11 @@ import {
   ref,
   set,
   update,
-  onValue
+  onValue,
+  get
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-// =====================
-// FIREBASE
-// =====================
+// ===================== FIREBASE =====================
 const firebaseConfig = {
   apiKey: "AIzaSyBzdhurbAi48OoRyw6E3HIkd1q87-43c",
   authDomain: "gioco-della-lama-alta.firebaseapp.com",
@@ -24,9 +23,7 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// =====================
-// STATE
-// =====================
+// ===================== STATE =====================
 let roomCode = null;
 let playerNumber = null;
 let roomData = null;
@@ -34,17 +31,18 @@ let roomData = null;
 let roundActive = false;
 let roundStarted = false;
 
-// =====================
-// START
-// =====================
+// ===================== POPUP =====================
+window.closeRules = function () {
+  document.getElementById("rulesPopup").style.display = "none";
+};
+
+// ===================== ENTER GAME =====================
 window.enterGame = function () {
-  document.getElementById("startScreen").classList.add("hidden");
+  document.getElementById("lobby").style.display = "none";
   document.getElementById("game").classList.remove("hidden");
 };
 
-// =====================
-// ROOM
-// =====================
+// ===================== ROOM =====================
 window.createRoom = function (code) {
   if (!code) return;
 
@@ -76,9 +74,7 @@ window.joinRoom = function (code) {
   renderHand();
 };
 
-// =====================
-// HAND
-// =====================
+// ===================== HAND =====================
 function renderHand() {
   const hand = document.getElementById("hand");
   hand.innerHTML = "";
@@ -91,9 +87,7 @@ function renderHand() {
   }
 }
 
-// =====================
-// LISTENER
-// =====================
+// ===================== LISTENER =====================
 function listen() {
   const roomRef = ref(db, "rooms/" + roomCode);
 
@@ -117,19 +111,19 @@ function listen() {
     if (data.cpu != null)
       document.getElementById("cardCPU").innerHTML = `<img src="retro-carta.webp">`;
 
-    // start round
-    if (!roundStarted && data.locked === false &&
-        data.player1Choice != null &&
-        data.player2Choice != null) {
+    if (
+      !roundStarted &&
+      data.locked === false &&
+      data.player1Choice != null &&
+      data.player2Choice != null
+    ) {
       startRound();
       roundStarted = true;
     }
   });
 }
 
-// =====================
-// CHOOSE
-// =====================
+// ===================== CHOOSE =====================
 window.choose = function (value) {
   if (!roomData || roomData.locked) return;
 
@@ -140,9 +134,7 @@ window.choose = function (value) {
   });
 };
 
-// =====================
-// ROUND
-// =====================
+// ===================== ROUND =====================
 function startRound() {
 
   roundActive = true;
@@ -150,7 +142,7 @@ function startRound() {
   const cpu = Math.floor(Math.random() * 5) + 1;
 
   update(ref(db, "rooms/" + roomCode), {
-    cpu: cpu,
+    cpu,
     locked: true
   });
 
@@ -174,9 +166,7 @@ function startRound() {
   }, 1000);
 }
 
-// =====================
-// REVEAL + RESULT
-// =====================
+// ===================== REVEAL =====================
 function reveal(cpu) {
 
   const c1 = roomData.player1Choice || 0;
@@ -185,47 +175,28 @@ function reveal(cpu) {
   let s1 = roomData.score1;
   let s2 = roomData.score2;
 
-  let resultText = "";
+  let result = "";
 
   const d1 = Math.abs(c1 - cpu);
   const d2 = Math.abs(c2 - cpu);
 
-  if (c1 === cpu && c2 !== cpu) {
-    s2++;
-    resultText = "PLAYER 2 VINCE";
-  }
-  else if (c2 === cpu && c1 !== cpu) {
+  if (d1 < d2) {
     s1++;
-    resultText = "PLAYER 1 VINCE";
-  }
-  else if (d1 < d2) {
-    s1++;
-    resultText = "PLAYER 1 VINCE";
-  }
-  else if (d2 < d1) {
+    result = "PLAYER 1 VINCE";
+  } else if (d2 < d1) {
     s2++;
-    resultText = "PLAYER 2 VINCE";
-  }
-  else {
-    resultText = "PAREGGIO";
+    result = "PLAYER 2 VINCE";
+  } else {
+    result = "PAREGGIO";
   }
 
   document.getElementById("cardP1").innerHTML = `<img src="carta-${c1}.webp">`;
   document.getElementById("cardP2").innerHTML = `<img src="carta-${c2}.webp">`;
   document.getElementById("cardCPU").innerHTML = `<img src="carta-${cpu}.webp">`;
 
-  document.getElementById("result").innerHTML = resultText;
+  document.getElementById("result").innerText = result;
 
-  let nextRound = roomData.round + 1;
-
-  let finalText = "";
-  if (nextRound > roomData.maxRounds) {
-    if (s1 > s2) finalText = "🏆 HA VINTO PLAYER 1";
-    else if (s2 > s1) finalText = "🏆 HA VINTO PLAYER 2";
-    else finalText = "🤝 PAREGGIO FINALE";
-
-    document.getElementById("result").innerHTML = finalText;
-  }
+  let next = roomData.round + 1;
 
   update(ref(db, "rooms/" + roomCode), {
     score1: s1,
@@ -234,14 +205,9 @@ function reveal(cpu) {
     player2Choice: null,
     cpu: null,
     locked: false,
-    round: nextRound
+    round: next
   });
 
   roundActive = false;
   roundStarted = false;
 }
-
-// restart
-window.nextRound = function () {
-  document.getElementById("result").innerHTML = "";
-}; 
