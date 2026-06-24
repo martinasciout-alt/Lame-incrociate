@@ -196,6 +196,10 @@ button:hover{
     z-index: 999;
 }
 
+#rulesModal.show {
+    display: flex;
+}
+
 .rules-box {
     width: 90%;
     max-width: 500px;
