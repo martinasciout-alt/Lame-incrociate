@@ -262,10 +262,10 @@ button:hover{
 .rules-text {
     position: absolute;
 
-    top: 120px;     /* 👈 regola questo */
-    left: 60px;     /* 👈 regola questo */
-    right: 60px;    /* 👈 regola questo */
-
+    top: 120px;     
+    left: 60px;      
+    right: 60px;    
+    
     font-family: sans-serif;
     font-size: 16px;
     color: #2b1b10;
@@ -377,7 +377,7 @@ button:hover{
     left: 60px;
     right: 70px;
 
-    transform: translateY(-10%);
+    transform: translateY(-5%);
 
     font-size: 16px;
     text-align: center;
