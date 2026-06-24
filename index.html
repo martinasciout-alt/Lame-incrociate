@@ -23,14 +23,25 @@
 
 <!-- LOBBY -->
 <div id="lobby">
-  <div id="leaderboard"></div>
 
-  <div id="lobbyCenter">
-    <h1>Lama Alta</h1>
-    <button onclick="createRoom(prompt('stanza'))">Crea stanza</button>
-    <button onclick="joinRoom(prompt('stanza'))">Entra stanza</button>
-    <button onclick="enterGame()">Gioca</button>
+  <div class="lobby-container">
+
+    <h1 class="lobby-title">Lama Alta</h1>
+
+    <div class="center-buttons">
+      <button onclick="createRoom(prompt('Stanza'))">Crea stanza</button>
+      <button onclick="joinRoom(prompt('Stanza'))">Entra stanza</button>
+      <button onclick="enterGame()">Gioca</button>
+      <button onclick="showRules()">Regole</button>
+    </div>
+
+    <div class="leaderboard">
+      <h3>Classifica</h3>
+      <div id="leaderboardList"></div>
+    </div>
+
   </div>
+
 </div>
 
 <!-- GAME -->
