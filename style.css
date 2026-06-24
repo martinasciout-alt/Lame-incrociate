@@ -260,3 +260,22 @@ button:hover {
   display: none !important;
   pointer-events: none;
 }
+
+.cards button {
+  width: 90px;
+  height: 130px;
+  padding: 0;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+  perspective: 1000px;
+}
+
+.cards button img {
+  transition: transform 0.2s ease, box-shadow 0.2s ease;
+}
+
+.cards button:hover img {
+  transform: translateY(-6px) scale(1.05) rotate(-1deg);
+  box-shadow: 0 10px 20px rgba(0,0,0,0.4);
+}
