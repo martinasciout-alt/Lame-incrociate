@@ -185,7 +185,7 @@ button:hover{
     #countdown{ font-size:45px; }
 }
 
-/* ================= REGOLE ================= */
+/* ================= REGOLE FIX DEFINITIVO ================= */
 
 #rulesModal {
     position: fixed;
@@ -196,14 +196,12 @@ button:hover{
     z-index: 999;
 }
 
-/* contenitore pergamena */
 .rules-box {
     width: 90%;
     max-width: 500px;
     height: 520px;
 
     background: url("regole.webp") center center / contain no-repeat;
-
     position: relative;
 }
 
@@ -217,13 +215,15 @@ button:hover{
     color: white;
 }
 
-/* TESTO - ORA È STABILE */
+/* TESTO (FORZATO E STABILE) */
 .rules-text {
-    position: absolute;
+    position: absolute !important;
 
-    top: 210px;   /* 👈 QUESTO è il valore da modificare */
+    top: 180px !important;   /* 👈 CAMBIA SOLO QUESTO */
     left: 60px;
-    right: 70px;
+    right: 60px;
+
+    transform: none !important;
 
     font-size: 16px;
     text-align: center;
