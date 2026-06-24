@@ -220,7 +220,7 @@ button:hover{
 .rules-text {
     position: absolute;
 
-    top: 82%;   /* 👈 CAMBIA QUESTO per spostarlo su/giù */
+    top: 75%;   /* 👈 CAMBIA QUESTO per spostarlo su/giù */
     left: 60px;
     right: 70px;
 
