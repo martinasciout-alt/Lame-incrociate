@@ -215,20 +215,19 @@ button:hover{
     color: white;
 }
 
-/* TESTO (FORZATO E STABILE) */
+/* TESTO  */
 .rules-text {
-    position: absolute !important;
+    position: absolute;
 
-    top: 150px !important;   /* 👈 CAMBIA SOLO QUESTO */
-    left: 60px;
-    right: 60px;
+    top: 300px;   /* 👈 QUI SI MUOVE DAVVERO */
+    left: 50%;
+    transform: translateX(-50%);
 
-    transform: none !important;
+    width: 80%;
 
     font-size: 16px;
     text-align: center;
     color: #2b1b10;
-    line-height: 1.4;
 }
 
 /* bottone ? */
