@@ -91,6 +91,7 @@ function startGame() {
 
   listen();
   renderHand();
+  showRules();
 }
 
 // ================= HAND =================
@@ -268,3 +269,22 @@ onValue(ref(db, "players"), (snap) => {
       </div>
     `).join("");
 });
+
+
+const rulesModal = document.getElementById("rulesModal");
+const openRules = document.getElementById("openRules");
+const closeRules = document.getElementById("closeRules");
+
+// chiudi regole
+closeRules.onclick = () => {
+  rulesModal.classList.add("hidden");
+};
+
+// riapri regole
+openRules.onclick = () => {
+  rulesModal.classList.remove("hidden");
+};
+
+function showRules() {
+  rulesModal.classList.remove("hidden");
+}
