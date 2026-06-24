@@ -1,7 +1,8 @@
  body {
+body {
   margin: 0;
   font-family: sans-serif;
-  background: #111;
+  background: url("sfondo.jpeg") center/cover fixed no-repeat;
   color: white;
   text-align: center;
 }
