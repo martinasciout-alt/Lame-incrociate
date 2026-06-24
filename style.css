@@ -219,7 +219,7 @@ button:hover{
 .rules-text {
     position: absolute !important;
 
-    top: 100px !important;   /* 👈 CAMBIA SOLO QUESTO */
+    top: 150px !important;   /* 👈 CAMBIA SOLO QUESTO */
     left: 60px;
     right: 60px;
 
