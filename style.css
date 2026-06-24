@@ -186,3 +186,18 @@ button:hover {
 * {
   outline: 1px solid transparent;
 }
+
+.cards button {
+  width: 45px;   /* era ~90px → dimezzate */
+  height: 65px;
+}
+
+.cards button img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+#table img {
+  width: 50px;  /* ridotte anche sul tavolo */
+}
