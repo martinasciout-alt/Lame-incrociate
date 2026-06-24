@@ -243,15 +243,15 @@ button:hover{
     color: #3b1f14;
 }
 
-/* TESTO (ORA FUNZIONA E SI MUOVE) */
+/* TESTO  */
 .rules-text {
     position: absolute;
 
-    top: 65%;
+    top: 68% !important;
     left: 60px;
     right: 70px;
 
-    transform: translateY(-10%);
+    transform: translateY(0%) !important;
 
     font-size: 16px;
     text-align: center;
