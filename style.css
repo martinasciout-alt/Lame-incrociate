@@ -1,203 +1,93 @@
- body {
+body {
   margin: 0;
-  font-family: 'Pieces of Eight', sans-serif;
+  font-family: sans-serif;
   color: white;
   text-align: center;
   background: url("sfondo.jpeg") center/cover no-repeat fixed;
 }
 
-/* ================= GAME ================= */
-#game {
-  max-width: 900px;
-  margin: auto;
-  padding: 20px;
-}
-
-/* ================= TITOLI ================= */
-h1 {
-  font-size: 48px;
-  letter-spacing: 2px;
-  color: #6d28d9;
-  text-transform: uppercase;
-  margin-bottom: 10px;
-  text-shadow: 0 0 10px #a855f7;
-}
-
-/* ================= STATUS ================= */
-#status {
-  background: linear-gradient(145deg, #5c3b1e, #3a2412);
-  border: 3px solid #8b5a2b;
-  border-radius: 15px;
-  box-shadow: 0 3px 10px rgba(0,0,0,0.35);
-  color: #f5e6c8;
-  padding: 15px;
-}
-
-/* ================= COUNTDOWN ================= */
-#countdown {
-  font-size: 40px;
-  margin: 15px 0;
-  font-weight: bold;
-  color: #7c3aed;
-}
-
-/* ================= TABLE ================= */
-#table {
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  gap: 40px;
-  margin: 20px 0;
-}
-
-#table img {
-  width: 90px;
-  height: auto;
-  object-fit: contain;
-  border-radius: 12px;
-  box-shadow: 0 2px 8px rgba(0,0,0,0.35);
-}
-
-/* ================= HAND ================= */
-.cards {
-  display: flex;
-  justify-content: center;
-  flex-wrap: wrap;
-  gap: 10px;
-  margin: 10px 0;
-}
-
-.cards button {
-  width: 90px;
-  height: 130px;
-  padding: 0;
-  border: none;
-  background: transparent;
-  cursor: pointer;
-  transition: transform 0.2s ease;
-}
-
-.cards button img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-  border-radius: 8px;
-}
-
-.cards button:hover {
-  transform: translateY(-6px) scale(1.05);
-}
-
-/* ================= RESULT ================= */
-#result {
-  margin-top: 20px;
-  font-size: 22px;
-  font-weight: bold;
-  color: #facc15;
-}
-
-/* ================= BUTTON ================= */
-button {
-  margin-top: 15px;
-  padding: 10px 15px;
-  border: none;
-  border-radius: 8px;
-  background: #6d28d9;
-  cursor: pointer;
-  font-weight: bold;
-  color: white;
-  transition: 0.2s;
-}
-
-button:hover {
-  background: #7c3aed;
-  transform: scale(1.03);
-}
-
-/* ================= RULES ================= */
-.rules-box {
-  width: 320px;
-  padding: 25px;
-  background: url("pergamena.jpg") center/cover no-repeat;
-  border-radius: 12px;
-  border: 2px solid #c8a15a;
-  color: #2b1b0e;
-  font-weight: bold;
-  box-shadow: 0 8px 18px rgba(0,0,0,0.35);
-}
-
-/* ================= OVERLAY ================= */
-#overlay {
-  position: fixed;
-  inset: 0;
-  background: rgba(0,0,0,0.85);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-  z-index: 1000;
-}
-
-/* ================= START ================= */
+/* START */
 .start-screen {
   position: fixed;
   inset: 0;
-  background: rgba(0,0,0,0.85);
   display: flex;
   justify-content: center;
   align-items: center;
-  z-index: 9999;
+  background: rgba(0,0,0,0.85);
 }
 
-/* ================= MOBILE ================= */
+.rules-box {
+  background: #2b1b0e;
+  padding: 20px;
+  border-radius: 12px;
+  color: white;
+}
+
+/* GAME */
+.hidden {
+  display: none !important;
+}
+
+#game {
+  padding: 20px;
+}
+
+/* TABLE */
+#table {
+  display: flex;
+  justify-content: center;
+  gap: 30px;
+  margin: 20px 0;
+  align-items: center;
+}
+
+.card-slot img {
+  width: 50px;   /* 👈 dimezzate */
+  height: auto;
+}
+
+/* HAND */
+#hand {
+  display: flex;
+  justify-content: center;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+#hand button {
+  width: 60px;
+  height: 90px;
+  border: none;
+  background: transparent;
+  cursor: pointer;
+}
+
+#hand img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+
+/* COUNTDOWN */
+#countdown {
+  font-size: 28px;
+  margin: 10px;
+  color: gold;
+}
+
+/* MOBILE */
 @media (max-width: 700px) {
 
-  h1 {
-    font-size: 30px;
+  #hand button {
+    width: 45px;
+    height: 70px;
   }
 
-  #status {
-    font-size: 14px;
-  }
-
-  #countdown {
-    font-size: 28px;
-  }
-
-  .cards button {
-    width: 55px;
-    height: 80px;
+  .card-slot img {
+    width: 40px;
   }
 
   #table {
     gap: 15px;
   }
-
-  #table img {
-    width: 60px;
-  }
-}
-
-/* ================= UTILITY ================= */
-.hidden {
-  display: none !important;
-  pointer-events: none;
-}
-
-* {
-  outline: 1px solid transparent;
-}
-
-.cards button {
-  width: 45px;   /* era ~90px → dimezzate */
-  height: 65px;
-}
-
-.cards button img {
-  width: 100%;
-  height: 100%;
-  object-fit: contain;
-}
-
-#table img {
-  width: 50px;  /* ridotte anche sul tavolo */
 }
