@@ -211,3 +211,11 @@ function reveal(cpu) {
   roundActive = false;
   roundStarted = false;
 }
+
+window.showRules = function () {
+  document.getElementById("rulesPopup").classList.remove("hidden");
+};
+
+window.closeRules = function () {
+  document.getElementById("rulesPopup").classList.add("hidden");
+};
