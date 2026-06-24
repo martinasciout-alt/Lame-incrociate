@@ -1,4 +1,4 @@
-console.log("SCRIPT CARICATO");
+ console.log("SCRIPT CARICATO");
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
@@ -33,14 +33,12 @@ let color = "";
 
 let roundActive = false;
 
-// ================= LOBBY =================
+// ================= CREATE / JOIN =================
 window.createRoom = () => {
 
   roomCode = document.getElementById("roomInput").value;
   nickname = document.getElementById("nickInput").value;
   color = document.getElementById("colorInput").value;
-
-  if (!roomCode || !nickname) return alert("Inserisci stanza e nickname");
 
   playerNumber = 1;
 
@@ -48,14 +46,10 @@ window.createRoom = () => {
     score1: 0,
     score2: 0,
     round: 1,
-    maxRounds: 3,
-
     player1Name: nickname,
     player2Name: "",
-
     player1Color: color,
     player2Color: "",
-
     player1Choice: null,
     player2Choice: null,
     cpu: null,
@@ -71,8 +65,6 @@ window.joinRoom = () => {
   nickname = document.getElementById("nickInput").value;
   color = document.getElementById("colorInput").value;
 
-  if (!roomCode || !nickname) return alert("Inserisci stanza e nickname");
-
   playerNumber = 2;
 
   update(ref(db, "rooms/" + roomCode), {
@@ -83,16 +75,13 @@ window.joinRoom = () => {
   startGame();
 };
 
-// ================= START GAME =================
+// ================= START =================
 function startGame() {
-
   document.getElementById("lobby").classList.add("hidden");
   document.getElementById("game").classList.remove("hidden");
 
   listen();
   renderHand();
-
-  setTimeout(showRules, 300);
 }
 
 // ================= HAND =================
@@ -122,30 +111,23 @@ function listen() {
     document.getElementById("score1").innerText = d.score1;
     document.getElementById("score2").innerText = d.score2;
     document.getElementById("round").innerText = d.round;
-    document.getElementById("roomCode").innerText = roomCode;
 
-    const name = playerNumber === 1 ? d.player1Name : d.player2Name;
-    const col = playerNumber === 1 ? d.player1Color : d.player2Color;
-
-    document.getElementById("playerLabel").innerHTML =
-      `<span style="color:${col}; text-shadow:0 0 10px ${col}">
-        ${name} (P${playerNumber})
-      </span>`;
-
+    // ===== DISPLAY CARDS =====
     document.getElementById("cardP1").innerHTML =
-      d.player1Choice != null ? `<img src="retro-carta.webp">` : "";
+      d.player1Choice ? `<img src="retro-carta.webp">` : "";
 
     document.getElementById("cardP2").innerHTML =
-      d.player2Choice != null ? `<img src="retro-carta.webp">` : "";
+      d.player2Choice ? `<img src="retro-carta.webp">` : "";
 
     document.getElementById("cardCPU").innerHTML =
-      d.cpu != null ? `<img src="retro-carta.webp">` : "";
+      d.cpu ? `<img src="retro-carta.webp">` : "";
 
+    // START ROUND AUTOMATIC
     if (
       !roundActive &&
       d.player1Choice != null &&
       d.player2Choice != null &&
-      d.cpu === null
+      d.cpu == null
     ) {
       startRound();
     }
@@ -193,8 +175,8 @@ function startRound() {
 // ================= REVEAL =================
 function reveal(cpu) {
 
-  const c1 = roomData.player1Choice || 0;
-  const c2 = roomData.player2Choice || 0;
+  const c1 = roomData.player1Choice;
+  const c2 = roomData.player2Choice;
 
   let s1 = roomData.score1;
   let s2 = roomData.score2;
@@ -202,16 +184,26 @@ function reveal(cpu) {
   const d1 = Math.abs(c1 - cpu);
   const d2 = Math.abs(c2 - cpu);
 
-  let winner = null;
+  // ===== LOGICA NUOVA =====
 
-  if (d1 < d2) {
-    s1++;
-    winner = roomData.player1Name;
-  } else if (d2 < d1) {
-    s2++;
-    winner = roomData.player2Name;
+  if (c1 === cpu) s1 += 2;
+  if (c2 === cpu) s2 += 2;
+
+  if (c1 !== cpu && c2 !== cpu) {
+
+    if (d1 < d2) s1++;
+    else if (d2 < d1) s2++;
+    else {
+      // PAREGGIO (stessa distanza)
+    }
   }
 
+  let winner =
+    s1 > roomData.score1 ? roomData.player1Name :
+    s2 > roomData.score2 ? roomData.player2Name :
+    null;
+
+  // ===== SHOW CARDS =====
   document.getElementById("cardCPU").innerHTML = `<img src="carta-${cpu}.webp">`;
   document.getElementById("cardP1").innerHTML = `<img src="carta-${c1}.webp">`;
   document.getElementById("cardP2").innerHTML = `<img src="carta-${c2}.webp">`;
@@ -219,6 +211,7 @@ function reveal(cpu) {
   document.getElementById("result").innerText =
     winner ? `${winner} VINCE` : "PAREGGIO";
 
+  // ===== RESET ROUND =====
   update(ref(db, "rooms/" + roomCode), {
     score1: s1,
     score2: s2,
@@ -230,73 +223,7 @@ function reveal(cpu) {
   });
 
   roundActive = false;
-
-  if (winner) updateLeaderboard(winner);
 }
 
 // ================= LEADERBOARD =================
-function updateLeaderboard(winner) {
-
-  if (!winner) return;
-
-  const r = ref(db, "players/" + winner);
-
-  get(r).then((snap) => {
-
-    const data = snap.val() || { wins: 0 };
-
-    set(r, {
-      wins: data.wins + 1,
-      color: color
-    });
-  });
-}
-
-// ================= LOAD LEADERBOARD =================
-onValue(ref(db, "players"), (snap) => {
-
-  const data = snap.val() || {};
-
-  const sorted = Object.entries(data)
-    .sort((a, b) => (b[1].wins || 0) - (a[1].wins || 0));
-
-  document.getElementById("leaderboard").innerHTML =
-    sorted.map(([name, p]) => `
-      <div style="color:${p.color}">
-        ${name} — ${p.wins || 0}
-      </div>
-    `).join("");
-});
-
-// ================= REGOLE (FIXED) =================
-
-function showRules() {
-  document.getElementById("rulesModal").classList.add("show");
-}
-
-function hideRules() {
-  document.getElementById("rulesModal").classList.remove("show");
-}
-
-function initRules() {
-
-  const openBtn = document.getElementById("openRules");
-  const closeBtn = document.getElementById("closeRules");
-
-  console.log("openRules:", openBtn);
-  console.log("closeRules:", closeBtn);
-
-  if (!openBtn || !closeBtn) return;
-
-  openBtn.addEventListener("click", showRules);
-  closeBtn.addEventListener("click", hideRules);
-
-  setTimeout(showRules, 300);
-}
-
-// init sicuro
-if (document.readyState === "loading") {
-  document.addEventListener("DOMContentLoaded", initRules);
-} else {
-  initRules();
-}
+function updateLeaderboard() {}
