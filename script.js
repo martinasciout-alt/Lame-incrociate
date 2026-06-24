@@ -278,12 +278,20 @@ function hideRules() {
   document.getElementById("rulesModal").style.display = "none";
 }
 
-document.addEventListener("DOMContentLoaded", () => {
+// aspetta che il DOM sia pronto DAVVERO
+window.addEventListener("load", () => {
 
   const openRules = document.getElementById("openRules");
   const closeRules = document.getElementById("closeRules");
 
-  openRules.addEventListener("click", showRules);
-  closeRules.addEventListener("click", hideRules);
+  if (openRules) {
+    openRules.addEventListener("click", showRules);
+  }
 
+  if (closeRules) {
+    closeRules.addEventListener("click", hideRules);
+  }
+
+  // mostra automaticamente all'ingresso
+  setTimeout(showRules, 300);
 });
