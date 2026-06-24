@@ -371,9 +371,24 @@ button:hover{
 
 /* testo regole */
 .rules-text {
+    position: absolute;
+    top: 120px;
+    left: 60px;
+    right: 60px;
+
     font-size: 16px;
     text-align: center;
-    color: white;
+
+    color: #2b1b10;
+}
+
+.rules-box h2 {
+    position: absolute;
+    top: 60px;
+    width: 100%;
+    text-align: center;
+
+    color: #3b1f14;
 }
 
 /* bottone X */
