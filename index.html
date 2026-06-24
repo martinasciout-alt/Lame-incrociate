@@ -1,9 +1,8 @@
- <!DOCTYPE html>
+  <!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-
   <title>Lama Alta</title>
 
   <link rel="stylesheet" href="style.css">
@@ -11,10 +10,30 @@
 
 <body>
 
-<div id="startScreen" class="start-screen">
-  <button onclick="enterGame()">ENTRA</button>
+<!-- POPUP -->
+<div id="rulesPopup">
+  <div id="rulesBox">
+    <button id="closeRules" onclick="closeRules()">X</button>
+    <h2>Regole</h2>
+    <p>CPU prima, poi giocatori</p>
+    <p>3 secondi per scegliere</p>
+    <p>3 round totali</p>
+  </div>
 </div>
 
+<!-- LOBBY -->
+<div id="lobby">
+  <div id="leaderboard"></div>
+
+  <div id="lobbyCenter">
+    <h1>Lama Alta</h1>
+    <button onclick="createRoom(prompt('stanza'))">Crea stanza</button>
+    <button onclick="joinRoom(prompt('stanza'))">Entra stanza</button>
+    <button onclick="enterGame()">Gioca</button>
+  </div>
+</div>
+
+<!-- GAME -->
 <div id="game" class="hidden">
 
   <h1>Lama Alta</h1>
@@ -35,11 +54,6 @@
   <div id="hand"></div>
 
   <div id="result"></div>
-
-  <button onclick="createRoom(prompt('stanza'))">Crea</button>
-  <button onclick="joinRoom(prompt('stanza'))">Entra</button>
-
-  <button onclick="nextRound()">Nuovo</button>
 
 </div>
 
