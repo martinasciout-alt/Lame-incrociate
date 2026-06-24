@@ -1,4 +1,4 @@
-  <!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="it">
 <head>
   <meta charset="UTF-8"/>
@@ -10,36 +10,27 @@
 
 <body>
 
-<!-- POPUP RULES -->
-<div id="rulesPopup" class="hidden">
-  <div id="rulesBox">
-    <button id="closeRules" onclick="closeRules()">X</button>
-
-    <h2>Regole</h2>
-    <p>CPU gioca per prima</p>
-    <p>Hai 3 secondi per scegliere</p>
-    <p>3 round totali</p>
-  </div>
-</div>
-
 <!-- LOBBY -->
 <div id="lobby">
 
-  <div class="lobby-container">
+  <h1>Lama Alta</h1>
 
-    <h1 class="lobby-title">Lama Alta</h1>
+  <div id="setupBox">
 
-    <div class="center-buttons">
-      <button onclick="createRoom(prompt('Stanza'))">Crea stanza</button>
-      <button onclick="joinRoom(prompt('Stanza'))">Entra stanza</button>
-      <button onclick="enterGame()">Gioca</button>
-      <button onclick="showRules()">Regole</button>
-    </div>
+    <input id="roomInput" placeholder="Codice stanza">
 
-    <div class="leaderboard">
-      <h3>Classifica</h3>
-      <div id="leaderboardList"></div>
-    </div>
+    <input id="nickInput" placeholder="Nickname">
+
+    <select id="colorInput">
+      <option value="red">Rosso</option>
+      <option value="blue">Blu</option>
+      <option value="green">Verde</option>
+      <option value="gold">Oro</option>
+      <option value="purple">Viola</option>
+    </select>
+
+    <button onclick="createRoom()">Crea stanza</button>
+    <button onclick="joinRoom()">Entra stanza</button>
 
   </div>
 
@@ -48,12 +39,12 @@
 <!-- GAME -->
 <div id="game" class="hidden">
 
-  <h1>Lama Alta</h1>
+  <h2 id="playerLabel"></h2>
 
   <p>Stanza: <span id="roomCode"></span></p>
   <p>Round: <span id="round"></span></p>
 
-  <p>P1: <span id="score1"></span> | P2: <span id="score2"></span></p>
+  <p>Punteggio: <span id="score1"></span> - <span id="score2"></span></p>
 
   <div id="countdown"></div>
 
