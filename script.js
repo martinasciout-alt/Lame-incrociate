@@ -29,7 +29,12 @@ let roomData = null;
 
 let roundActive = false;
 
-// ================= RULES =================
+// ================= UI =================
+window.enterGame = () => {
+  document.getElementById("lobby").classList.add("hidden");
+  document.getElementById("game").classList.remove("hidden");
+};
+
 window.showRules = () => {
   document.getElementById("rulesPopup").classList.remove("hidden");
 };
@@ -38,14 +43,10 @@ window.closeRules = () => {
   document.getElementById("rulesPopup").classList.add("hidden");
 };
 
-// ================= ENTER GAME =================
-window.enterGame = () => {
-  document.getElementById("lobby").classList.add("hidden");
-  document.getElementById("game").classList.remove("hidden");
-};
-
 // ================= ROOM =================
 window.createRoom = (code) => {
+  if (!code) return;
+
   roomCode = code;
   playerNumber = 1;
 
@@ -65,6 +66,8 @@ window.createRoom = (code) => {
 };
 
 window.joinRoom = (code) => {
+  if (!code) return;
+
   roomCode = code;
   playerNumber = 2;
 
@@ -98,28 +101,28 @@ function listen() {
     document.getElementById("round").innerText = data.round;
     document.getElementById("roomCode").innerText = roomCode;
 
-    // CARDS BACK
+    // carte coperte
     document.getElementById("cardCPU").innerHTML =
-      data.cpu ? `<img src="retro-carta.webp">` : "";
+      data.cpu !== null ? `<img src="retro-carta.webp">` : "";
 
     document.getElementById("cardP1").innerHTML =
-      data.player1Choice != null ? `<img src="retro-carta.webp">` : "";
+      data.player1Choice !== null ? `<img src="retro-carta.webp">` : "";
 
     document.getElementById("cardP2").innerHTML =
-      data.player2Choice != null ? `<img src="retro-carta.webp">` : "";
+      data.player2Choice !== null ? `<img src="retro-carta.webp">` : "";
 
-    // START ROUND SAFE
+    // START ROUND (FIX STABILE)
     if (
       !roundActive &&
       data.round <= data.maxRounds &&
-      data.cpu === null &&
-      data.player1Choice != null &&
-      data.player2Choice != null
+      data.locked === false &&
+      data.player1Choice !== null &&
+      data.player2Choice !== null
     ) {
       startRound();
     }
 
-    // END GAME
+    // FINE PARTITA
     if (data.round > data.maxRounds) {
       showFinal(data);
     }
@@ -174,15 +177,23 @@ function reveal(cpu) {
   const d1 = Math.abs(c1 - cpu);
   const d2 = Math.abs(c2 - cpu);
 
-  if (d1 < d2) s1++;
-  else if (d2 < d1) s2++;
+  let result = "";
 
-  document.getElementById("cardCPU").innerHTML = `<img src="carta-${cpu}.webp">`;
+  if (d1 < d2) {
+    s1++;
+    result = "HAI VINTO PLAYER 1";
+  } else if (d2 < d1) {
+    s2++;
+    result = "HAI VINTO PLAYER 2";
+  } else {
+    result = "PAREGGIO";
+  }
+
   document.getElementById("cardP1").innerHTML = `<img src="carta-${c1}.webp">`;
   document.getElementById("cardP2").innerHTML = `<img src="carta-${c2}.webp">`;
+  document.getElementById("cardCPU").innerHTML = `<img src="carta-${cpu}.webp">`;
 
-  document.getElementById("result").innerText =
-    d1 < d2 ? "P1 VINCE" : d2 < d1 ? "P2 VINCE" : "PAREGGIO";
+  document.getElementById("result").innerText = result;
 
   update(ref(db, "rooms/" + roomCode), {
     score1: s1,
@@ -195,29 +206,25 @@ function reveal(cpu) {
   });
 
   roundActive = false;
-setTimeout(() => {
-  resetTableUI();
-}, 1500);
- 
+
+  setTimeout(resetTableUI, 1500);
 }
 
-
-
+// ================= RESET =================
 function resetTableUI() {
   document.getElementById("cardP1").innerHTML = "";
   document.getElementById("cardP2").innerHTML = "";
   document.getElementById("cardCPU").innerHTML = "";
   document.getElementById("countdown").innerText = "";
+  document.getElementById("result").innerText = "";
 }
-
-
 
 // ================= FINAL =================
 function showFinal(data) {
 
   let msg =
-    data.score1 > data.score2 ? "HAI VINTO" :
-    data.score2 > data.score1 ? "HAI PERSO" :
+    data.score1 > data.score2 ? "HAI VINTO LA PARTITA" :
+    data.score2 > data.score1 ? "HAI PERSO LA PARTITA" :
     "PAREGGIO";
 
   document.getElementById("result").innerText = msg;
