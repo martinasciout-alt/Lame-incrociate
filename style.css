@@ -351,18 +351,14 @@ button:hover{
 .rules-box {
     width: 90%;
     max-width: 500px;
+    height: 520px;
 
-    background: rgba(0,0,0,.85);
-    border: 2px solid #b266ff;
-    border-radius: 20px;
+    background: url("regole.webp") center center / contain no-repeat;
 
-    padding: 25px;
     position: relative;
 
-    box-shadow: 0 0 30px rgba(178,102,255,.5);
-
-    font-family: sans-serif;
-    color: white;
+    padding: 25px;
+    box-shadow: none;
 }
 
 /* titolo */
