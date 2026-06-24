@@ -17,6 +17,8 @@ const firebaseConfig = {
   authDomain: "gioco-della-lama-alta.firebaseapp.com",
   databaseURL: "https://gioco-della-lama-alta-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "gioco-della-lama-alta",
+   messagingSenderId: "182282784891",
+  appId: "1:182282784891:web:0503cff93af07a0ee8d2de"
 };
 
 const app = initializeApp(firebaseConfig);
