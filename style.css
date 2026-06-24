@@ -182,3 +182,7 @@ button:hover {
   display: none !important;
   pointer-events: none;
 }
+
+* {
+  outline: 1px solid transparent;
+}
