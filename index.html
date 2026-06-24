@@ -1,58 +1,45 @@
  <!DOCTYPE html>
 <html lang="it">
 <head>
-  <meta charset="UTF-8" />
+  <meta charset="UTF-8"/>
   <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
-  <title>Gioco Lama Alta</title>
 
-  <link rel="icon" href="favicon.ico">
-  <link rel="icon" type="image/png" sizes="32x32" href="favicon-32x32.png">
-  <link rel="icon" type="image/png" sizes="16x16" href="favicon-16x16.png">
-  <link rel="apple-touch-icon" href="apple-touch-icon.png">
-  <link rel="manifest" href="site.webmanifest">
+  <title>Lama Alta</title>
 
   <link rel="stylesheet" href="style.css">
 </head>
 
 <body>
 
-<!-- START -->
 <div id="startScreen" class="start-screen">
-  <div class="rules-box">
-    <h2>Regole</h2>
-    <ul>
-      <li>1-5 carte</li>
-      <li>CPU sceglie prima</li>
-      <li>Countdown 3s</li>
-      <li>chi non sceglie = 0</li>
-    </ul>
-
-    <button onclick="enterGame()">ENTRA</button>
-  </div>
+  <button onclick="enterGame()">ENTRA</button>
 </div>
 
-<!-- GAME -->
 <div id="game" class="hidden">
 
   <h1>Lama Alta</h1>
 
-  <p>Stanza: <span id="roomCode">---</span></p>
-  <p>Round: <span id="round">1</span></p>
+  <p>Stanza: <span id="roomCode"></span></p>
+  <p>Round: <span id="round"></span></p>
 
-  <p>P1: <span id="score1">0</span> | P2: <span id="score2">0</span></p>
+  <p>P1: <span id="score1"></span> | P2: <span id="score2"></span></p>
 
   <div id="countdown"></div>
 
   <div id="table">
-    <div class="card-slot"><div id="cardP1"></div></div>
-    <div class="card-slot"><div id="cardCPU"></div></div>
-    <div class="card-slot"><div id="cardP2"></div></div>
+    <div id="cardP1"></div>
+    <div id="cardCPU"></div>
+    <div id="cardP2"></div>
   </div>
 
   <div id="hand"></div>
 
-  <button onclick="createRoom(prompt('stanza'))">Crea stanza</button>
-  <button onclick="joinRoom(prompt('stanza'))">Entra stanza</button>
+  <div id="result"></div>
+
+  <button onclick="createRoom(prompt('stanza'))">Crea</button>
+  <button onclick="joinRoom(prompt('stanza'))">Entra</button>
+
+  <button onclick="nextRound()">Nuovo</button>
 
 </div>
 
