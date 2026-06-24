@@ -208,9 +208,8 @@ button:hover{
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: flex-start;
 
-    padding-top: 140px; /* 👈 QUI controlli l’altezza del testo */
+    padding-top: 140px; /* 👈 QUI sposti tutto il testo */
 }
 
 .rules-text {
@@ -221,7 +220,6 @@ button:hover{
     line-height: 1.4;
 }
 
-/* X */
 #closeRules {
     position: absolute;
     top: 10px;
@@ -231,14 +229,6 @@ button:hover{
     color: white;
 }
 
-/* TESTO  */
-.rules-text {
-   .rules-text {
-    display: none !important;
-}
-
-
-/* bottone ? */
 #openRules {
     position: fixed;
     bottom: 20px;
