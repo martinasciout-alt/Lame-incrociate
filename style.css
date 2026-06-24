@@ -372,9 +372,9 @@ button:hover{
 /* testo regole */
 .rules-text {
     position: absolute;
-    top: 120px;
+    top: 170px;
     left: 60px;
-    right: 60px;
+    right: 70px;
 
     font-size: 16px;
     text-align: center;
