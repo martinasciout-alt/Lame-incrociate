@@ -271,27 +271,39 @@ onValue(ref(db, "players"), (snap) => {
 // ================= REGOLE =================
 
 function showRules() {
-  document.getElementById("rulesModal").style.display = "flex";
+  const modal = document.getElementById("rulesModal");
+  if (modal) modal.style.display = "flex";
 }
 
 function hideRules() {
-  document.getElementById("rulesModal").style.display = "none";
+  const modal = document.getElementById("rulesModal");
+  if (modal) modal.style.display = "none";
 }
 
-// aspetta che il DOM sia pronto DAVVERO
-window.addEventListener("load", () => {
+function initRules() {
 
-  const openRules = document.getElementById("openRules");
-  const closeRules = document.getElementById("closeRules");
+  const openBtn = document.getElementById("openRules");
+  const closeBtn = document.getElementById("closeRules");
 
-  if (openRules) {
-    openRules.addEventListener("click", showRules);
+  // debug utile (puoi lasciarlo o toglierlo dopo)
+  console.log("openRules:", openBtn);
+  console.log("closeRules:", closeBtn);
+
+  if (!openBtn || !closeBtn) {
+    console.warn("⚠️ Regole non inizializzate: elementi mancanti nel DOM");
+    return;
   }
 
-  if (closeRules) {
-    closeRules.addEventListener("click", hideRules);
-  }
+  openBtn.addEventListener("click", showRules);
+  closeBtn.addEventListener("click", hideRules);
 
-  // mostra automaticamente all'ingresso
+  // mostra regole all'ingresso
   setTimeout(showRules, 300);
-});
+}
+
+// inizializzazione sicura per script type="module"
+if (document.readyState === "loading") {
+  document.addEventListener("DOMContentLoaded", initRules);
+} else {
+  initRules();
+}
