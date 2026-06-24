@@ -9,11 +9,8 @@ import {
   onValue
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-// =====================
-// FIREBASE
-// =====================
 const firebaseConfig = {
-  apiKey: "AIzaSyBzdhurbAi48OoRyw6eKJ3HIkd1q87-43c",
+  apiKey: "AIzaSyBzdhurbAi48OoRyw6E3HIkd1q87-43c",
   authDomain: "gioco-della-lama-alta.firebaseapp.com",
   databaseURL: "https://gioco-della-lama-alta-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "gioco-della-lama-alta",
@@ -24,29 +21,22 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// =====================
 // STATE
-// =====================
 let roomCode = null;
 let playerNumber = null;
 let roomData = null;
 
 let roundActive = false;
+let roundStarted = false;
 
-// =====================
 // START
-// =====================
 window.enterGame = function () {
-  document.getElementById("startScreen").classList.add("hidden");
+  document.getElementById("startScreen").style.display = "none";
   document.getElementById("game").classList.remove("hidden");
 };
 
-// =====================
 // ROOM
-// =====================
 window.createRoom = function (code) {
-  if (!code) return;
-
   roomCode = code;
   playerNumber = 1;
 
@@ -65,8 +55,6 @@ window.createRoom = function (code) {
 };
 
 window.joinRoom = function (code) {
-  if (!code) return;
-
   roomCode = code;
   playerNumber = 2;
 
@@ -74,9 +62,7 @@ window.joinRoom = function (code) {
   renderHand();
 };
 
-// =====================
 // HAND
-// =====================
 function renderHand() {
   const hand = document.getElementById("hand");
   hand.innerHTML = "";
@@ -89,9 +75,7 @@ function renderHand() {
   }
 }
 
-// =====================
 // LISTENER
-// =====================
 function listen() {
   const roomRef = ref(db, "rooms/" + roomCode);
 
@@ -106,6 +90,7 @@ function listen() {
     document.getElementById("round").innerText = data.round;
     document.getElementById("roomCode").innerText = roomCode;
 
+    // carte coperte
     document.getElementById("cardP1").innerHTML =
       data.player1Choice != null ? `<img src="retro-carta.webp">` : "";
 
@@ -115,20 +100,21 @@ function listen() {
     document.getElementById("cardCPU").innerHTML =
       data.cpu != null ? `<img src="retro-carta.webp">` : "";
 
+    // START ROUND UNA VOLTA
     if (
-      !roundActive &&
-      data.player1Choice != null &&
-      data.player2Choice != null &&
-      data.locked === false
+      !roundStarted &&
+      data.locked === true &&
+      data.cpu !== null &&
+      data.player1Choice === null &&
+      data.player2Choice === null
     ) {
+      roundStarted = true;
       startRound();
     }
   });
 }
 
-// =====================
 // CHOOSE
-// =====================
 window.choose = function (value) {
   if (!roomData || roomData.locked) return;
 
@@ -139,19 +125,19 @@ window.choose = function (value) {
   });
 };
 
-// =====================
 // ROUND
-// =====================
 function startRound() {
-  if (roundActive) return;
 
+  if (roundActive) return;
   roundActive = true;
 
   const cpu = Math.floor(Math.random() * 5) + 1;
 
   update(ref(db, "rooms/" + roomCode), {
-    cpu,
-    locked: true
+    cpu: cpu,
+    locked: true,
+    player1Choice: null,
+    player2Choice: null
   });
 
   document.getElementById("cardCPU").innerHTML =
@@ -183,10 +169,9 @@ function startRound() {
   }, 3000);
 }
 
-// =====================
 // REVEAL
-// =====================
 function reveal(cpu) {
+
   const c1 = roomData.player1Choice || 0;
   const c2 = roomData.player2Choice || 0;
 
@@ -221,4 +206,5 @@ function reveal(cpu) {
   });
 
   roundActive = false;
+  roundStarted = false;
 }
