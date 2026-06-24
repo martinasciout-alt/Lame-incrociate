@@ -82,7 +82,7 @@ function renderHand() {
 
   for (let i = 1; i <= 5; i++) {
     const btn = document.createElement("button");
-    btn.innerText = i;
+   btn.innerHTML = `<img src="carta-${i}.webp" alt="carta ${i}">`;
     btn.onclick = () => choose(i);
     hand.appendChild(btn);
   }
