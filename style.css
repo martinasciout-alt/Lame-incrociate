@@ -1,4 +1,4 @@
-  body{
+ body{
     margin:0;
     min-height:100vh;
     font-family:'Pirata One', serif;
@@ -187,62 +187,64 @@ button:hover{
 
 /* ================= REGOLE ================= */
 
-#rulesModal {
-    position: fixed;
-    inset: 0;
-    display: none;
-    justify-content: center;
-    align-items: center;
-    z-index: 999;
+#rulesModal{
+    position:fixed;
+    inset:0;
+    display:none;
+    justify-content:center;
+    align-items:center;
+    z-index:999;
+    background:rgba(0,0,0,0.6);
 }
 
-#rulesModal.show {
-    display: flex;
+#rulesModal.show{
+    display:flex;
 }
 
-.rules-box {
-    width: 90%;
-    max-width: 500px;
-    height: 520px;
+.rules-box{
+    width:90%;
+    max-width:500px;
+    height:520px;
 
-    background: url("Rr.png") center center / contain no-repeat;
+    background:url("Rr.png") center center / cover no-repeat;
 
-    position: relative;
+    position:relative;
 
-    display: flex;
-    flex-direction: column;
-    align-items: center;
+    display:flex;
+    flex-direction:column;
+    align-items:center;
 
-    padding-top: 0;
+    border-radius:20px;
+    overflow:hidden;
 }
 
-.rules-text {
-    width: 80%;
-    text-align: center;
-    font-size: 16px;
-    color: #2b1b10;
-    line-height: 1.4;
+.rules-text{
+    width:80%;
+    text-align:center;
+    font-size:16px;
+    color:#2b1b10;
+    line-height:1.4;
 
-    margin-top: 200px; /* 👈 ABBASSATO ANCORA */
+    margin-top:140px;
 }
 
-#closeRules {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    cursor: pointer;
-    font-size: 22px;
-    color: white;
+#closeRules{
+    position:absolute;
+    top:10px;
+    right:15px;
+    cursor:pointer;
+    font-size:22px;
+    color:white;
 }
 
-#openRules {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
+#openRules{
+    position:fixed;
+    bottom:20px;
+    right:20px;
 
-    width: 50px;
-    height: 50px;
-    border-radius: 50%;
-    font-size: 24px;
-    padding: 0;
+    width:50px;
+    height:50px;
+    border-radius:50%;
+    font-size:24px;
+    padding:0;
 }
