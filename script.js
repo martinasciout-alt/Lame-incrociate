@@ -1,4 +1,4 @@
-console.log("SCRIPT CARICATO");
+ console.log("SCRIPT CARICATO");
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
@@ -6,7 +6,8 @@ import {
   ref,
   set,
   update,
-  onValue
+  onValue,
+  get
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 // ================= FIREBASE =================
@@ -32,33 +33,14 @@ let color = "";
 
 let roundActive = false;
 
-// ================= REGOLE (FIX FONDAMENTALE) =================
-function showRules() {
-  const modal = document.getElementById("rulesModal");
-  if (modal) modal.classList.add("show");
+// ================= LOBBY / GAME UI =================
+function goLobby() {
+  document.getElementById("lobby").classList.remove("hidden");
+  document.getElementById("game").classList.add("hidden");
 }
 
-function hideRules() {
-  const modal = document.getElementById("rulesModal");
-  if (modal) modal.classList.remove("show");
-}
-
-function initRules() {
-  const openBtn = document.getElementById("openRules");
-  const closeBtn = document.getElementById("closeRules");
-
-  if (openBtn) openBtn.addEventListener("click", showRules);
-  if (closeBtn) closeBtn.addEventListener("click", hideRules);
-
-  // mostra subito quando entri nel gioco
-  setTimeout(showRules, 300);
-}
-
-document.addEventListener("DOMContentLoaded", initRules);
-
-// ================= CREATE / JOIN =================
+// ================= CREATE ROOM =================
 window.createRoom = () => {
-
   roomCode = document.getElementById("roomInput").value;
   nickname = document.getElementById("nickInput").value;
   color = document.getElementById("colorInput").value;
@@ -71,10 +53,13 @@ window.createRoom = () => {
     score1: 0,
     score2: 0,
     round: 1,
+    maxRounds: 3,
+
     player1Name: nickname,
     player2Name: "",
     player1Color: color,
     player2Color: "",
+
     player1Choice: null,
     player2Choice: null,
     cpu: null,
@@ -84,8 +69,8 @@ window.createRoom = () => {
   startGame();
 };
 
+// ================= JOIN ROOM =================
 window.joinRoom = () => {
-
   roomCode = document.getElementById("roomInput").value;
   nickname = document.getElementById("nickInput").value;
   color = document.getElementById("colorInput").value;
@@ -109,13 +94,10 @@ function startGame() {
 
   listen();
   renderHand();
-
-  setTimeout(showRules, 300);
 }
 
 // ================= HAND =================
 function renderHand() {
-
   const hand = document.getElementById("hand");
   hand.innerHTML = "";
 
@@ -129,27 +111,40 @@ function renderHand() {
 
 // ================= LISTENER =================
 function listen() {
-
   onValue(ref(db, "rooms/" + roomCode), (snap) => {
-
     const d = snap.val();
     if (!d) return;
 
     roomData = d;
+
+    // UI STANZA + PLAYER
+    document.getElementById("roomCode").innerText = roomCode;
+
+    const name =
+      playerNumber === 1 ? d.player1Name : d.player2Name;
+
+    const col =
+      playerNumber === 1 ? d.player1Color : d.player2Color;
+
+    document.getElementById("playerLabel").innerHTML =
+      `<span style="color:${col}; text-shadow:0 0 10px ${col}">
+        ${name}
+      </span>`;
 
     document.getElementById("score1").innerText = d.score1;
     document.getElementById("score2").innerText = d.score2;
     document.getElementById("round").innerText = d.round;
 
     document.getElementById("cardP1").innerHTML =
-      d.player1Choice ? `<img src="retro-carta.webp">` : "";
+      d.player1Choice != null ? `<img src="retro-carta.webp">` : "";
 
     document.getElementById("cardP2").innerHTML =
-      d.player2Choice ? `<img src="retro-carta.webp">` : "";
+      d.player2Choice != null ? `<img src="retro-carta.webp">` : "";
 
     document.getElementById("cardCPU").innerHTML =
-      d.cpu ? `<img src="retro-carta.webp">` : "";
+      d.cpu != null ? `<img src="retro-carta.webp">` : "";
 
+    // START ROUND
     if (
       !roundActive &&
       d.player1Choice != null &&
@@ -163,7 +158,6 @@ function listen() {
 
 // ================= CHOOSE =================
 window.choose = (v) => {
-
   if (!roomData || roomData.locked) return;
 
   update(ref(db, "rooms/" + roomCode), {
@@ -173,7 +167,6 @@ window.choose = (v) => {
 
 // ================= ROUND =================
 function startRound() {
-
   roundActive = true;
 
   const cpu = Math.floor(Math.random() * 5) + 1;
@@ -187,7 +180,6 @@ function startRound() {
   document.getElementById("countdown").innerText = t;
 
   const interval = setInterval(() => {
-
     t--;
     document.getElementById("countdown").innerText = t;
 
@@ -201,7 +193,6 @@ function startRound() {
 
 // ================= REVEAL =================
 function reveal(cpu) {
-
   const c1 = roomData.player1Choice;
   const c2 = roomData.player2Choice;
 
@@ -213,13 +204,12 @@ function reveal(cpu) {
 
   let resultText = "";
 
-  // HIT = 2 punti
+  // HIT
   if (c1 === cpu) s1 += 2;
   if (c2 === cpu) s2 += 2;
 
-  // VICINANZA = 1 punto
+  // DISTANZA
   if (c1 !== cpu && c2 !== cpu) {
-
     if (d1 < d2) {
       s1 += 1;
       resultText = roomData.player1Name + " VINCE";
@@ -227,7 +217,7 @@ function reveal(cpu) {
       s2 += 1;
       resultText = roomData.player2Name + " VINCE";
     } else {
-      resultText = "PAREGGIO";
+      resultText = "Madama Queen ha vinto";
     }
   }
 
@@ -235,14 +225,21 @@ function reveal(cpu) {
     resultText = "ENTRAMBI HIT!";
   }
 
-  // mostra carte
   document.getElementById("cardCPU").innerHTML = `<img src="carta-${cpu}.webp">`;
   document.getElementById("cardP1").innerHTML = `<img src="carta-${c1}.webp">`;
   document.getElementById("cardP2").innerHTML = `<img src="carta-${c2}.webp">`;
 
   document.getElementById("result").innerText = resultText;
 
-  // reset round
+  let nextRound = roomData.round + 1;
+  let maxRounds = roomData.maxRounds || 3;
+
+  // RESET O FINE PARTITA
+  if (nextRound > maxRounds) {
+    goLobby();
+    return;
+  }
+
   update(ref(db, "rooms/" + roomCode), {
     score1: s1,
     score2: s2,
@@ -250,7 +247,7 @@ function reveal(cpu) {
     player2Choice: null,
     cpu: null,
     locked: false,
-    round: roomData.round + 1
+    round: nextRound
   });
 
   roundActive = false;
