@@ -1,4 +1,4 @@
- console.log("SCRIPT CARICATO");
+console.log("SCRIPT CARICATO");
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
@@ -6,8 +6,7 @@ import {
   ref,
   set,
   update,
-  onValue,
-  get
+  onValue
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 // ================= FIREBASE =================
@@ -87,13 +86,15 @@ window.joinRoom = () => {
   startGame();
 };
 
-// ================= START =================
+// ================= START GAME =================
 function startGame() {
   document.getElementById("lobby").classList.add("hidden");
   document.getElementById("game").classList.remove("hidden");
 
   listen();
   renderHand();
+
+  setTimeout(() => showRules(), 300);
 }
 
 // ================= HAND =================
@@ -117,7 +118,6 @@ function listen() {
 
     roomData = d;
 
-    // UI STANZA + PLAYER
     document.getElementById("roomCode").innerText = roomCode;
 
     const name =
@@ -144,7 +144,6 @@ function listen() {
     document.getElementById("cardCPU").innerHTML =
       d.cpu != null ? `<img src="retro-carta.webp">` : "";
 
-    // START ROUND
     if (
       !roundActive &&
       d.player1Choice != null &&
@@ -204,11 +203,11 @@ function reveal(cpu) {
 
   let resultText = "";
 
-  // HIT
+  // hit
   if (c1 === cpu) s1 += 2;
   if (c2 === cpu) s2 += 2;
 
-  // DISTANZA
+  // distanza
   if (c1 !== cpu && c2 !== cpu) {
     if (d1 < d2) {
       s1 += 1;
@@ -234,7 +233,6 @@ function reveal(cpu) {
   let nextRound = roomData.round + 1;
   let maxRounds = roomData.maxRounds || 3;
 
-  // RESET O FINE PARTITA
   if (nextRound > maxRounds) {
     goLobby();
     return;
@@ -254,34 +252,18 @@ function reveal(cpu) {
 }
 
 // ================= RULES =================
-
-const modal = document.getElementById("rulesModal");
-const openBtn = document.getElementById("openRules");
-const closeBtn = document.getElementById("closeRules");
-
-// apri sempre quando entri nel gioco
 function showRules() {
-  modal.classList.add("show");
+  document.getElementById("rulesModal")?.classList.add("show");
 }
 
-// chiudi
 function hideRules() {
-  modal.classList.remove("show");
+  document.getElementById("rulesModal")?.classList.remove("show");
 }
 
-// click bottone ?
-openBtn.addEventListener("click", showRules);
+window.addEventListener("load", () => {
+  const openBtn = document.getElementById("openRules");
+  const closeBtn = document.getElementById("closeRules");
 
-// click X
-closeBtn.addEventListener("click", hideRules);
-
-// auto-apertura quando entri in partita
-function startGame() {
-  document.getElementById("lobby").classList.add("hidden");
-  document.getElementById("game").classList.remove("hidden");
-
-  listen();
-  renderHand();
-
-  showRules(); // 👈 APRE AUTOMATICO
-}
+  openBtn?.addEventListener("click", showRules);
+  closeBtn?.addEventListener("click", hideRules);
+});
