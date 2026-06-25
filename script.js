@@ -253,25 +253,6 @@ function reveal(cpu) {
   roundActive = false;
 }
 
-function openRules() {
-  document.getElementById("rulesModal").classList.add("show");
-}
-
-function closeRules() {
-  document.getElementById("rulesModal").classList.remove("show");
-}
-
-document.addEventListener("DOMContentLoaded", () => {
-  const openBtn = document.getElementById("openRules");
-  const closeBtn = document.getElementById("closeRules");
-
-  if (openBtn) openBtn.addEventListener("click", openRules);
-  if (closeBtn) closeBtn.addEventListener("click", closeRules);
-
-  // APERTURA AUTOMATICA ALL'ENTRATA
-  setTimeout(openRules, 500);
-});
-
 // ================= RULES =================
 
 const modal = document.getElementById("rulesModal");
