@@ -1,4 +1,4 @@
-console.log("SCRIPT CARICATO");
+ console.log("SCRIPT CARICATO");
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
@@ -9,7 +9,7 @@ import {
   onValue
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-// ================= FIREBASE =================
+/* FIREBASE */
 const firebaseConfig = {
   apiKey: "AIzaSy....",
   authDomain: "gioco-della-lama-alta.firebaseapp.com",
@@ -22,248 +22,103 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-// ================= STATE =================
+/* STATE */
 let roomCode = null;
 let playerNumber = null;
 let roomData = null;
-
-let nickname = "";
-let color = "";
-
 let roundActive = false;
 
-// ================= LOBBY / GAME UI =================
-function goLobby() {
-  document.getElementById("lobby").classList.remove("hidden");
-  document.getElementById("game").classList.add("hidden");
+/* ================= RULES ================= */
+function openRules(){
+  document.getElementById("rulesModal").classList.add("show");
 }
 
-// ================= CREATE ROOM =================
-window.createRoom = () => {
-  roomCode = document.getElementById("roomInput").value;
-  nickname = document.getElementById("nickInput").value;
-  color = document.getElementById("colorInput").value;
+function closeRules(){
+  document.getElementById("rulesModal").classList.remove("show");
+}
 
-  if (!roomCode || !nickname) return alert("Inserisci dati");
+function initRules(){
+  const openBtn = document.getElementById("openRules");
+  const closeBtn = document.getElementById("closeRules");
 
-  playerNumber = 1;
+  openBtn?.addEventListener("click", openRules);
+  closeBtn?.addEventListener("click", closeRules);
 
-  set(ref(db, "rooms/" + roomCode), {
-    score1: 0,
-    score2: 0,
-    round: 1,
-    maxRounds: 3,
+  openRules(); // APERTURA AUTOMATICA
+}
 
-    player1Name: nickname,
-    player2Name: "",
-    player1Color: color,
-    player2Color: "",
-
-    player1Choice: null,
-    player2Choice: null,
-    cpu: null,
-    locked: false
-  });
-
-  startGame();
-};
-
-// ================= JOIN ROOM =================
-window.joinRoom = () => {
-  roomCode = document.getElementById("roomInput").value;
-  nickname = document.getElementById("nickInput").value;
-  color = document.getElementById("colorInput").value;
-
-  if (!roomCode || !nickname) return alert("Inserisci dati");
-
-  playerNumber = 2;
-
-  update(ref(db, "rooms/" + roomCode), {
-    player2Name: nickname,
-    player2Color: color
-  });
-
-  startGame();
-};
-
-// ================= START GAME =================
-function startGame() {
+/* ================= LOBBY -> GAME ================= */
+function startGame(){
   document.getElementById("lobby").classList.add("hidden");
   document.getElementById("game").classList.remove("hidden");
 
   listen();
   renderHand();
 
-  setTimeout(() => showRules(), 300);
+  initRules();
 }
 
-// ================= HAND =================
-function renderHand() {
+/* CREATE */
+window.createRoom = () => {
+  roomCode = document.getElementById("roomInput").value;
+  playerNumber = 1;
+
+  set(ref(db,"rooms/"+roomCode),{
+    score1:0,
+    score2:0,
+    round:1,
+    maxRounds:3,
+    player1Choice:null,
+    player2Choice:null,
+    cpu:null,
+    locked:false
+  });
+
+  startGame();
+};
+
+/* JOIN */
+window.joinRoom = () => {
+  roomCode = document.getElementById("roomInput").value;
+  playerNumber = 2;
+
+  update(ref(db,"rooms/"+roomCode),{
+    player2Name:"player"
+  });
+
+  startGame();
+};
+
+/* HAND */
+function renderHand(){
   const hand = document.getElementById("hand");
   hand.innerHTML = "";
 
-  for (let i = 1; i <= 5; i++) {
+  for(let i=1;i<=5;i++){
     const btn = document.createElement("button");
-    btn.innerHTML = `<img src="carta-${i}.webp">`;
+    btn.innerHTML = "Carta " + i;
     btn.onclick = () => choose(i);
     hand.appendChild(btn);
   }
 }
 
-// ================= LISTENER =================
-function listen() {
-  onValue(ref(db, "rooms/" + roomCode), (snap) => {
-    const d = snap.val();
-    if (!d) return;
+/* LISTENER */
+function listen(){
+  onValue(ref(db,"rooms/"+roomCode),(snap)=>{
+    roomData = snap.val();
+    if(!roomData) return;
 
-    roomData = d;
-
-    document.getElementById("roomCode").innerText = roomCode;
-
-    const name =
-      playerNumber === 1 ? d.player1Name : d.player2Name;
-
-    const col =
-      playerNumber === 1 ? d.player1Color : d.player2Color;
-
-    document.getElementById("playerLabel").innerHTML =
-      `<span style="color:${col}; text-shadow:0 0 10px ${col}">
-        ${name}
-      </span>`;
-
-    document.getElementById("score1").innerText = d.score1;
-    document.getElementById("score2").innerText = d.score2;
-    document.getElementById("round").innerText = d.round;
-
-    document.getElementById("cardP1").innerHTML =
-      d.player1Choice != null ? `<img src="retro-carta.webp">` : "";
-
-    document.getElementById("cardP2").innerHTML =
-      d.player2Choice != null ? `<img src="retro-carta.webp">` : "";
-
-    document.getElementById("cardCPU").innerHTML =
-      d.cpu != null ? `<img src="retro-carta.webp">` : "";
-
-    if (
-      !roundActive &&
-      d.player1Choice != null &&
-      d.player2Choice != null &&
-      d.cpu == null
-    ) {
-      startRound();
-    }
+    document.getElementById("score1").innerText = roomData.score1;
+    document.getElementById("score2").innerText = roomData.score2;
+    document.getElementById("round").innerText = roomData.round;
   });
 }
 
-// ================= CHOOSE =================
-window.choose = (v) => {
-  if (!roomData || roomData.locked) return;
+/* CHOOSE */
+window.choose = (v)=>{
+  if(roomData?.locked) return;
 
-  update(ref(db, "rooms/" + roomCode), {
-    [playerNumber === 1 ? "player1Choice" : "player2Choice"]: v
+  update(ref(db,"rooms/"+roomCode),{
+    [playerNumber===1?"player1Choice":"player2Choice"]:v
   });
 };
-
-// ================= ROUND =================
-function startRound() {
-  roundActive = true;
-
-  const cpu = Math.floor(Math.random() * 5) + 1;
-
-  update(ref(db, "rooms/" + roomCode), {
-    cpu,
-    locked: true
-  });
-
-  let t = 3;
-  document.getElementById("countdown").innerText = t;
-
-  const interval = setInterval(() => {
-    t--;
-    document.getElementById("countdown").innerText = t;
-
-    if (t <= 0) {
-      clearInterval(interval);
-      document.getElementById("countdown").innerText = "";
-      reveal(cpu);
-    }
-  }, 1000);
-}
-
-// ================= REVEAL =================
-function reveal(cpu) {
-  const c1 = roomData.player1Choice;
-  const c2 = roomData.player2Choice;
-
-  let s1 = roomData.score1;
-  let s2 = roomData.score2;
-
-  const d1 = Math.abs(c1 - cpu);
-  const d2 = Math.abs(c2 - cpu);
-
-  let resultText = "";
-
-  // hit
-  if (c1 === cpu) s1 += 2;
-  if (c2 === cpu) s2 += 2;
-
-  // distanza
-  if (c1 !== cpu && c2 !== cpu) {
-    if (d1 < d2) {
-      s1 += 1;
-      resultText = roomData.player1Name + " VINCE";
-    } else if (d2 < d1) {
-      s2 += 1;
-      resultText = roomData.player2Name + " VINCE";
-    } else {
-      resultText = "Madama Queen ha vinto";
-    }
-  }
-
-  if (c1 === cpu && c2 === cpu) {
-    resultText = "ENTRAMBI HIT!";
-  }
-
-  document.getElementById("cardCPU").innerHTML = `<img src="carta-${cpu}.webp">`;
-  document.getElementById("cardP1").innerHTML = `<img src="carta-${c1}.webp">`;
-  document.getElementById("cardP2").innerHTML = `<img src="carta-${c2}.webp">`;
-
-  document.getElementById("result").innerText = resultText;
-
-  let nextRound = roomData.round + 1;
-  let maxRounds = roomData.maxRounds || 3;
-
-  if (nextRound > maxRounds) {
-    goLobby();
-    return;
-  }
-
-  update(ref(db, "rooms/" + roomCode), {
-    score1: s1,
-    score2: s2,
-    player1Choice: null,
-    player2Choice: null,
-    cpu: null,
-    locked: false,
-    round: nextRound
-  });
-
-  roundActive = false;
-}
-
-// ================= RULES =================
-function showRules() {
-  document.getElementById("rulesModal")?.classList.add("show");
-}
-
-function hideRules() {
-  document.getElementById("rulesModal")?.classList.remove("show");
-}
-
-window.addEventListener("load", () => {
-  const openBtn = document.getElementById("openRules");
-  const closeBtn = document.getElementById("closeRules");
-
-  openBtn?.addEventListener("click", showRules);
-  closeBtn?.addEventListener("click", hideRules);
-});
