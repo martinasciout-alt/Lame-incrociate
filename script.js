@@ -229,3 +229,26 @@ function reveal(cpu) {
 
   roundActive = false;
 }
+
+// ================= REGOLE =================
+
+function showRules() {
+  document.getElementById("rulesModal").classList.add("show");
+}
+
+function hideRules() {
+  document.getElementById("rulesModal").classList.remove("show");
+}
+
+function initRules() {
+
+  const openBtn = document.getElementById("openRules");
+  const closeBtn = document.getElementById("closeRules");
+
+  if (!openBtn || !closeBtn) return;
+
+  openBtn.addEventListener("click", showRules);
+  closeBtn.addEventListener("click", hideRules);
+}
+
+document.addEventListener("DOMContentLoaded", initRules);
