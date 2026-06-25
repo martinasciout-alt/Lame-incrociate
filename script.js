@@ -1,4 +1,4 @@
- console.log("SCRIPT CARICATO");
+console.log("SCRIPT CARICATO");
 
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
@@ -31,6 +31,30 @@ let nickname = "";
 let color = "";
 
 let roundActive = false;
+
+// ================= REGOLE (FIX FONDAMENTALE) =================
+function showRules() {
+  const modal = document.getElementById("rulesModal");
+  if (modal) modal.classList.add("show");
+}
+
+function hideRules() {
+  const modal = document.getElementById("rulesModal");
+  if (modal) modal.classList.remove("show");
+}
+
+function initRules() {
+  const openBtn = document.getElementById("openRules");
+  const closeBtn = document.getElementById("closeRules");
+
+  if (openBtn) openBtn.addEventListener("click", showRules);
+  if (closeBtn) closeBtn.addEventListener("click", hideRules);
+
+  // mostra subito quando entri nel gioco
+  setTimeout(showRules, 300);
+}
+
+document.addEventListener("DOMContentLoaded", initRules);
 
 // ================= CREATE / JOIN =================
 window.createRoom = () => {
@@ -85,6 +109,8 @@ function startGame() {
 
   listen();
   renderHand();
+
+  setTimeout(showRules, 300);
 }
 
 // ================= HAND =================
@@ -187,11 +213,11 @@ function reveal(cpu) {
 
   let resultText = "";
 
-  // hit
+  // HIT = 2 punti
   if (c1 === cpu) s1 += 2;
   if (c2 === cpu) s2 += 2;
 
-  // distanza
+  // VICINANZA = 1 punto
   if (c1 !== cpu && c2 !== cpu) {
 
     if (d1 < d2) {
@@ -209,14 +235,14 @@ function reveal(cpu) {
     resultText = "ENTRAMBI HIT!";
   }
 
-  // show carte
+  // mostra carte
   document.getElementById("cardCPU").innerHTML = `<img src="carta-${cpu}.webp">`;
   document.getElementById("cardP1").innerHTML = `<img src="carta-${c1}.webp">`;
   document.getElementById("cardP2").innerHTML = `<img src="carta-${c2}.webp">`;
 
   document.getElementById("result").innerText = resultText;
 
-  // reset
+  // reset round
   update(ref(db, "rooms/" + roomCode), {
     score1: s1,
     score2: s2,
@@ -229,26 +255,3 @@ function reveal(cpu) {
 
   roundActive = false;
 }
-
-// ================= REGOLE =================
-
-function showRules() {
-  document.getElementById("rulesModal").classList.add("show");
-}
-
-function hideRules() {
-  document.getElementById("rulesModal").classList.remove("show");
-}
-
-function initRules() {
-
-  const openBtn = document.getElementById("openRules");
-  const closeBtn = document.getElementById("closeRules");
-
-  if (!openBtn || !closeBtn) return;
-
-  openBtn.addEventListener("click", showRules);
-  closeBtn.addEventListener("click", hideRules);
-}
-
-document.addEventListener("DOMContentLoaded", initRules);
