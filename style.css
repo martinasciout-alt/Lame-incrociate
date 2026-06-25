@@ -1,233 +1,97 @@
 body{
-    margin:0;
-    min-height:100vh;
-    font-family:'Pirata One', serif;
-    background:url("sfondo.jpeg") center center / cover no-repeat fixed;
-    color:white;
-    text-align:center;
+  margin:0;
+  min-height:100vh;
+  font-family:'Pirata One', serif;
+  background:url("sfondo.jpeg") center/cover no-repeat fixed;
+  color:white;
+  text-align:center;
 }
 
-.hidden{
-    display:none !important;
-}
+.hidden{ display:none !important; }
 
-/* ---------- LOBBY ---------- */
-
+/* LOBBY */
 #lobby{
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    min-height:100vh;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
 }
 
 .lobby-box{
-    width:90%;
-    max-width:450px;
-
-    background:rgba(0,0,0,.55);
-    border:2px solid rgba(178,102,255,.5);
-    border-radius:25px;
-
-    padding:30px 20px;
-    box-shadow:0 0 30px rgba(178,102,255,.4);
+  width:90%;
+  max-width:450px;
+  background:rgba(0,0,0,.55);
+  border-radius:20px;
+  padding:25px;
 }
 
-h1{
-    font-size:60px;
-    color:#d7b3ff;
-    margin-top:0;
-    margin-bottom:30px;
-
-    text-shadow:
-    0 0 10px #b266ff,
-    0 0 20px #b266ff,
-    0 0 40px #b266ff;
+/* INPUT */
+input, select{
+  width:80%;
+  padding:10px;
+  margin:8px auto;
+  display:block;
+  border-radius:10px;
 }
 
-/* ---------- INPUT ---------- */
-
-input,
-select{
-    width:80%;
-    max-width:280px;
-
-    padding:12px;
-    margin:8px auto;
-
-    display:block;
-
-    border:none;
-    border-radius:12px;
-
-    background:rgba(255,255,255,.15);
-    color:white;
-    font-size:18px;
-    font-family:sans-serif;
-}
-
-/* ---------- BOTTONI ---------- */
-
+/* BUTTON */
 button{
-    width:220px;
-    margin:8px auto;
-    padding:12px;
-
-    display:block;
-
-    font-size:20px;
-    font-family:'Pirata One';
-
-    color:white;
-    background:#b266ff;
-
-    border:none;
-    border-radius:15px;
-
-    cursor:pointer;
-    transition:.25s;
-
-    box-shadow:
-    0 0 10px #b266ff,
-    0 0 20px rgba(178,102,255,.5);
+  width:200px;
+  padding:10px;
+  margin:8px auto;
+  display:block;
+  cursor:pointer;
 }
 
-button:hover{
-    transform:scale(1.05);
-    background:#ca93ff;
-}
-
-/* ---------- CLASSIFICA ---------- */
-
-#leaderboard{
-    margin-top:30px;
-    max-height:160px;
-    overflow-y:auto;
-
-    background:rgba(0,0,0,.4);
-    border-radius:15px;
-    padding:15px;
-
-    font-family:sans-serif;
-    font-size:14px;
-}
-
-/* ---------- GAME ---------- */
-
-#game{
-    padding-top:20px;
-}
-
-#playerLabel{
-    font-size:28px;
-}
-
-#countdown{
-    font-size:60px;
-    color:#d7b3ff;
-    text-shadow:0 0 20px #b266ff;
-    margin:20px 0;
-}
-
+/* GAME */
 #table{
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    gap:30px;
-    margin:20px 0 30px;
+  display:flex;
+  justify-content:center;
+  gap:20px;
 }
 
-#table img{
-    width:80px;
-    border-radius:12px;
+/* REGOLE MODAL */
+#rulesModal{
+  position:fixed;
+  inset:0;
+  display:none;
+  justify-content:center;
+  align-items:center;
+  background:rgba(0,0,0,.7);
+  z-index:9999;
 }
 
-/* ---------- CARTE ---------- */
-
-#hand{
-    display:flex;
-    justify-content:center;
-    gap:10px;
-    flex-wrap:wrap;
+#rulesModal.show{
+  display:flex;
 }
 
-#hand button{
-    width:auto;
-    padding:0;
-    background:none;
-    box-shadow:none;
+.rules-box{
+  position:relative;
+  width:90%;
+  max-width:500px;
 }
 
-#hand img{
-    width:65px;
-    border-radius:10px;
-    transition:.2s;
+#rulesImage{
+  width:100%;
+  border-radius:15px;
 }
 
-#hand img:hover{
-    transform:translateY(-8px);
+/* CLOSE */
+#closeRules{
+  position:absolute;
+  top:10px;
+  right:15px;
+  font-size:28px;
+  cursor:pointer;
+  z-index:10;
 }
 
-/* ---------- RISULTATO ---------- */
-
-#result{
-    margin-top:25px;
-    font-size:34px;
-    color:#d7b3ff;
-}
-
-/* ---------- MOBILE ---------- */
-
-@media(max-width:700px){
-    h1{ font-size:42px; }
-    button{ width:180px; font-size:18px; }
-    #table img{ width:60px; }
-    #hand img{ width:50px; }
-    #countdown{ font-size:45px; }
-}
-
-/* ================= REGOLE ================= */
-#rulesModal {
-    position: fixed;
-    inset: 0;
-    display: none;
-    justify-content: center;
-    align-items: center;
-    background: rgba(0,0,0,0.7);
-    z-index: 9999;
-}
-
-#rulesModal.show {
-    display: flex;
-}
-
-.rules-box {
-    position: relative;
-    width: 90%;
-    max-width: 500px;
-      background: url("Rr.png") center center / contain no-repeat;
-      position: relative;
-}
-
-.rules-img {
-    width: 100%;
-    height: auto;
-    display: block;
-}
-
-#closeRules {
-    position: absolute;
-    top: 10px;
-    right: 15px;
-    font-size: 28px;
-    cursor: pointer;
-    color: white;
-}
-
-#openRules {
-    position: fixed;
-    bottom: 20px;
-    right: 20px;
-    width: 55px;
-    height: 55px;
-    border-radius: 50%;
+/* OPEN BUTTON */
+#openRules{
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  width:50px;
+  height:50px;
+  border-radius:50%;
 }
