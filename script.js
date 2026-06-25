@@ -271,3 +271,36 @@ document.addEventListener("DOMContentLoaded", () => {
   // APERTURA AUTOMATICA ALL'ENTRATA
   setTimeout(openRules, 500);
 });
+
+// ================= RULES =================
+
+const modal = document.getElementById("rulesModal");
+const openBtn = document.getElementById("openRules");
+const closeBtn = document.getElementById("closeRules");
+
+// apri sempre quando entri nel gioco
+function showRules() {
+  modal.classList.add("show");
+}
+
+// chiudi
+function hideRules() {
+  modal.classList.remove("show");
+}
+
+// click bottone ?
+openBtn.addEventListener("click", showRules);
+
+// click X
+closeBtn.addEventListener("click", hideRules);
+
+// auto-apertura quando entri in partita
+function startGame() {
+  document.getElementById("lobby").classList.add("hidden");
+  document.getElementById("game").classList.remove("hidden");
+
+  listen();
+  renderHand();
+
+  showRules(); // 👈 APRE AUTOMATICO
+}
