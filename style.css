@@ -1,4 +1,4 @@
- body{
+body{
     margin:0;
     min-height:100vh;
     font-family:'Pirata One', serif;
@@ -247,7 +247,4 @@ button:hover{
     border-radius:50%;
     font-size:24px;
     padding:0;
-}
-#rulesModal.show {
-  display:flex !important;
 }
