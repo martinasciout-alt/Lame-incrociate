@@ -71,16 +71,83 @@
 
 </div>
 
+ <!DOCTYPE html>
+<html lang="it">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Lama Alta</title>
+
+  <link href="https://fonts.googleapis.com/css2?family=Pirata+One&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+</head>
+
+<body>
+
+<!-- LOBBY -->
+<div id="lobby">
+  <div class="lobby-box">
+
+    <h1>Lama Alta</h1>
+
+    <input id="roomInput" placeholder="Nome stanza">
+    <input id="nickInput" placeholder="Nickname">
+
+    <select id="colorInput">
+      <option value="red">Rosso</option>
+      <option value="blue">Blu</option>
+      <option value="green">Verde</option>
+      <option value="gold">Oro</option>
+      <option value="purple">Viola</option>
+    </select>
+
+    <button onclick="createRoom()">Crea stanza</button>
+    <button onclick="joinRoom()">Entra stanza</button>
+
+    <h3>🏆 Classifica globale</h3>
+    <div id="leaderboard"></div>
+
+  </div>
+</div>
+
+<!-- GAME -->
+<div id="game" class="hidden">
+
+  <h2 id="playerLabel"></h2>
+
+  <p>Stanza: <span id="roomCode"></span></p>
+  <p>Round: <span id="round"></span></p>
+
+  <p>Score: <span id="score1"></span> - <span id="score2"></span></p>
+
+  <div id="countdown"></div>
+
+  <div id="table">
+    <div id="cardP1"></div>
+    <div id="cardCPU"></div>
+    <div id="cardP2"></div>
+  </div>
+
+  <div id="hand"></div>
+
+  <div id="result"></div>
+
+</div>
+
 <!-- REGOLE -->
 <div id="rulesModal">
   <div class="rules-box">
 
     <span id="closeRules">✖</span>
 
-    <img src="Rr.png" alt="regole" class="rules-img">
+    <img src="Rr.png" id="rulesImage" alt="regole">
 
   </div>
 </div>
 
-<!-- bottone regole -->
 <button id="openRules">?</button>
+
+<script type="module" src="script.js"></script>
+
+</body>
+</html>
