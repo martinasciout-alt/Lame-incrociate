@@ -248,3 +248,6 @@ button:hover{
     font-size:24px;
     padding:0;
 }
+#rulesModal.show {
+  display:flex !important;
+}
