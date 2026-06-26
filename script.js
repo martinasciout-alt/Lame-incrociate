@@ -1,4 +1,4 @@
- import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
   getDatabase,
   ref,
@@ -7,144 +7,111 @@ import {
   onValue
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-/* FIREBASE */
 const firebaseConfig = {
   apiKey: "AIzaSy....",
   authDomain: "gioco-della-lama-alta.firebaseapp.com",
   databaseURL: "https://gioco-della-lama-alta-default-rtdb.europe-west1.firebasedatabase.app",
-  projectId: "gioco-della-lama-alta",
-  appId: "1:182282784891:web:0503cff93af07a0ee8d2de"
+  projectId: "gioco-della-lama-alta"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* STATE */
-let roomCode;
-let playerNumber;
-let roomData;
+let roomCode, playerNumber, roomData;
 let locked = false;
 
 /* POPUP */
-window.addEventListener("load", () => {
-  const p=document.getElementById("popupRegole");
-  const c=document.getElementById("chiudiPopup");
-  const h=document.getElementById("helpButton");
+window.addEventListener("DOMContentLoaded", () => {
+  const popup = document.getElementById("popupRegole");
+  const close = document.getElementById("chiudiPopup");
+  const help = document.getElementById("helpButton");
 
-  p.classList.remove("hidden");
+  popup.classList.remove("hidden");
 
-  c.onclick=()=>p.classList.add("hidden");
-  h.onclick=()=>p.classList.remove("hidden");
+  close.onclick = () => popup.classList.add("hidden");
+  help.onclick = () => popup.classList.remove("hidden");
 });
 
-/* CREATE */
-window.createRoom=()=>{
-  roomCode=document.getElementById("roomInput").value;
-  const name=document.getElementById("nickInput").value;
-  const color=document.getElementById("colorInput").value;
-
-  playerNumber=1;
+/* ROOM */
+window.createRoom = () => {
+  roomCode = roomInput.value;
+  playerNumber = 1;
 
   set(ref(db,"rooms/"+roomCode),{
-    players:1,
-    p1:name,
-    p1Color:color,
-    p2:null,
-    score1:0,
-    score2:0,
+    p1:0,p2:0,
+    score1:0,score2:0,
     round:1,
     state:"waiting",
-    cpu:null
+    cpu:0
   });
 
   start();
 };
 
-/* JOIN */
-window.joinRoom=()=>{
-  roomCode=document.getElementById("roomInput").value;
-  const name=document.getElementById("nickInput").value;
-  const color=document.getElementById("colorInput").value;
+window.joinRoom = () => {
+  roomCode = roomInput.value;
+  playerNumber = 2;
 
-  playerNumber=2;
-
-  update(ref(db,"rooms/"+roomCode),{
-    players:2,
-    p2:name,
-    p2Color:color,
-    state:"playing"
-  });
-
+  update(ref(db,"rooms/"+roomCode),{state:"playing"});
   start();
 };
 
-/* START */
 function start(){
-  document.getElementById("lobby").classList.add("hidden");
-  document.getElementById("game").classList.remove("hidden");
+  lobby.classList.add("hidden");
+  game.classList.remove("hidden");
 
-  document.getElementById("roomCode").innerText=roomCode;
+  roomCodeEl.textContent = roomCode;
 
   listen();
-  hand();
+  renderHand();
 }
 
 /* HAND */
-function hand(){
-  const h=document.getElementById("hand");
-  h.innerHTML="";
-
+function renderHand(){
+  hand.innerHTML = "";
   for(let i=1;i<=5;i++){
-    const img=document.createElement("img");
-    img.src=`carta-${i}.webp`;
-    img.className="card-hand";
-    img.onclick=()=>pick(i);
-    h.appendChild(img);
+    let img = document.createElement("img");
+    img.src = `carta-${i}.webp`;
+    img.className = "card-hand";
+    img.onclick = () => choose(i);
+    hand.appendChild(img);
   }
 }
 
-/* PICK */
-window.pick=(v)=>{
-  if(!roomData || roomData.state!=="choose") return;
+/* CHOOSE */
+window.choose = (v)=>{
+  if(roomData?.state !== "choose") return;
 
   update(ref(db,"rooms/"+roomCode),{
-    [playerNumber===1?"p1c":"p2c"]:v
+    [playerNumber===1?"p1":"p2"]:v
   });
 };
 
 /* LISTEN */
 function listen(){
-  onValue(ref(db,"rooms/"+roomCode),(s)=>{
-    roomData=s.val();
+  onValue(ref(db,"rooms/"+roomCode),(snap)=>{
+    roomData = snap.val();
     if(!roomData) return;
 
-    document.getElementById("score1").innerText=roomData.score1;
-    document.getElementById("score2").innerText=roomData.score2;
-    document.getElementById("round").innerText=roomData.round;
-
-    document.getElementById("p1Name").innerText=roomData.p1 || "";
-    document.getElementById("p2Name").innerText=roomData.p2 || "";
-
-    document.getElementById("p1Name").style.color=roomData.p1Color || "white";
-    document.getElementById("p2Name").style.color=roomData.p2Color || "white";
+    score1.textContent = roomData.score1;
+    score2.textContent = roomData.score2;
+    round.textContent = roomData.round;
 
     if(roomData.state==="playing" && !locked){
-      locked=true;
-      round();
+      locked = true;
+      roundStart();
     }
 
-    render(roomData,true);
+    render(roomData);
   });
 }
 
 /* ROUND */
-function round(){
-  if(roomData.players<2) return;
+function roundStart(){
 
   update(ref(db,"rooms/"+roomCode),{
-    cpu:Math.floor(Math.random()*5)+1,
-    p1c:null,
-    p2c:null,
+    cpu: Math.floor(Math.random()*5)+1,
+    p1:0,p2:0,
     state:"choose"
   });
 
@@ -153,22 +120,19 @@ function round(){
 
 /* COUNTDOWN */
 function countdown(t){
-  let x=t;
-  const cd=document.getElementById("countdown");
+  let cd = setInterval(()=>{
+    countdownEl.textContent = t;
+    t--;
 
-  const i=setInterval(()=>{
-    cd.innerText=x;
-    x--;
-
-    if(x<0){
-      clearInterval(i);
+    if(t<0){
+      clearInterval(cd);
       reveal();
     }
   },1000);
 }
 
 /* SCORE */
-function score(c,cpu){
+function calc(c,cpu){
   if(c===cpu) return 2;
   if(Math.abs(c-cpu)===1) return 1;
   return 0;
@@ -176,11 +140,11 @@ function score(c,cpu){
 
 /* REVEAL */
 function reveal(){
-  let s1=roomData.score1;
-  let s2=roomData.score2;
+  let s1 = roomData.score1;
+  let s2 = roomData.score2;
 
-  const a=score(roomData.p1c,roomData.cpu);
-  const b=score(roomData.p2c,roomData.cpu);
+  let a = calc(roomData.p1,roomData.cpu);
+  let b = calc(roomData.p2,roomData.cpu);
 
   if(a>b) s1+=a;
   if(b>a) s2+=b;
@@ -188,24 +152,16 @@ function reveal(){
   update(ref(db,"rooms/"+roomCode),{
     score1:s1,
     score2:s2,
-    round:roomData.round+1,
-    state:"playing"
+    state:"playing",
+    round:roomData.round+1
   });
 
-  locked=false;
+  locked = false;
 }
 
-/* TABLE */
-function render(d,hidden){
-
-  const back=`<img src="retro-carta.webp">`;
-
-  document.getElementById("cardCPU").innerHTML=
-    hidden ? back : `<img src="carta-${d.cpu}.webp">`;
-
-  document.getElementById("cardP1").innerHTML=
-    hidden ? back : `<img src="carta-${d.p1c}.webp">`;
-
-  document.getElementById("cardP2").innerHTML=
-    hidden ? back : `<img src="carta-${d.p2c}.webp">`;
+/* RENDER */
+function render(d){
+  cardCPU.innerHTML = d.cpu ? `<img src="carta-${d.cpu}.webp">` : `<img src="retro-carta.webp">`;
+  cardP1.innerHTML = d.p1 ? `<img src="retro-carta.webp">` : `<img src="retro-carta.webp">`;
+  cardP2.innerHTML = d.p2 ? `<img src="retro-carta.webp">` : `<img src="retro-carta.webp">`;
 }
