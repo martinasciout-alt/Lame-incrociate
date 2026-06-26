@@ -74,7 +74,10 @@ window.joinRoom = () => {
   roomCode = roomInput.value;
   playerNumber = 2;
 
-  update(ref(db,"rooms/"+roomCode),{state:"choose"});
+  update(ref(db,"rooms/"+roomCode),{
+    state: "choosing"
+  });
+
   start();
 };
 
@@ -92,6 +95,7 @@ function start(){
 /* HAND */
 function renderHand(){
   hand.innerHTML = "";
+
   for(let i=1;i<=5;i++){
     let img = document.createElement("img");
     img.src = `carta-${i}.webp`;
@@ -101,12 +105,14 @@ function renderHand(){
   }
 }
 
-/* CHOOSE */
-window.choose = (v)=>{
-  if(roomData?.state !== "choose") return;
+/* CHOOSE (FIX PRINCIPALE) */
+window.choose = (v) => {
+  if(roomData?.state !== "choosing") return;
+
+  const field = playerNumber === 1 ? "p1" : "p2";
 
   update(ref(db,"rooms/"+roomCode),{
-    [playerNumber===1?"p1":"p2"]: v
+    [field]: v
   });
 };
 
@@ -122,15 +128,19 @@ function listen(){
 
     render(roomData);
 
-    /* parte SOLO quando entrambi sono pronti */
-    if(roomData.state === "choosing" && !locked && roomData.p1 && roomData.p2){
+    if(
+      roomData.state === "choosing" &&
+      !locked &&
+      roomData.p1 &&
+      roomData.p2
+    ){
       locked = true;
       startRound();
     }
   });
 }
 
-/* ROUND START */
+/* ROUND START (RESET PULITO) */
 function startRound(){
 
   update(ref(db,"rooms/"+roomCode),{
@@ -182,19 +192,21 @@ function reveal(){
     score1: s1,
     score2: s2,
     round: roomData.round + 1,
-    state: "choose"
+    state: "choosing"
   });
 
   locked = false;
 }
 
-/* RENDER */
+/* RENDER (CARTE SEMPRE COPERTE) */
 function render(d){
 
   const back = `<img src="retro-carta.webp">`;
 
-  cardCPU.innerHTML = d.cpu ? `<img src="carta-${d.cpu}.webp">` : back;
+  cardCPU.innerHTML = d.cpu
+    ? `<img src="carta-${d.cpu}.webp">`
+    : back;
 
-  cardP1.innerHTML = d.p1 ? back : back;
-  cardP2.innerHTML = d.p2 ? back : back;
+  cardP1.innerHTML = back;
+  cardP2.innerHTML = back;
 }
