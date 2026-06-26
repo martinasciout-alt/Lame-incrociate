@@ -1,4 +1,4 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
   getDatabase,
   ref,
@@ -23,12 +23,11 @@ let roomCode, playerNumber, roomData;
 let locked = false;
 let timer = null;
 
-/* DOM */
-const roomInput = document.getElementById("roomInput");
+/* DOM (lobby NON toccata) */
 const lobby = document.getElementById("lobby");
 const game = document.getElementById("game");
-const hand = document.getElementById("hand");
 
+const hand = document.getElementById("hand");
 const score1 = document.getElementById("score1");
 const score2 = document.getElementById("score2");
 const round = document.getElementById("round");
@@ -39,26 +38,25 @@ const cardP1 = document.getElementById("cardP1");
 const cardP2 = document.getElementById("cardP2");
 
 const roomCodeEl = document.getElementById("roomCode");
-const playerLabel = document.getElementById("playerLabel");
 
-/* POPUP */
+/* POPUP (invariato) */
 window.addEventListener("DOMContentLoaded", () => {
   const popup = document.getElementById("popupRegole");
   const close = document.getElementById("chiudiPopup");
   const help = document.getElementById("helpButton");
 
-  if(popup) popup.classList.remove("hidden");
+  if (popup) popup.classList.remove("hidden");
 
-  if(close) close.onclick = () => popup.classList.add("hidden");
-  if(help) help.onclick = () => popup.classList.remove("hidden");
+  if (close) close.onclick = () => popup.classList.add("hidden");
+  if (help) help.onclick = () => popup.classList.remove("hidden");
 });
 
-/* ROOM CREATE */
+/* ROOM */
 window.createRoom = () => {
-  roomCode = roomInput.value;
+  roomCode = document.getElementById("roomInput").value;
   playerNumber = 1;
 
-  set(ref(db,"rooms/"+roomCode),{
+  set(ref(db, "rooms/" + roomCode), {
     p1: null,
     p2: null,
     score1: 0,
@@ -71,12 +69,11 @@ window.createRoom = () => {
   start();
 };
 
-/* ROOM JOIN */
 window.joinRoom = () => {
-  roomCode = roomInput.value;
+  roomCode = document.getElementById("roomInput").value;
   playerNumber = 2;
 
-  update(ref(db,"rooms/"+roomCode),{
+  update(ref(db, "rooms/" + roomCode), {
     state: "playing"
   });
 
@@ -84,49 +81,47 @@ window.joinRoom = () => {
 };
 
 /* START */
-function start(){
+function start() {
   lobby.classList.add("hidden");
   game.classList.remove("hidden");
 
   roomCodeEl.textContent = roomCode;
-
-  playerLabel.textContent =
-    playerNumber === 1 ? "Giocatore 1" : "Giocatore 2";
 
   listen();
   renderHand();
 }
 
 /* HAND */
-function renderHand(){
+function renderHand() {
   hand.innerHTML = "";
 
-  for(let i=1;i<=5;i++){
+  for (let i = 1; i <= 5; i++) {
     const img = document.createElement("img");
     img.src = `carta-${i}.webp`;
     img.className = "card-hand";
+
     img.onclick = () => choose(i);
     hand.appendChild(img);
   }
 }
 
-/* CHOOSE (FIX DEFINITIVO) */
+/* CHOOSE (FIX FONDAMENTALE) */
 window.choose = (v) => {
-  if(!roomData) return;
-  if(roomData.state !== "choosing") return;
+  if (!roomData) return;
+  if (roomData.state !== "choose") return;
 
   const field = playerNumber === 1 ? "p1" : "p2";
 
-  update(ref(db,"rooms/"+roomCode),{
+  update(ref(db, "rooms/" + roomCode), {
     [field]: v
   });
 };
 
 /* LISTEN */
-function listen(){
-  onValue(ref(db,"rooms/"+roomCode),(snap)=>{
+function listen() {
+  onValue(ref(db, "rooms/" + roomCode), (snap) => {
     roomData = snap.val();
-    if(!roomData) return;
+    if (!roomData) return;
 
     score1.textContent = roomData.score1;
     score2.textContent = roomData.score2;
@@ -134,62 +129,75 @@ function listen(){
 
     render(roomData);
 
-    if(roomData.state === "playing" && !locked){
+    /* PARTENZA ROUND SOLO UNA VOLTA */
+    if (roomData.state === "playing" && !locked) {
       locked = true;
       startRound();
+    }
+
+    /* SE ENTRAMBI HANNO SCELTO -> REVEAL AUTOMATICO */
+    if (
+      roomData.state === "choose" &&
+      roomData.p1 != null &&
+      roomData.p2 != null &&
+      !timer
+    ) {
+      clearInterval(timer);
+      reveal();
     }
   });
 }
 
 /* ROUND START */
-function startRound(){
-
-  update(ref(db,"rooms/"+roomCode),{
-    cpu: Math.floor(Math.random()*5)+1,
+function startRound() {
+  update(ref(db, "rooms/" + roomCode), {
+    cpu: Math.floor(Math.random() * 5) + 1,
     p1: null,
     p2: null,
-    state: "choosing"
+    state: "choose"
   });
 
   countdown(5);
 }
 
-/* COUNTDOWN */
-function countdown(t){
+/* TIMER */
+function countdown(t) {
   clearInterval(timer);
 
-  timer = setInterval(()=>{
+  timer = setInterval(() => {
     countdownEl.textContent = t;
     t--;
 
-    if(t < 0){
+    if (t < 0) {
       clearInterval(timer);
+      timer = null;
       reveal();
     }
-  },1000);
+  }, 1000);
 }
 
 /* SCORE */
-function calc(c,cpu){
-  if(!c || !cpu) return 0;
-  if(c === cpu) return 2;
-  if(Math.abs(c - cpu) === 1) return 1;
+function calc(c, cpu) {
+  if (!c || !cpu) return 0;
+  if (c === cpu) return 2;
+  if (Math.abs(c - cpu) === 1) return 1;
   return 0;
 }
 
 /* REVEAL */
-function reveal(){
+function reveal() {
+  if (!roomData) return;
 
   let s1 = roomData.score1;
   let s2 = roomData.score2;
 
-  let a = calc(roomData.p1, roomData.cpu);
-  let b = calc(roomData.p2, roomData.cpu);
+  const a = calc(roomData.p1, roomData.cpu);
+  const b = calc(roomData.p2, roomData.cpu);
 
-  if(a > b) s1 += a;
-  if(b > a) s2 += b;
+  if (a > b) s1 += a;
+  if (b > a) s2 += b;
 
-  update(ref(db,"rooms/"+roomCode),{
+  update(ref(db, "rooms/" + roomCode), {
     score1: s1,
     score2: s2,
     round: roomData.round + 1,
@@ -197,17 +205,14 @@ function reveal(){
   });
 
   locked = false;
+  timer = null;
 }
 
-/* RENDER (CARTE SEMPRE COPERTE) */
-function render(d){
-
+/* RENDER (TAVOLO SEMPRE PULITO + NO BUG) */
+function render(d) {
   const back = `<img src="retro-carta.webp">`;
 
-  cardCPU.innerHTML = d.cpu
-    ? `<img src="carta-${d.cpu}.webp">`
-    : back;
-
+  cardCPU.innerHTML = d.cpu ? `<img src="carta-${d.cpu}.webp">` : back;
   cardP1.innerHTML = back;
   cardP2.innerHTML = back;
 }
