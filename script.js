@@ -28,24 +28,7 @@ let playerNumber = null;
 let roomData = null;
 let roundActive = false;
 
-/* ================= RULES ================= */
-function openRules(){
-  document.getElementById("rulesModal").classList.add("show");
-}
-
-function closeRules(){
-  document.getElementById("rulesModal").classList.remove("show");
-}
-
-function initRules(){
-  const openBtn = document.getElementById("openRules");
-  const closeBtn = document.getElementById("closeRules");
-
-  openBtn?.addEventListener("click", openRules);
-  closeBtn?.addEventListener("click", closeRules);
-
-  openRules(); // APERTURA AUTOMATICA
-}
+ 
 
 /* ================= LOBBY -> GAME ================= */
 function startGame(){
