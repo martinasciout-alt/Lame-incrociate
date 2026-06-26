@@ -1,147 +1,88 @@
  body{
-    margin:0;
-    min-height:100vh;
-    font-family:'Pirata One', serif;
-    background:url("sfondo.jpeg") center/cover no-repeat fixed;
-    color:white;
-    text-align:center;
+  margin:0;
+  min-height:100vh;
+  font-family:'Pirata One', serif;
+  background:url("sfondo.jpeg") center/cover no-repeat fixed;
+  color:white;
+  text-align:center;
 }
 
-.hidden{ display:none !important; }
+.hidden{display:none!important;}
 
-/* ================= LOBBY ================= */
-
+/* LOBBY */
 #lobby{
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    min-height:100vh;
-    background:rgba(40,0,70,.30);
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  min-height:100vh;
+  background:rgba(40,0,70,.30);
 }
 
-.lobby-box{
-    width:90%;
-    max-width:470px;
-    padding:35px;
-    border-radius:22px;
-    background:rgba(45,18,72,.82);
-    border:2px solid #9d4dff;
-    box-shadow:0 0 25px rgba(157,77,255,.40);
+/* GAME HEADER */
+#topInfo{
+  margin-top:10px;
 }
 
-.lobby-box h1{
-    font-size:3rem;
-    text-shadow:0 0 25px #6f00ff;
+#playersTop{
+  font-size:22px;
+  margin-top:5px;
 }
 
-/* INPUT */
-input,select{
-    width:85%;
-    padding:14px;
-    margin:12px auto;
-    display:block;
-    border-radius:14px;
-    border:2px solid #8b45ff;
-    background:#31104e;
-    color:white;
+/* TABLE NAMES */
+#tableNames{
+  display:flex;
+  justify-content:center;
+  gap:120px;
+  margin-top:20px;
+  font-size:18px;
 }
 
-/* BUTTON */
-button{
-    width:230px;
-    padding:14px;
-    margin:12px auto;
-    display:block;
-    border:none;
-    border-radius:16px;
-    background:linear-gradient(135deg,#6a00ff,#a900ff);
-    color:white;
-    cursor:pointer;
-}
-
-/* ================= GAME ================= */
-
+/* TABLE */
 #table{
-    display:flex;
-    justify-content:center;
-    gap:30px;
-    margin:20px 0;
+  display:flex;
+  justify-content:center;
+  gap:40px;
+  margin:20px;
 }
 
-/* CARD BOX */
+/* CARDS */
 #cardP1,#cardP2,#cardCPU{
-    width:140px;
-    height:200px;
-    display:flex;
-    justify-content:center;
-    align-items:center;
+  width:140px;
+  height:200px;
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  background:rgba(0,0,0,.35);
+  border-radius:14px;
 }
 
-/* IMAGES FIX */
 #cardP1 img,#cardP2 img,#cardCPU img{
-    width:140px;
-    height:200px;
-    object-fit:contain;
+  width:140px;
+  height:200px;
+  object-fit:contain;
 }
 
 /* HAND */
-#hand{
-    display:flex;
-    justify-content:center;
-    flex-wrap:wrap;
-    gap:12px;
-}
-
 .card-hand{
-    width:90px;
-    cursor:pointer;
+  width:90px;
+  cursor:pointer;
 }
 
-/* COUNTDOWN */
-#countdown{
-    font-size:50px;
-    text-shadow:0 0 20px purple;
-}
-
-/* ================= POPUP ================= */
-
-#popupRegole{
-    position:fixed;
-    inset:0;
-    background:rgba(0,0,0,.75);
-    display:flex;
-    justify-content:center;
-    align-items:center;
-}
-
+/* POPUP FIX (più piccolo PC) */
 .popup-box{
-    position:relative;
-    max-width:70vw;   /* FIX PC */
+  max-width:55vw;
 }
 
 .popup-box img{
-    width:100%;
-    border-radius:12px;
-}
-
-#chiudiPopup{
-    position:absolute;
-    top:-10px;
-    right:-10px;
-    width:40px;
-    height:40px;
-    border-radius:50%;
-    border:none;
-    cursor:pointer;
-    background:white;
+  width:100%;
 }
 
 /* HELP */
 #helpButton{
-    position:fixed;
-    bottom:20px;
-    right:20px;
-    width:55px;
-    height:55px;
-    border-radius:50%;
+  position:fixed;
+  bottom:20px;
+  right:20px;
+  width:55px;
+  height:55px;
+  border-radius:50%;
 }
