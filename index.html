@@ -11,7 +11,6 @@
 
 <body>
 
-<!-- LOBBY -->
 <div id="lobby">
   <div class="lobby-box">
     <h1>Lama Alta</h1>
@@ -31,19 +30,18 @@
     <button onclick="joinRoom()">Entra stanza</button>
 
     <h3>🏆 Classifica globale</h3>
-    <div id="leaderboard"></div>
+    <div id="leaderboard">Caricamento classifica...</div>
   </div>
 </div>
 
-<!-- GAME -->
 <div id="game" class="hidden">
 
   <h2 id="playerLabel"></h2>
 
   <p>Stanza: <span id="roomCode"></span></p>
-  <p>Round: <span id="round"></span></p>
+  <p>Round: <span id="round"></span> / 5</p>
 
-  <p>Score: <span id="score1"></span> - <span id="score2"></span></p>
+  <p>Score: <span id="score1"></span> || <span id="score2"></span></p>
 
   <div id="countdown"></div>
 
@@ -59,11 +57,10 @@
 
 </div>
 
-<!-- POPUP -->
 <div id="popupRegole" class="hidden">
   <div class="popup-box">
     <button id="chiudiPopup">&times;</button>
-    <img src="Rr.png">
+    <img src="Rr.png" alt="Regolamento">
   </div>
 </div>
 
