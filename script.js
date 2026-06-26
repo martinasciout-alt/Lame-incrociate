@@ -1,4 +1,4 @@
-  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
   getDatabase,
   ref,
@@ -60,7 +60,6 @@ window.joinRoom = () => {
     const data = snap.val();
     if(!data) return;
 
-    // quando entra il secondo player
     if(data.players === 1){
       update(roomRef,{
         players:2,
@@ -117,9 +116,14 @@ function listen(){
     document.getElementById("score2").innerText = roomData.score2;
     document.getElementById("round").innerText = roomData.round;
 
-    renderCards(roomData.p1,roomData.p2,roomData.cpu);
+    renderCards(
+      roomData.p1,
+      roomData.p2,
+      roomData.cpu,
+      roomData.state
+    );
 
-    // START ROUND SOLO UNA VOLTA
+    // start round SOLO una volta
     if(roomData.state === "playing" && !roundStarted){
       roundStarted = true;
       startRound();
@@ -144,8 +148,8 @@ function startRound(){
 
 /* ================= COUNTDOWN ================= */
 
-function countdown(seconds){
-  let t = seconds;
+function countdown(sec){
+  let t = sec;
   const cd = document.getElementById("countdown");
 
   const int = setInterval(()=>{
@@ -159,7 +163,7 @@ function countdown(seconds){
   },1000);
 }
 
-/* ================= SCORE LOGIC ================= */
+/* ================= SCORE ================= */
 
 function score(card, cpu){
   if(card === cpu) return 2;
@@ -179,14 +183,13 @@ function reveal(){
   let s1 = r.score1;
   let s2 = r.score2;
 
-  // mostra carte
-  renderCards(p1,p2,cpu);
-
   let sc1 = score(p1,cpu);
   let sc2 = score(p2,cpu);
 
+  // CASE SPECIALE
   if(p1 === p2){
-    document.getElementById("result").innerText = "Entrambi uguali → Madama Queen vince il round!";
+    document.getElementById("result").innerText =
+      "Stessa carta → Madama Queen domina il round!";
   }
   else if(sc1 > sc2){
     s1 += sc1;
@@ -195,7 +198,8 @@ function reveal(){
     s2 += sc2;
   }
   else{
-    document.getElementById("result").innerText = "Pareggio → Madama Queen vince il round!";
+    document.getElementById("result").innerText =
+      "Pareggio → Madama Queen vince il round!";
   }
 
   update(ref(db,"rooms/"+roomCode),{
@@ -213,13 +217,27 @@ function reveal(){
 
 /* ================= CARDS DISPLAY ================= */
 
-function renderCards(p1,p2,cpu){
-  document.getElementById("cardP1").innerText = p1 ?? "🂠";
-  document.getElementById("cardP2").innerText = p2 ?? "🂠";
-  document.getElementById("cardCPU").innerText = cpu ?? "🂠";
+function renderCards(p1,p2,cpu,state){
+  const back = `<img src="retro-carta.webp">`;
+
+  if(state === "choosing"){
+    document.getElementById("cardP1").innerHTML = back;
+    document.getElementById("cardP2").innerHTML = back;
+    document.getElementById("cardCPU").innerHTML = back;
+    return;
+  }
+
+  document.getElementById("cardP1").innerHTML =
+    p1 ? `<img src="carta-${p1}.webp">` : back;
+
+  document.getElementById("cardP2").innerHTML =
+    p2 ? `<img src="carta-${p2}.webp">` : back;
+
+  document.getElementById("cardCPU").innerHTML =
+    cpu ? `<img src="carta-${cpu}.webp">` : back;
 }
 
-/* ================= POPUP RULES ================= */
+/* ================= POPUP ================= */
 
 const popup = document.getElementById("popupRegole");
 const closeBtn = document.getElementById("chiudiPopup");
