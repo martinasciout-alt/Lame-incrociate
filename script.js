@@ -1,4 +1,4 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
   getDatabase,
   ref,
@@ -26,9 +26,9 @@ const db = getDatabase(app);
 let roomCode = null;
 let playerNumber = null;
 let roomData = null;
-let roundStarted = false;
+let roundRunning = false;
 
-/* ================= ROOM CREATE ================= */
+/* ================= CREATE ROOM ================= */
 
 window.createRoom = () => {
   roomCode = document.getElementById("roomInput").value;
@@ -38,17 +38,18 @@ window.createRoom = () => {
     score1:0,
     score2:0,
     round:1,
+    players:1,
+    state:"waiting",
+
     cpu:null,
     p1:null,
-    p2:null,
-    state:"waiting",
-    players:1
+    p2:null
   });
 
   startGame();
 };
 
-/* ================= ROOM JOIN ================= */
+/* ================= JOIN ROOM ================= */
 
 window.joinRoom = () => {
   roomCode = document.getElementById("roomInput").value;
@@ -57,10 +58,10 @@ window.joinRoom = () => {
   const roomRef = ref(db,"rooms/"+roomCode);
 
   onValue(roomRef,(snap)=>{
-    const data = snap.val();
-    if(!data) return;
+    const d = snap.val();
+    if(!d) return;
 
-    if(data.players === 1){
+    if(d.players === 1){
       update(roomRef,{
         players:2,
         state:"playing"
@@ -83,17 +84,20 @@ function startGame(){
   renderHand();
 }
 
-/* ================= HAND ================= */
+/* ================= HAND (IMMAGINI) ================= */
 
 function renderHand(){
   const hand = document.getElementById("hand");
   hand.innerHTML = "";
 
   for(let i=1;i<=5;i++){
-    const btn = document.createElement("button");
-    btn.innerText = "Carta " + i;
-    btn.onclick = () => choose(i);
-    hand.appendChild(btn);
+    const img = document.createElement("img");
+    img.src = `carta-${i}.webp`;
+    img.className = "card-hand";
+
+    img.onclick = () => choose(i);
+
+    hand.appendChild(img);
   }
 }
 
@@ -116,16 +120,10 @@ function listen(){
     document.getElementById("score2").innerText = roomData.score2;
     document.getElementById("round").innerText = roomData.round;
 
-    renderCards(
-      roomData.p1,
-      roomData.p2,
-      roomData.cpu,
-      roomData.state
-    );
-
-    // start round SOLO una volta
-    if(roomData.state === "playing" && !roundStarted){
-      roundStarted = true;
+    renderTable(roomData);
+    
+    if(roomData.state === "playing" && !roundRunning){
+      roundRunning = true;
       startRound();
     }
   });
@@ -142,6 +140,9 @@ function startRound(){
     p2:null,
     state:"choosing"
   });
+
+  // tavolo iniziale COPERTO
+  renderTable(roomData, true);
 
   countdown(5);
 }
@@ -186,20 +187,15 @@ function reveal(){
   let sc1 = score(p1,cpu);
   let sc2 = score(p2,cpu);
 
-  // CASE SPECIALE
   if(p1 === p2){
     document.getElementById("result").innerText =
-      "Stessa carta → Madama Queen domina il round!";
+      "Stessa carta → Madama Queen domina!";
   }
   else if(sc1 > sc2){
     s1 += sc1;
   }
   else if(sc2 > sc1){
     s2 += sc2;
-  }
-  else{
-    document.getElementById("result").innerText =
-      "Pareggio → Madama Queen vince il round!";
   }
 
   update(ref(db,"rooms/"+roomCode),{
@@ -210,31 +206,32 @@ function reveal(){
   });
 
   setTimeout(()=>{
-    roundStarted = false;
+    roundRunning = false;
     startRound();
   },2000);
 }
 
-/* ================= CARDS DISPLAY ================= */
+/* ================= TABLE VISUAL ================= */
 
-function renderCards(p1,p2,cpu,state){
+function renderTable(data, hidden = false){
+
   const back = `<img src="retro-carta.webp">`;
 
-  if(state === "choosing"){
-    document.getElementById("cardP1").innerHTML = back;
-    document.getElementById("cardP2").innerHTML = back;
-    document.getElementById("cardCPU").innerHTML = back;
-    return;
-  }
+  const cpuCard = hidden
+    ? back
+    : data.cpu ? `<img src="carta-${data.cpu}.webp">` : back;
 
-  document.getElementById("cardP1").innerHTML =
-    p1 ? `<img src="carta-${p1}.webp">` : back;
+  const p1Card = hidden
+    ? back
+    : data.p1 ? `<img src="carta-${data.p1}.webp">` : back;
 
-  document.getElementById("cardP2").innerHTML =
-    p2 ? `<img src="carta-${p2}.webp">` : back;
+  const p2Card = hidden
+    ? back
+    : data.p2 ? `<img src="carta-${data.p2}.webp">` : back;
 
-  document.getElementById("cardCPU").innerHTML =
-    cpu ? `<img src="carta-${cpu}.webp">` : back;
+  document.getElementById("cardCPU").innerHTML = cpuCard;
+  document.getElementById("cardP1").innerHTML = p1Card;
+  document.getElementById("cardP2").innerHTML = p2Card;
 }
 
 /* ================= POPUP ================= */
