@@ -123,7 +123,7 @@ function listen(){
     render(roomData);
 
     /* parte SOLO quando entrambi sono pronti */
-    if(roomData.state === "choose" && !locked && roomData.p1 && roomData.p2){
+    if(roomData.state === "choosing" && !locked && roomData.p1 && roomData.p2){
       locked = true;
       startRound();
     }
@@ -137,7 +137,7 @@ function startRound(){
     cpu: Math.floor(Math.random()*5)+1,
     p1: null,
     p2: null,
-    state: "choose"
+    state: "choosing"
   });
 
   startTimer(5);
