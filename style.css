@@ -118,3 +118,162 @@ button{
 
     z-index:9000;
 }
+
+/* ================= LOBBY ================= */
+
+.lobby-box{
+    width:90%;
+    max-width:470px;
+
+    padding:35px;
+
+    border-radius:22px;
+
+    background:rgba(45,18,72,.82);
+
+    border:2px solid #9d4dff;
+
+    box-shadow:
+        0 0 25px rgba(157,77,255,.4),
+        0 0 60px rgba(120,0,255,.25);
+
+    backdrop-filter: blur(8px);
+}
+
+/* Titolo */
+
+.lobby-box h1{
+    color:#dcb8ff;
+    font-size:3rem;
+    margin-bottom:25px;
+
+    text-shadow:
+        0 0 10px #b86cff,
+        0 0 25px #6f00ff;
+}
+
+/* INPUT */
+
+input,
+select{
+
+    width:85%;
+
+    padding:14px;
+
+    margin:12px auto;
+
+    border-radius:14px;
+
+    border:2px solid #8b45ff;
+
+    background:#31104e;
+
+    color:white;
+
+    font-size:18px;
+
+    transition:.25s;
+}
+
+/* Placeholder */
+
+input::placeholder{
+    color:#d0b5ff;
+}
+
+/* Mouse sopra */
+
+input:hover,
+select:hover{
+
+    border-color:#d96cff;
+
+    box-shadow:
+        0 0 10px #b95dff,
+        0 0 20px #8b45ff;
+}
+
+/* Quando scrivi */
+
+input:focus,
+select:focus{
+
+    outline:none;
+
+    border-color:#ff9dff;
+
+    box-shadow:
+        0 0 15px #d35cff,
+        0 0 35px #8d00ff;
+}
+
+/* BOTTONI */
+
+button{
+
+    width:230px;
+
+    padding:14px;
+
+    margin:12px auto;
+
+    border:none;
+
+    border-radius:16px;
+
+    background:linear-gradient(135deg,#6a00ff,#a900ff);
+
+    color:white;
+
+    font-size:20px;
+
+    font-family:'Pirata One', serif;
+
+    cursor:pointer;
+
+    transition:.25s;
+
+    box-shadow:0 0 15px rgba(145,0,255,.35);
+}
+
+/* Hover PC */
+
+button:hover{
+
+    transform:translateY(-3px) scale(1.03);
+
+    box-shadow:
+        0 0 20px #c266ff,
+        0 0 40px #8700ff;
+
+    background:linear-gradient(135deg,#8d2dff,#d145ff);
+}
+
+/* Click PC e Mobile */
+
+button:active{
+
+    transform:scale(.95);
+
+    box-shadow:
+        0 0 30px #ff9dff,
+        0 0 60px #a200ff;
+
+    background:linear-gradient(135deg,#b03fff,#e062ff);
+}
+
+/* Classifica */
+
+#leaderboard{
+
+    margin-top:18px;
+
+    padding:15px;
+
+    border-radius:14px;
+
+    background:rgba(255,255,255,.08);
+
+    border:1px solid rgba(255,255,255,.15);
+}
