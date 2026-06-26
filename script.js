@@ -22,7 +22,26 @@ const db = getDatabase(app);
 /* STATE */
 let roomCode, playerNumber, roomData;
 let timer = null;
-let lastRoundSeenPopup = 0; // Serve per non far riapparire i popup se si riapre la stanza
+let lastRoundSeenPopup = 0; 
+
+/* AUDIO SYSTEM */
+const sndSottofondo = new Audio("sottofondo.mp3");
+sndSottofondo.loop = true; 
+
+const sndCarta = new Audio("carta.wav");
+const sndVittoria = new Audio("vittoria.mp3");
+const sndPareggio = new Audio("pareggio.mp3");
+
+// Gestione visibilità scheda (Muta se esci da Google / cambi scheda)
+document.addEventListener("visibilitychange", () => {
+  if (document.hidden) {
+    sndSottofondo.pause();
+  } else {
+    if (roomCode) {
+      sndSottofondo.play().catch(e => console.log("Audio bloccato: ", e));
+    }
+  }
+});
 
 /* DOM */
 const lobby = document.getElementById("lobby");
@@ -61,26 +80,39 @@ nextRoundBtn.textContent = "Prossimo Round";
 nextRoundBtn.style.display = "none";
 nextRoundBtn.onclick = () => advanceRound();
 
-/* POPUP REGOLE */
+/* POPUP REGOLE & AVVIO AUDIO */
 window.addEventListener("DOMContentLoaded", () => {
   const popup = document.getElementById("popupRegole");
   const close = document.getElementById("chiudiPopup");
   const help = document.getElementById("helpButton");
 
   if (popup) popup.classList.remove("hidden");
-  if (close) close.onclick = () => popup.classList.add("hidden");
+  
+  if (close) {
+    close.onclick = () => {
+      popup.classList.add("hidden");
+      // La musica parte ufficialmente quando chiudi il regolamento iniziale
+      sndSottofondo.play().catch(e => console.log("Audio in attesa di interazione:", e));
+    };
+  }
+  
   if (help) help.onclick = () => popup.classList.remove("hidden");
   
   document.getElementById("game").appendChild(nextRoundBtn);
   loadLeaderboard();
 });
 
-// Funzione per chiudere tutti i popup di gioco in un colpo solo
 function chiudiTuttiIPopup() {
   popupPunto.classList.add("hidden");
   popupNessunPunto.classList.add("hidden");
   popupMadamaVince.classList.add("hidden");
   popupMadamaPerde.classList.add("hidden");
+  
+  // Stoppa i suoni di fine round/partita quando chiudi il popup per non farli sovrapporre al loop
+  sndVittoria.pause();
+  sndVittoria.currentTime = 0;
+  sndPareggio.pause();
+  sndPareggio.currentTime = 0;
 }
 
 chiudiPopupPunto.onclick = chiudiTuttiIPopup;
@@ -135,7 +167,7 @@ window.createRoom = () => {
     round: 1,
     state: "waiting", 
     cpu: false,
-    roundResult: "" // Nuovo campo: "madama", "p1", "p2", "both", "none"
+    roundResult: "" 
   }).then(() => {
     start();
   });
@@ -194,6 +226,10 @@ window.choose = (v) => {
   const field = playerNumber === 1 ? "p1" : "p2";
   if (roomData[field] !== false) return; 
 
+  // 🔊 EFFETTO: Suona quando selezioni una carta
+  sndCarta.currentTime = 0;
+  sndCarta.play().catch(e => console.log("Errore audio carta:", e));
+
   update(ref(db, "rooms/" + roomCode), {
     [field]: v
   });
@@ -214,7 +250,7 @@ function listen() {
     // FASE: CHOOSE
     if (roomData.state === "choose") {
       nextRoundBtn.style.display = "none"; 
-      chiudiTuttiIPopup(); // Pulisce i popup vecchi ad inizio round
+      chiudiTuttiIPopup(); 
       
       if (!timer) {
         countdown(5);
@@ -229,13 +265,12 @@ function listen() {
       }
     }
 
-    // FASE: REVEAL O ENDED (Mostra i Popup sincronizzati)
+    // FASE: REVEAL O ENDED
     if (roomData.state === "reveal" || roomData.state === "ended") {
       clearInterval(timer);
       timer = null;
       countdownEl.textContent = "-";
       
-      // Controlla se dobbiamo mostrare il popup per questo round specifico
       if (lastRoundSeenPopup !== roomData.round || roomData.state === "ended") {
         lastRoundSeenPopup = roomData.round;
         chiudiTuttiIPopup();
@@ -243,24 +278,51 @@ function listen() {
         const res = roomData.roundResult;
 
         if (roomData.state === "ended") {
-          // FINE PARTITA DEI 5 ROUND
           if (res === "madama_win_game") {
             popupMadamaVince.classList.remove("hidden");
+            // 🔊 EFFETTO: Madama vince l'intera partita
+            sndPareggio.currentTime = 0;
+            sndPareggio.play().catch(e => console.log(e));
           } else if (res === "madama_lose_game") {
             popupMadamaPerde.classList.remove("hidden");
+            // 🔊 EFFETTO: Un giocatore vince l'intera partita (Madama perde)
+            sndVittoria.currentTime = 0;
+            sndVittoria.play().catch(e => console.log(e));
           }
         } else {
-          // FINE ROUND NORMALE
+          // Fine round singoli
           if (res === "madama") {
-            popupMadamaVince.classList.remove("hidden"); // Entrambi vedono Madama vince il round
+            popupMadamaVince.classList.remove("hidden");
+            // 🔊 EFFETTO: Madama si prende il round (Suona pareggio.mp3)
+            sndPareggio.currentTime = 0;
+            sndPareggio.play().catch(e => console.log(e));
           } else if (res === "both") {
-            popupPunto.classList.remove("hidden"); // Entrambi hanno fatto punto
+            popupPunto.classList.remove("hidden");
+            // 🔊 EFFETTO: Entrambi fanno punto
+            sndVittoria.currentTime = 0;
+            sndVittoria.play().catch(e => console.log(e));
           } else if (res === "p1") {
-            if (playerNumber === 1) popupPunto.classList.remove("hidden");
-            if (playerNumber === 2) popupNessunPunto.classList.remove("hidden");
+            if (playerNumber === 1) { 
+              popupPunto.classList.remove("hidden"); 
+              sndVittoria.currentTime = 0;
+              sndVittoria.play().catch(e => console.log(e)); 
+            }
+            if (playerNumber === 2) { 
+              popupNessunPunto.classList.remove("hidden"); 
+              sndPareggio.currentTime = 0;
+              sndPareggio.play().catch(e => console.log(e)); 
+            }
           } else if (res === "p2") {
-            if (playerNumber === 2) popupPunto.classList.remove("hidden");
-            if (playerNumber === 1) popupNessunPunto.classList.remove("hidden");
+            if (playerNumber === 2) { 
+              popupPunto.classList.remove("hidden"); 
+              sndVittoria.currentTime = 0;
+              sndVittoria.play().catch(e => console.log(e)); 
+            }
+            if (playerNumber === 1) { 
+              popupNessunPunto.classList.remove("hidden"); 
+              sndPareggio.currentTime = 0;
+              sndPareggio.play().catch(e => console.log(e)); 
+            }
           }
         }
       }
@@ -309,7 +371,7 @@ function calc(c, cpu) {
   return 0;
 }
 
-/* CALCOLO E AGGIORNAMENTO STATO INTERNAZIONALE */
+/* CALCOLO E AGGIORNAMENTO STATO */
 function calculateScores() {
   let s1 = roomData.score1;
   let s2 = roomData.score2;
@@ -331,17 +393,15 @@ function calculateScores() {
   s1 += ptsP1;
   s2 += ptsP2;
 
-  // Stabiliamo l'esito del round corrente da inviare a entrambi
-  let roundResult = "madama"; // Default: nessuno fa punti -> vince madama
+  let roundResult = "madama"; 
   if (ptsP1 > 0 && ptsP2 > 0) roundResult = "both";
   else if (ptsP1 > 0) roundResult = "p1";
   else if (ptsP2 > 0) roundResult = "p2";
 
-  // Se siamo al round 5, verifichiamo la macro-vittoria del gioco
   if (roomData.round >= 5) {
     let vincitoreFinale = "";
     let puntiVincitore = 0;
-    let finalResult = "madama_win_game"; // Di base vince il computer
+    let finalResult = "madama_win_game"; 
 
     if (s1 >= 6) {
       vincitoreFinale = roomData.p1Name;
@@ -364,7 +424,6 @@ function calculateScores() {
       state: "ended"
     });
   } else {
-    // Round normali
     update(ref(db, "rooms/" + roomCode), {
       score1: s1,
       score2: s2,
@@ -382,6 +441,10 @@ function advanceRound() {
     nextRoundBtn.style.display = "none";
     chiudiTuttiIPopup();
     
+    // Ferma la musica di sottofondo quando si esce tornando alla lobby principale
+    sndSottofondo.pause();
+    sndSottofondo.currentTime = 0;
+
     roomCode = null;
     playerNumber = null;
     roomData = null;
