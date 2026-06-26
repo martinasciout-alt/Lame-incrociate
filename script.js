@@ -39,6 +39,7 @@ const cardP1 = document.getElementById("cardP1");
 const cardP2 = document.getElementById("cardP2");
 
 const roomCodeEl = document.getElementById("roomCode");
+const playerLabel = document.getElementById("playerLabel");
 
 /* POPUP */
 window.addEventListener("DOMContentLoaded", () => {
@@ -46,13 +47,13 @@ window.addEventListener("DOMContentLoaded", () => {
   const close = document.getElementById("chiudiPopup");
   const help = document.getElementById("helpButton");
 
-  popup.classList.remove("hidden");
+  if(popup) popup.classList.remove("hidden");
 
-  close.onclick = () => popup.classList.add("hidden");
-  help.onclick = () => popup.classList.remove("hidden");
+  if(close) close.onclick = () => popup.classList.add("hidden");
+  if(help) help.onclick = () => popup.classList.remove("hidden");
 });
 
-/* ROOM */
+/* ROOM CREATE */
 window.createRoom = () => {
   roomCode = roomInput.value;
   playerNumber = 1;
@@ -70,12 +71,13 @@ window.createRoom = () => {
   start();
 };
 
+/* ROOM JOIN */
 window.joinRoom = () => {
   roomCode = roomInput.value;
   playerNumber = 2;
 
   update(ref(db,"rooms/"+roomCode),{
-    state: "choosing"
+    state: "playing"
   });
 
   start();
@@ -88,6 +90,9 @@ function start(){
 
   roomCodeEl.textContent = roomCode;
 
+  playerLabel.textContent =
+    playerNumber === 1 ? "Giocatore 1" : "Giocatore 2";
+
   listen();
   renderHand();
 }
@@ -97,7 +102,7 @@ function renderHand(){
   hand.innerHTML = "";
 
   for(let i=1;i<=5;i++){
-    let img = document.createElement("img");
+    const img = document.createElement("img");
     img.src = `carta-${i}.webp`;
     img.className = "card-hand";
     img.onclick = () => choose(i);
@@ -105,9 +110,10 @@ function renderHand(){
   }
 }
 
-/* CHOOSE (FIX PRINCIPALE) */
+/* CHOOSE (FIX DEFINITIVO) */
 window.choose = (v) => {
-  if(roomData?.state !== "choosing") return;
+  if(!roomData) return;
+  if(roomData.state !== "choosing") return;
 
   const field = playerNumber === 1 ? "p1" : "p2";
 
@@ -128,19 +134,14 @@ function listen(){
 
     render(roomData);
 
-    if(
-      roomData.state === "choosing" &&
-      !locked &&
-      roomData.p1 &&
-      roomData.p2
-    ){
+    if(roomData.state === "playing" && !locked){
       locked = true;
       startRound();
     }
   });
 }
 
-/* ROUND START (RESET PULITO) */
+/* ROUND START */
 function startRound(){
 
   update(ref(db,"rooms/"+roomCode),{
@@ -150,11 +151,11 @@ function startRound(){
     state: "choosing"
   });
 
-  startTimer(5);
+  countdown(5);
 }
 
-/* TIMER */
-function startTimer(t){
+/* COUNTDOWN */
+function countdown(t){
   clearInterval(timer);
 
   timer = setInterval(()=>{
@@ -171,8 +172,8 @@ function startTimer(t){
 /* SCORE */
 function calc(c,cpu){
   if(!c || !cpu) return 0;
-  if(c===cpu) return 2;
-  if(Math.abs(c-cpu)===1) return 1;
+  if(c === cpu) return 2;
+  if(Math.abs(c - cpu) === 1) return 1;
   return 0;
 }
 
@@ -185,14 +186,14 @@ function reveal(){
   let a = calc(roomData.p1, roomData.cpu);
   let b = calc(roomData.p2, roomData.cpu);
 
-  if(a>b) s1 += a;
-  if(b>a) s2 += b;
+  if(a > b) s1 += a;
+  if(b > a) s2 += b;
 
   update(ref(db,"rooms/"+roomCode),{
     score1: s1,
     score2: s2,
     round: roomData.round + 1,
-    state: "choosing"
+    state: "playing"
   });
 
   locked = false;
