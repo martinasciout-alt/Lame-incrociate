@@ -137,3 +137,9 @@ button{
     background:#6a00ff;
     color:white;
 }
+
+/* SUPPORTO TESTO ATTESA CARTE NATIVE */
+.waiting-text {
+    font-size: 24px;
+    color: #a64dff;
+}
