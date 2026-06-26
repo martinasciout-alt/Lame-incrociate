@@ -1,4 +1,4 @@
-<!DOCTYPE html>
+ <!DOCTYPE html>
 <html lang="it">
 <head>
 <meta charset="UTF-8"/>
@@ -11,7 +11,7 @@
 
 <body>
 
-<!-- ================= LOBBY ================= -->
+<!-- LOBBY -->
 <div id="lobby">
   <div class="lobby-box">
 
@@ -37,17 +37,30 @@
   </div>
 </div>
 
-<!-- ================= GAME ================= -->
+<!-- GAME -->
 <div id="game" class="hidden">
 
-  <h2 id="playerLabel"></h2>
+  <div id="topInfo">
+    <h2 id="roomCode"></h2>
 
-  <p>Stanza: <span id="roomCode"></span></p>
+    <div id="playersTop">
+      <span id="p1Name"></span>
+      <span>VS</span>
+      <span id="p2Name"></span>
+    </div>
+  </div>
+
   <p>Round: <span id="round"></span></p>
-
   <p>Score: <span id="score1"></span> - <span id="score2"></span></p>
 
   <div id="countdown"></div>
+
+  <!-- NOMI SOPRA TAVOLO -->
+  <div id="tableNames">
+    <div id="nameP1"></div>
+    <div id="nameCPU">Madama Queen</div>
+    <div id="nameP2"></div>
+  </div>
 
   <div id="table">
     <div id="cardP1"></div>
@@ -56,12 +69,11 @@
   </div>
 
   <div id="hand"></div>
-
   <div id="result"></div>
 
 </div>
 
-<!-- ================= POPUP ================= -->
+<!-- POPUP -->
 <div id="popupRegole" class="hidden">
   <div class="popup-box">
     <button id="chiudiPopup">×</button>
