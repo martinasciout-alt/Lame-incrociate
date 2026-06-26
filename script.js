@@ -33,27 +33,33 @@ let roundLocked = false;
 
 window.addEventListener("DOMContentLoaded", () => {
 
-  /* ================= POPUP FIX (X + ?) ================= */
+  /* ================= POPUP  ================= */
+function initPopup(){
 
   const popup = document.getElementById("popupRegole");
   const closeBtn = document.getElementById("chiudiPopup");
   const helpBtn = document.getElementById("helpButton");
 
-  if (popup) popup.style.display = "flex";
+  if(!popup || !closeBtn || !helpBtn) return;
 
-  if (closeBtn) {
-    closeBtn.addEventListener("click", () => {
-      popup.style.display = "none";
-    });
+  // mostra solo prima volta
+  if(!sessionStorage.getItem("seenPopup")){
+    popup.classList.remove("hidden");
+    sessionStorage.setItem("seenPopup","1");
   }
 
-  if (helpBtn) {
-    helpBtn.addEventListener("click", () => {
-      popup.style.display = "flex";
-    });
-  }
+  closeBtn.onclick = () => {
+    popup.classList.add("hidden");
+  };
 
-});
+  helpBtn.onclick = () => {
+    popup.classList.remove("hidden");
+  };
+}
+
+document.addEventListener("DOMContentLoaded", initPopup);
+  
+ 
 
 /* ================= ROOM CREATE ================= */
 
