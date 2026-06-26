@@ -105,3 +105,24 @@ window.choose = (v)=>{
     [playerNumber===1?"player1Choice":"player2Choice"]:v
   });
 };
+
+/* ================= POPUP REGOLE ================= */
+
+const popup = document.getElementById("popupRegole");
+const closeBtn = document.getElementById("chiudiPopup");
+const helpBtn = document.getElementById("helpButton");
+
+// Mostra il popup all'apertura della pagina
+window.addEventListener("load", () => {
+    popup.style.display = "flex";
+});
+
+// Chiudi
+closeBtn.addEventListener("click", () => {
+    popup.style.display = "none";
+});
+
+// Riapri
+helpBtn.addEventListener("click", () => {
+    popup.style.display = "flex";
+});
