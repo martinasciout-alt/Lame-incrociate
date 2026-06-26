@@ -1,4 +1,4 @@
- import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
   getDatabase,
   ref,
@@ -23,11 +23,12 @@ let roomCode, playerNumber, roomData;
 let locked = false;
 let timer = null;
 
-/* DOM (lobby NON toccata) */
+/* DOM */
 const lobby = document.getElementById("lobby");
 const game = document.getElementById("game");
 
 const hand = document.getElementById("hand");
+
 const score1 = document.getElementById("score1");
 const score2 = document.getElementById("score2");
 const round = document.getElementById("round");
@@ -39,7 +40,7 @@ const cardP2 = document.getElementById("cardP2");
 
 const roomCodeEl = document.getElementById("roomCode");
 
-/* POPUP (invariato) */
+/* POPUP */
 window.addEventListener("DOMContentLoaded", () => {
   const popup = document.getElementById("popupRegole");
   const close = document.getElementById("chiudiPopup");
@@ -51,7 +52,7 @@ window.addEventListener("DOMContentLoaded", () => {
   if (help) help.onclick = () => popup.classList.remove("hidden");
 });
 
-/* ROOM */
+/* CREATE ROOM */
 window.createRoom = () => {
   roomCode = document.getElementById("roomInput").value;
   playerNumber = 1;
@@ -62,13 +63,14 @@ window.createRoom = () => {
     score1: 0,
     score2: 0,
     round: 1,
-    state: "waiting",
+    state: "playing",
     cpu: null
   });
 
   start();
 };
 
+/* JOIN ROOM */
 window.joinRoom = () => {
   roomCode = document.getElementById("roomInput").value;
   playerNumber = 2;
@@ -105,7 +107,7 @@ function renderHand() {
   }
 }
 
-/* CHOOSE (FIX FONDAMENTALE) */
+/* CHOOSE (FIX DEFINITIVO) */
 window.choose = (v) => {
   if (!roomData) return;
   if (roomData.state !== "choose") return;
@@ -129,26 +131,26 @@ function listen() {
 
     render(roomData);
 
-    /* PARTENZA ROUND SOLO UNA VOLTA */
+    /* start round */
     if (roomData.state === "playing" && !locked) {
       locked = true;
       startRound();
     }
 
-    /* SE ENTRAMBI HANNO SCELTO -> REVEAL AUTOMATICO */
+    /* auto reveal */
     if (
       roomData.state === "choose" &&
       roomData.p1 != null &&
-      roomData.p2 != null &&
-      !timer
+      roomData.p2 != null
     ) {
       clearInterval(timer);
+      timer = null;
       reveal();
     }
   });
 }
 
-/* ROUND START */
+/* ROUND */
 function startRound() {
   update(ref(db, "rooms/" + roomCode), {
     cpu: Math.floor(Math.random() * 5) + 1,
@@ -160,7 +162,7 @@ function startRound() {
   countdown(5);
 }
 
-/* TIMER */
+/* COUNTDOWN */
 function countdown(t) {
   clearInterval(timer);
 
@@ -186,8 +188,6 @@ function calc(c, cpu) {
 
 /* REVEAL */
 function reveal() {
-  if (!roomData) return;
-
   let s1 = roomData.score1;
   let s2 = roomData.score2;
 
@@ -205,10 +205,9 @@ function reveal() {
   });
 
   locked = false;
-  timer = null;
 }
 
-/* RENDER (TAVOLO SEMPRE PULITO + NO BUG) */
+/* RENDER (TAVOLO SEMPRE PULITO) */
 function render(d) {
   const back = `<img src="retro-carta.webp">`;
 
