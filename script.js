@@ -1,11 +1,10 @@
- import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
   getDatabase,
   ref,
   set,
   update,
-  onValue,
-  get
+  onValue
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 /* ================= FIREBASE ================= */
@@ -29,11 +28,8 @@ let playerNumber = null;
 let roomData = null;
 let roundLocked = false;
 
-/* ================= DOM READY (IMPORTANTISSIMO) ================= */
+/* ================= POPUP ================= */
 
-window.addEventListener("DOMContentLoaded", () => {
-
-  /* ================= POPUP  ================= */
 function initPopup(){
 
   const popup = document.getElementById("popupRegole");
@@ -42,7 +38,6 @@ function initPopup(){
 
   if(!popup || !closeBtn || !helpBtn) return;
 
-  // mostra solo prima volta
   if(!sessionStorage.getItem("seenPopup")){
     popup.classList.remove("hidden");
     sessionStorage.setItem("seenPopup","1");
@@ -57,11 +52,13 @@ function initPopup(){
   };
 }
 
-document.addEventListener("DOMContentLoaded", initPopup);
-  
- 
+/* ================= INIT ================= */
 
-/* ================= ROOM CREATE ================= */
+document.addEventListener("DOMContentLoaded", () => {
+  initPopup();
+});
+
+/* ================= CREATE ROOM ================= */
 
 window.createRoom = () => {
   const name = document.getElementById("nickInput").value;
@@ -88,7 +85,7 @@ window.createRoom = () => {
   startGame();
 };
 
-/* ================= ROOM JOIN ================= */
+/* ================= JOIN ROOM ================= */
 
 window.joinRoom = () => {
   const name = document.getElementById("nickInput").value;
@@ -127,12 +124,14 @@ function renderHand(){
     const img = document.createElement("img");
     img.src = `carta-${i}.webp`;
     img.className = "card-hand";
+
     img.onclick = () => choose(i);
+
     hand.appendChild(img);
   }
 }
 
-window.choose = (val)=>{
+window.choose = (val) => {
   if(!roomData || roomData.state !== "choosing") return;
 
   update(ref(db,"rooms/"+roomCode),{
@@ -163,6 +162,7 @@ function listen(){
 /* ================= ROUND ================= */
 
 function startRound(){
+
   if(roomData.players < 2) return;
 
   update(ref(db,"rooms/"+roomCode),{
@@ -175,16 +175,18 @@ function startRound(){
   document.getElementById("result").innerText = "";
 
   renderTable(roomData,true);
+
   countdown(5);
 }
 
 /* ================= COUNTDOWN ================= */
 
 function countdown(t){
+
   const cd = document.getElementById("countdown");
   let time = t;
 
-  const int = setInterval(()=>{
+  const int = setInterval(() => {
     cd.innerText = time;
     time--;
 
@@ -206,6 +208,7 @@ function score(c,cpu){
 /* ================= REVEAL ================= */
 
 function reveal(){
+
   const r = roomData;
 
   let s1 = r.score1;
@@ -214,8 +217,8 @@ function reveal(){
   let sc1 = score(r.p1,r.cpu);
   let sc2 = score(r.p2,r.cpu);
 
-  if(sc1>sc2) s1+=sc1;
-  if(sc2>sc1) s2+=sc2;
+  if(sc1>sc2) s1 += sc1;
+  if(sc2>sc1) s2 += sc2;
 
   update(ref(db,"rooms/"+roomCode),{
     score1:s1,
