@@ -1,266 +1,173 @@
- import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
   getDatabase,
   ref,
   set,
   update,
-  onValue,
-  get
+  onValue
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-/* ================= FIREBASE ================= */
-
+/* FIREBASE */
 const firebaseConfig = {
   apiKey: "AIzaSy....",
   authDomain: "gioco-della-lama-alta.firebaseapp.com",
   databaseURL: "https://gioco-della-lama-alta-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "gioco-della-lama-alta",
-  messagingSenderId: "182282784891",
   appId: "1:182282784891:web:0503cff93af07a0ee8d2de"
 };
 
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* ================= STATE ================= */
+/* STATE */
+let roomCode=null;
+let playerNumber=null;
+let data=null;
+let running=false;
 
-let roomCode = null;
-let playerNumber = null;
-let roomData = null;
-
-let roundRunning = false;
-let countdownInterval = null;
-
-/* ================= UTIL ================= */
-
-const CARD_BACK = "retro-carta.webp";
-
-function cardImg(v){
-  if(!v || v < 1 || v > 5) return CARD_BACK;
-  return `carta-${v}.webp`;
-}
-
-/* ================= POPUP ================= */
-
-window.addEventListener("DOMContentLoaded", () => {
-  const popup = document.getElementById("popupRegole");
-  const closeBtn = document.getElementById("chiudiPopup");
-  const helpBtn = document.getElementById("helpButton");
-
-  closeBtn.onclick = () => popup.classList.add("hidden");
-  helpBtn.onclick = () => popup.classList.remove("hidden");
-
-  popup.classList.remove("hidden"); // sempre visibile all’inizio
+/* POPUP */
+window.addEventListener("DOMContentLoaded",()=>{
+  const p=document.getElementById("popupRegole");
+  document.getElementById("chiudiPopup").onclick=()=>p.classList.add("hidden");
+  document.getElementById("helpButton").onclick=()=>p.classList.remove("hidden");
+  p.classList.remove("hidden");
 });
 
-/* ================= LOBBY ================= */
+/* CREATE */
+window.createRoom=()=>{
+  roomCode=document.getElementById("roomInput").value;
+  playerNumber=1;
 
-window.createRoom = async () => {
-  roomCode = document.getElementById("roomInput").value;
-  const name = document.getElementById("nickInput").value;
-
-  playerNumber = 1;
-
-  await set(ref(db, "rooms/" + roomCode), {
-    players: 1,
-    p1Name: name,
-    p2Name: "",
-
-    score1: 0,
-    score2: 0,
-
-    round: 1,
-    maxRound: 3,
-
-    cpu: 0,
-    p1: 0,
-    p2: 0,
-
-    state: "waiting"
+  set(ref(db,"rooms/"+roomCode),{
+    p1:0,p2:0,cpu:0,
+    score1:0,score2:0,
+    round:1,max:3,
+    state:"wait"
   });
 
-  startGame();
+  start();
 };
 
-window.joinRoom = async () => {
-  roomCode = document.getElementById("roomInput").value;
-  const name = document.getElementById("nickInput").value;
+/* JOIN */
+window.joinRoom=()=>{
+  roomCode=document.getElementById("roomInput").value;
+  playerNumber=2;
 
-  playerNumber = 2;
-
-  await update(ref(db, "rooms/" + roomCode), {
-    players: 2,
-    p2Name: name,
-    state: "ready"
-  });
-
-  startGame();
+  update(ref(db,"rooms/"+roomCode),{state:"ready"});
+  start();
 };
 
-/* ================= START GAME ================= */
-
-function startGame(){
+function start(){
   document.getElementById("lobby").classList.add("hidden");
   document.getElementById("game").classList.remove("hidden");
 
-  document.getElementById("roomCode").innerText = roomCode;
-
   listen();
-  renderHand();
+  hand();
 }
 
-/* ================= HAND ================= */
-
-function renderHand(){
-  const hand = document.getElementById("hand");
-  hand.innerHTML = "";
-
+/* HAND */
+function hand(){
+  const h=document.getElementById("hand");
+  h.innerHTML="";
   for(let i=1;i<=5;i++){
-    const img = document.createElement("img");
-    img.src = `carta-${i}.webp`;
-    img.className = "card-hand";
-
-    img.onclick = () => choose(i);
-    hand.appendChild(img);
+    let img=document.createElement("img");
+    img.src=`carta-${i}.webp`;
+    img.className="card-hand";
+    img.onclick=()=>choose(i);
+    h.appendChild(img);
   }
 }
 
-window.choose = async (v) => {
-  if(!roomData || roomData.state !== "playing") return;
-
-  await update(ref(db,"rooms/"+roomCode), {
-    [playerNumber === 1 ? "p1" : "p2"]: v
+window.choose=(v)=>{
+  update(ref(db,"rooms/"+roomCode),{
+    [playerNumber==1?"p1":"p2"]:v
   });
 };
 
-/* ================= LISTENER ================= */
-
+/* LISTEN */
 function listen(){
   onValue(ref(db,"rooms/"+roomCode),(snap)=>{
-    roomData = snap.val();
-    if(!roomData) return;
+    data=snap.val();
+    if(!data) return;
 
-    document.getElementById("score1").innerText = roomData.score1;
-    document.getElementById("score2").innerText = roomData.score2;
-    document.getElementById("round").innerText = roomData.round;
+    document.getElementById("score1").innerText=data.score1;
+    document.getElementById("score2").innerText=data.score2;
+    document.getElementById("round").innerText=data.round;
 
-    renderTable(false);
+    render(false);
 
-    if(!roundRunning && roomData.players === 2 && roomData.state !== "round"){
+    if(!running && data.p1 && data.p2){
       startRound();
     }
   });
 }
 
-/* ================= ROUND ================= */
-
+/* ROUND */
 function startRound(){
-  if(roundRunning) return;
-  roundRunning = true;
+  running=true;
 
-  update(ref(db,"rooms/"+roomCode), {
-    cpu: Math.floor(Math.random()*5)+1,
-    p1: 0,
-    p2: 0,
-    state: "playing"
+  update(ref(db,"rooms/"+roomCode),{
+    cpu:Math.floor(Math.random()*5)+1,
+    state:"play"
   });
 
   countdown(5);
 }
 
-/* ================= COUNTDOWN ================= */
-
 function countdown(t){
-  const el = document.getElementById("countdown");
-  let time = t;
+  let el=document.getElementById("countdown");
+  let i=t;
 
-  countdownInterval = setInterval(()=>{
-    el.innerText = time;
-    time--;
-
-    if(time < 0){
-      clearInterval(countdownInterval);
+  let x=setInterval(()=>{
+    el.innerText=i--;
+    if(i<0){
+      clearInterval(x);
       reveal();
     }
   },1000);
 }
 
-/* ================= SCORE ================= */
-
-function calc(p, cpu){
-  if(p === cpu) return 2;
-  if(Math.abs(p - cpu) === 1) return 1;
+/* SCORE */
+function s(p,c){
+  if(p===c) return 2;
+  if(Math.abs(p-c)==1) return 1;
   return 0;
 }
 
-/* ================= REVEAL ================= */
+/* REVEAL */
+function reveal(){
+  let s1=data.score1;
+  let s2=data.score2;
 
-async function reveal(){
-  const r = roomData;
+  let a=s(data.p1,data.cpu);
+  let b=s(data.p2,data.cpu);
 
-  let s1 = r.score1;
-  let s2 = r.score2;
+  if(a>b) s1+=a;
+  if(b>a) s2+=b;
 
-  const sc1 = calc(r.p1, r.cpu);
-  const sc2 = calc(r.p2, r.cpu);
+  let next=data.round+1;
 
-  if(sc1 > sc2) s1 += sc1;
-  if(sc2 > sc1) s2 += sc2;
-
-  const nextRound = r.round + 1;
-
-  const finished = nextRound > r.maxRound;
-
-  await update(ref(db,"rooms/"+roomCode), {
-    score1: s1,
-    score2: s2,
-    round: nextRound,
-    state: finished ? "finished" : "ready"
+  update(ref(db,"rooms/"+roomCode),{
+    score1:s1,
+    score2:s2,
+    round:next,
+    p1:0,p2:0,
+    state:"ready"
   });
 
-  renderTable(true);
-
-  if(finished){
-    showWinner(s1, s2);
-    return;
-  }
-
-  document.getElementById("result").innerHTML =
-    `<button onclick="nextRound()">Nuovo Round</button>`;
-
-  roundRunning = false;
+  running=false;
 }
 
-/* ================= NEXT ROUND ================= */
+/* RENDER */
+function render(hide){
+  const back="retro-carta.webp";
 
-window.nextRound = async () => {
-  document.getElementById("result").innerHTML = "";
-  startRound();
-};
+  document.getElementById("cardCPU").innerHTML=
+    hide?`<img src="${back}">`:`<img src="carta-${data.cpu}.webp">`;
 
-/* ================= WINNER ================= */
+  document.getElementById("cardP1").innerHTML=
+    hide?`<img src="${back}">`:`<img src="carta-${data.p1}.webp">`;
 
-function showWinner(s1, s2){
-  let msg = "";
-
-  if(s1 > s2) msg = "Player 1 vince!";
-  else if(s2 > s1) msg = "Player 2 vince!";
-  else msg = "Pareggio! Madama Queen domina 👑";
-
-  document.getElementById("result").innerHTML = `
-    <h2>${msg}</h2>
-    <button onclick="location.reload()">Torna alla lobby</button>
-  `;
-}
-
-/* ================= TABLE ================= */
-
-function renderTable(hidden){
-  const cpu = hidden ? CARD_BACK : cardImg(roomData.cpu);
-  const p1 = hidden ? CARD_BACK : cardImg(roomData.p1);
-  const p2 = hidden ? CARD_BACK : cardImg(roomData.p2);
-
-  document.getElementById("cardCPU").innerHTML = `<img src="${cpu}">`;
-  document.getElementById("cardP1").innerHTML = `<img src="${p1}">`;
-  document.getElementById("cardP2").innerHTML = `<img src="${p2}">`;
+  document.getElementById("cardP2").innerHTML=
+    hide?`<img src="${back}">`:`<img src="carta-${data.p2}.webp">`;
 }
