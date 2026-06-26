@@ -4,7 +4,8 @@ import {
   ref,
   set,
   update,
-  onValue
+  onValue,
+  get
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 /* FIREBASE */
@@ -13,6 +14,7 @@ const firebaseConfig = {
   authDomain: "gioco-della-lama-alta.firebaseapp.com",
   databaseURL: "https://gioco-della-lama-alta-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "gioco-della-lama-alta",
+  messagingSenderId: "182282784891",
   appId: "1:182282784891:web:0503cff93af07a0ee8d2de"
 };
 
@@ -22,152 +24,182 @@ const db = getDatabase(app);
 /* STATE */
 let roomCode=null;
 let playerNumber=null;
-let data=null;
-let running=false;
+let roomData=null;
+let roundRunning=false;
 
-/* POPUP */
-window.addEventListener("DOMContentLoaded",()=>{
-  const p=document.getElementById("popupRegole");
-  document.getElementById("chiudiPopup").onclick=()=>p.classList.add("hidden");
-  document.getElementById("helpButton").onclick=()=>p.classList.remove("hidden");
-  p.classList.remove("hidden");
+/* ================= POPUP ================= */
+
+window.addEventListener("load", () => {
+  const popup=document.getElementById("popupRegole");
+  const close=document.getElementById("chiudiPopup");
+  const help=document.getElementById("helpButton");
+
+  popup.classList.remove("hidden");
+
+  close.onclick=()=>popup.classList.add("hidden");
+  help.onclick=()=>popup.classList.remove("hidden");
 });
 
-/* CREATE */
+/* ================= ROOM ================= */
+
 window.createRoom=()=>{
   roomCode=document.getElementById("roomInput").value;
   playerNumber=1;
 
   set(ref(db,"rooms/"+roomCode),{
-    p1:0,p2:0,cpu:0,
-    score1:0,score2:0,
-    round:1,max:3,
-    state:"wait"
+    players:1,
+    score1:0,
+    score2:0,
+    round:1,
+    state:"waiting",
+    cpu:null,
+    p1:null,
+    p2:null
   });
 
-  start();
+  startGame();
 };
 
-/* JOIN */
 window.joinRoom=()=>{
   roomCode=document.getElementById("roomInput").value;
   playerNumber=2;
 
-  update(ref(db,"rooms/"+roomCode),{state:"ready"});
-  start();
+  update(ref(db,"rooms/"+roomCode),{
+    players:2,
+    state:"playing"
+  });
+
+  startGame();
 };
 
-function start(){
+/* ================= START ================= */
+
+function startGame(){
   document.getElementById("lobby").classList.add("hidden");
   document.getElementById("game").classList.remove("hidden");
 
+  document.getElementById("roomCode").innerText=roomCode;
+
   listen();
-  hand();
+  renderHand();
 }
 
-/* HAND */
-function hand(){
-  const h=document.getElementById("hand");
-  h.innerHTML="";
+/* ================= HAND ================= */
+
+function renderHand(){
+  const hand=document.getElementById("hand");
+  hand.innerHTML="";
+
   for(let i=1;i<=5;i++){
-    let img=document.createElement("img");
+    const img=document.createElement("img");
     img.src=`carta-${i}.webp`;
     img.className="card-hand";
     img.onclick=()=>choose(i);
-    h.appendChild(img);
+    hand.appendChild(img);
   }
 }
 
 window.choose=(v)=>{
+  if(!roomData || roomData.state!=="choosing") return;
+
   update(ref(db,"rooms/"+roomCode),{
-    [playerNumber==1?"p1":"p2"]:v
+    [playerNumber===1?"p1":"p2"]:v
   });
 };
 
-/* LISTEN */
+/* ================= LISTEN ================= */
+
 function listen(){
   onValue(ref(db,"rooms/"+roomCode),(snap)=>{
-    data=snap.val();
-    if(!data) return;
+    roomData=snap.val();
+    if(!roomData) return;
 
-    document.getElementById("score1").innerText=data.score1;
-    document.getElementById("score2").innerText=data.score2;
-    document.getElementById("round").innerText=data.round;
+    document.getElementById("score1").innerText=roomData.score1;
+    document.getElementById("score2").innerText=roomData.score2;
+    document.getElementById("round").innerText=roomData.round;
 
-    render(false);
-
-    if(!running && data.p1 && data.p2){
+    if(roomData.state==="playing" && !roundRunning){
+      roundRunning=true;
       startRound();
     }
+
+    renderTable(roomData,false);
   });
 }
 
-/* ROUND */
+/* ================= ROUND ================= */
+
 function startRound(){
-  running=true;
+  if(roomData.players<2) return;
 
   update(ref(db,"rooms/"+roomCode),{
     cpu:Math.floor(Math.random()*5)+1,
-    state:"play"
+    p1:null,
+    p2:null,
+    state:"choosing"
   });
 
   countdown(5);
 }
 
-function countdown(t){
-  let el=document.getElementById("countdown");
-  let i=t;
+/* ================= COUNTDOWN ================= */
 
-  let x=setInterval(()=>{
-    el.innerText=i--;
-    if(i<0){
-      clearInterval(x);
+function countdown(t){
+  const cd=document.getElementById("countdown");
+
+  let time=t;
+  const int=setInterval(()=>{
+    cd.innerText=time;
+    time--;
+
+    if(time<0){
+      clearInterval(int);
       reveal();
     }
   },1000);
 }
 
-/* SCORE */
-function s(p,c){
-  if(p===c) return 2;
-  if(Math.abs(p-c)==1) return 1;
+/* ================= SCORE ================= */
+
+function score(c,cpu){
+  if(c===cpu) return 2;
+  if(Math.abs(c-cpu)===1) return 1;
   return 0;
 }
 
-/* REVEAL */
+/* ================= REVEAL ================= */
+
 function reveal(){
-  let s1=data.score1;
-  let s2=data.score2;
+  const r=roomData;
 
-  let a=s(data.p1,data.cpu);
-  let b=s(data.p2,data.cpu);
+  let s1=r.score1;
+  let s2=r.score2;
 
-  if(a>b) s1+=a;
-  if(b>a) s2+=b;
-
-  let next=data.round+1;
+  if(score(r.p1,r.cpu)>score(r.p2,r.cpu)) s1+=score(r.p1,r.cpu);
+  if(score(r.p2,r.cpu)>score(r.p1,r.cpu)) s2+=score(r.p2,r.cpu);
 
   update(ref(db,"rooms/"+roomCode),{
     score1:s1,
     score2:s2,
-    round:next,
-    p1:0,p2:0,
-    state:"ready"
+    round:r.round+1,
+    state:"playing"
   });
 
-  running=false;
+  roundRunning=false;
 }
 
-/* RENDER */
-function render(hide){
-  const back="retro-carta.webp";
+/* ================= TABLE ================= */
 
-  document.getElementById("cardCPU").innerHTML=
-    hide?`<img src="${back}">`:`<img src="carta-${data.cpu}.webp">`;
+function renderTable(data){
 
-  document.getElementById("cardP1").innerHTML=
-    hide?`<img src="${back}">`:`<img src="carta-${data.p1}.webp">`;
+  const back=`<img src="retro-carta.webp">`;
 
-  document.getElementById("cardP2").innerHTML=
-    hide?`<img src="${back}">`:`<img src="carta-${data.p2}.webp">`;
+  document.getElementById("cardCPU").innerHTML =
+    data.cpu ? `<img src="carta-${data.cpu}.webp">` : back;
+
+  document.getElementById("cardP1").innerHTML =
+    data.p1 ? back : back;
+
+  document.getElementById("cardP2").innerHTML =
+    data.p2 ? back : back;
 }
