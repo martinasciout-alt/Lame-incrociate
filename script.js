@@ -42,7 +42,7 @@ const playerLabel = document.getElementById("playerLabel");
 const resultEl = document.getElementById("result");
 const leaderboardEl = document.getElementById("leaderboard");
 
-// Tasto Prossimo Round inserito dinamicamente
+// Tasto Dinamico per Prossimo Round / Torna alla Lobby
 const nextRoundBtn = document.createElement("button");
 nextRoundBtn.id = "nextRoundBtn";
 nextRoundBtn.textContent = "Prossimo Round";
@@ -103,13 +103,13 @@ window.createRoom = () => {
     p1Color: color,
     p2Name: "In attesa...",
     p2Color: "#ffffff",
-    p1: false, // Usiamo false invece di null per evitare bug di lettura iniziale
+    p1: false, 
     p2: false,
     score1: 0,
     score2: 0,
     round: 1,
     state: "waiting", 
-    cpu: null
+    cpu: false
   }).then(() => {
     start();
   });
@@ -125,7 +125,6 @@ window.joinRoom = () => {
 
   playerNumber = 2;
 
-  // Quando P2 entra, l'host genererà la CPU. Mettiamo solo i dati di P2 e attiviamo lo stato iniziale
   update(ref(db, "rooms/" + roomCode), {
     p2Name: nick,
     p2Color: color,
@@ -166,8 +165,6 @@ window.choose = (v) => {
   if (roomData.state !== "choose") return;
 
   const field = playerNumber === 1 ? "p1" : "p2";
-  
-  // Se ha già scelto (ha un numero), non può cambiare
   if (roomData[field] !== false) return; 
 
   update(ref(db, "rooms/" + roomCode), {
@@ -187,16 +184,14 @@ function listen() {
     score2.innerHTML = `<span style="color:${roomData.p2Color}">${roomData.p2Name}</span>: ${roomData.score2}`;
     round.textContent = roomData.round;
 
-    // FASE 1: CHOOSE (Scelta carte e Countdown)
+    // FASE: CHOOSE
     if (roomData.state === "choose") {
       nextRoundBtn.style.display = "none"; 
       
-      // Se il timer non è attivo sul browser attuale, lo facciamo partire
       if (!timer) {
         countdown(5);
       }
 
-      // CRITICO: Eseguiamo il reveal automatico SOLO se entrambi hanno scelto un numero (maggiore di 0)
       if (typeof roomData.p1 === "number" && typeof roomData.p2 === "number") {
         clearInterval(timer);
         timer = null;
@@ -206,18 +201,28 @@ function listen() {
       }
     }
 
-    // FASE 2: REVEAL (Mostra carte e Tasto Prossimo turno)
+    // FASE: REVEAL
     if (roomData.state === "reveal") {
       clearInterval(timer);
       timer = null;
       countdownEl.textContent = "-";
       
-      // Il tasto compare solo all'Host (Player 1) per evitare desincronizzazioni
+      // Il tasto di avanzamento round normale lo vede solo l'host
       if (playerNumber === 1) {
+        nextRoundBtn.textContent = "Prossimo Round";
         nextRoundBtn.style.display = "block";
       }
-    } else {
-      if (playerNumber === 1) nextRoundBtn.style.display = "none";
+    }
+
+    // FASE: ENDED (Partita finita)
+    if (roomData.state === "ended") {
+      clearInterval(timer);
+      timer = null;
+      countdownEl.textContent = "-";
+      
+      // A fine gioco il tasto diventa "Torna alla Lobby" ed è visibile a TUTTI e due
+      nextRoundBtn.textContent = "Torna alla Lobby";
+      nextRoundBtn.style.display = "block";
     }
 
     render(roomData);
@@ -238,7 +243,6 @@ function countdown(t) {
     if (t < 0) {
       clearInterval(timer);
       timer = null;
-      // Allo scadere del tempo, l'host chiude le votazioni e calcola
       if (playerNumber === 1) {
         calculateScores();
       }
@@ -248,7 +252,7 @@ function countdown(t) {
 
 /* REGOLA CALCOLO PUNTI */
 function calc(c, cpu) {
-  if (c === false || c === null || c === undefined || !cpu) return 0;
+  if (typeof c !== "number" || typeof cpu !== "number") return 0;
   if (c === cpu) return 2;
   if (Math.abs(c - cpu) === 1) return 1;
   return 0;
@@ -266,7 +270,6 @@ function calculateScores() {
   let ptsP1 = calc(choiceP1, cpuCard);
   let ptsP2 = calc(choiceP2, cpuCard);
 
-  // Regola pareggio o equidistanza (attiva solo se entrambi hanno effettivamente risposto)
   if (typeof choiceP1 === "number" && typeof choiceP2 === "number") {
     if (choiceP1 === choiceP2 || Math.abs(choiceP1 - cpuCard) === Math.abs(choiceP2 - cpuCard)) {
       ptsP1 = 0;
@@ -277,25 +280,17 @@ function calculateScores() {
   s1 += ptsP1;
   s2 += ptsP2;
 
-  update(ref(db, "rooms/" + roomCode), {
-    score1: s1,
-    score2: s2,
-    state: "reveal" // Passa a reveal: ferma tutto e mostra i risultati a schermo
-  });
-}
-
-/* FUNZIONE TASTO PROSSIMO ROUND */
-function advanceRound() {
+  // Se siamo al round 5, calcoliamo i punti e mandiamo direttamente in "ended"
   if (roomData.round >= 5) {
     let vincitoreFinale = "";
     let puntiVincitore = 0;
     
-    if (roomData.score1 > roomData.score2) {
+    if (s1 > s2) {
       vincitoreFinale = roomData.p1Name;
-      puntiVincitore = roomData.score1;
-    } else if (roomData.score2 > roomData.score1) {
+      puntiVincitore = s1;
+    } else if (s2 > s1) {
       vincitoreFinale = roomData.p2Name;
-      puntiVincitore = roomData.score2;
+      puntiVincitore = s2;
     }
 
     if (vincitoreFinale !== "") {
@@ -303,18 +298,44 @@ function advanceRound() {
     }
 
     update(ref(db, "rooms/" + roomCode), {
+      score1: s1,
+      score2: s2,
       state: "ended"
     });
   } else {
-    // Resettiamo accuratamente lo stato inserendo "false" (non nullo) per il nuovo round
+    // Altrimenti proseguiamo normalmente mostrando le carte girate (reveal)
     update(ref(db, "rooms/" + roomCode), {
-      cpu: Math.floor(Math.random() * 5) + 1,
-      p1: false,
-      p2: false,
-      round: roomData.round + 1,
-      state: "choose"
+      score1: s1,
+      score2: s2,
+      state: "reveal"
     });
   }
+}
+
+/* FUNZIONE GESTIONE TASTO (AVANZA / TORNA ALLA LOBBY) */
+function advanceRound() {
+  if (roomData && roomData.state === "ended") {
+    // AZIONE: Torna alla lobby e resetta l'interfaccia locale
+    game.classList.add("hidden");
+    lobby.classList.remove("hidden");
+    nextRoundBtn.style.display = "none";
+    
+    // Pulizia variabili di stato
+    roomCode = null;
+    playerNumber = null;
+    roomData = null;
+    currentRoundLocal = 0;
+    return;
+  }
+
+  // Avanzamento round standard (Solo Host)
+  update(ref(db, "rooms/" + roomCode), {
+    cpu: Math.floor(Math.random() * 5) + 1,
+    p1: false,
+    p2: false,
+    round: roomData.round + 1,
+    state: "choose"
+  });
 }
 
 /* AGGIORNAMENTO GRAFICO DEL TAVOLO */
@@ -328,17 +349,15 @@ function render(d) {
     resultEl.textContent = "In attesa del secondo giocatore...";
   }
   else if (d.state === "choose") {
-    // Durante il countdown tutto è rigorosamente coperto!
     cardCPU.innerHTML = back; 
     cardP1.innerHTML = d.p1 !== false ? back : `<div class="waiting-text">...</div>`;
     cardP2.innerHTML = d.p2 !== false ? back : `<div class="waiting-text">...</div>`;
-    resultEl.textContent = "Scegli la tua carta dalla tua mano!";
+    resultEl.textContent = "Scegli la tua carta prima che scada il tempo!";
   } 
   else if (d.state === "reveal" || d.state === "ended") {
-    // Fase di reveal: giriamo le immagini sul tavolo
-    cardCPU.innerHTML = d.cpu ? `<img src="carta-${d.cpu}.webp">` : back;
-    cardP1.innerHTML = d.p1 !== false ? `<img src="carta-${d.p1}.webp">` : `<div class="waiting-text">Nessuna</div>`;
-    cardP2.innerHTML = d.p2 !== false ? `<img src="carta-${d.p2}.webp">` : `<div class="waiting-text">Nessuna</div>`;
+    cardCPU.innerHTML = (typeof d.cpu === "number" && d.cpu >= 1 && d.cpu <= 5) ? `<img src="carta-${d.cpu}.webp">` : back;
+    cardP1.innerHTML = (typeof d.p1 === "number" && d.p1 >= 1 && d.p1 <= 5) ? `<img src="carta-${d.p1}.webp">` : `<div class="waiting-text">Nessuna</div>`;
+    cardP2.innerHTML = (typeof d.p2 === "number" && d.p2 >= 1 && d.p2 <= 5) ? `<img src="carta-${d.p2}.webp">` : `<div class="waiting-text">Nessuna</div>`;
     
     if (d.state === "ended") {
       if (d.score1 === d.score2) {
@@ -348,7 +367,7 @@ function render(d) {
         resultEl.textContent = `Partita Terminata! Vince ${winName}!`;
       }
     } else {
-      resultEl.textContent = "Turno concluso. Carte scoperte sul tavolo!";
+      resultEl.textContent = "Fine del Turno! Carte scoperte sul tavolo.";
     }
   }
 }
