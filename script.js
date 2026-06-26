@@ -7,7 +7,8 @@ import {
   onValue
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
-/* FIREBASE */
+/* ================= FIREBASE ================= */
+
 const firebaseConfig = {
   apiKey: "AIzaSy....",
   authDomain: "gioco-della-lama-alta.firebaseapp.com",
@@ -20,12 +21,14 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
-/* STATE */
+/* ================= STATE ================= */
+
 let roomCode = null;
 let playerNumber = null;
 let roomData = null;
+let roundStarted = false;
 
-/* ================= ROOM ================= */
+/* ================= ROOM CREATE ================= */
 
 window.createRoom = () => {
   roomCode = document.getElementById("roomInput").value;
@@ -38,22 +41,38 @@ window.createRoom = () => {
     cpu:null,
     p1:null,
     p2:null,
-    state:"waiting"
+    state:"waiting",
+    players:1
   });
 
   startGame();
 };
+
+/* ================= ROOM JOIN ================= */
 
 window.joinRoom = () => {
   roomCode = document.getElementById("roomInput").value;
   playerNumber = 2;
 
-  update(ref(db,"rooms/"+roomCode),{
-    joined:true
-  });
+  const roomRef = ref(db,"rooms/"+roomCode);
+
+  onValue(roomRef,(snap)=>{
+    const data = snap.val();
+    if(!data) return;
+
+    // quando entra il secondo player
+    if(data.players === 1){
+      update(roomRef,{
+        players:2,
+        state:"playing"
+      });
+    }
+  },{onlyOnce:true});
 
   startGame();
 };
+
+/* ================= START GAME ================= */
 
 function startGame(){
   document.getElementById("lobby").classList.add("hidden");
@@ -63,8 +82,6 @@ function startGame(){
 
   listen();
   renderHand();
-
-  startRound();
 }
 
 /* ================= HAND ================= */
@@ -74,24 +91,47 @@ function renderHand(){
   hand.innerHTML = "";
 
   for(let i=1;i<=5;i++){
-    const b = document.createElement("button");
-    b.innerText = "Carta " + i;
-    b.onclick = () => choose(i);
-    hand.appendChild(b);
+    const btn = document.createElement("button");
+    btn.innerText = "Carta " + i;
+    btn.onclick = () => choose(i);
+    hand.appendChild(btn);
   }
 }
 
-window.choose = (v)=>{
-  if(roomData?.state !== "choosing") return;
+window.choose = (value)=>{
+  if(!roomData || roomData.state !== "choosing") return;
 
   update(ref(db,"rooms/"+roomCode),{
-    [playerNumber===1 ? "p1" : "p2"]: v
+    [playerNumber === 1 ? "p1" : "p2"]: value
   });
 };
+
+/* ================= LISTENER ================= */
+
+function listen(){
+  onValue(ref(db,"rooms/"+roomCode),(snap)=>{
+    roomData = snap.val();
+    if(!roomData) return;
+
+    document.getElementById("score1").innerText = roomData.score1;
+    document.getElementById("score2").innerText = roomData.score2;
+    document.getElementById("round").innerText = roomData.round;
+
+    renderCards(roomData.p1,roomData.p2,roomData.cpu);
+
+    // START ROUND SOLO UNA VOLTA
+    if(roomData.state === "playing" && !roundStarted){
+      roundStarted = true;
+      startRound();
+    }
+  });
+}
 
 /* ================= ROUND ================= */
 
 function startRound(){
+  if(roomData.players < 2) return;
+
   update(ref(db,"rooms/"+roomCode),{
     cpu: Math.floor(Math.random()*5)+1,
     p1:null,
@@ -99,13 +139,13 @@ function startRound(){
     state:"choosing"
   });
 
-  countdown();
+  countdown(5);
 }
 
 /* ================= COUNTDOWN ================= */
 
-function countdown(){
-  let t = 5;
+function countdown(seconds){
+  let t = seconds;
   const cd = document.getElementById("countdown");
 
   const int = setInterval(()=>{
@@ -119,7 +159,7 @@ function countdown(){
   },1000);
 }
 
-/* ================= SCORE ================= */
+/* ================= SCORE LOGIC ================= */
 
 function score(card, cpu){
   if(card === cpu) return 2;
@@ -140,48 +180,46 @@ function reveal(){
   let s2 = r.score2;
 
   // mostra carte
-  document.getElementById("cardCPU").innerText = cpu;
-  document.getElementById("cardP1").innerText = p1 ?? "X";
-  document.getElementById("cardP2").innerText = p2 ?? "X";
+  renderCards(p1,p2,cpu);
+
+  let sc1 = score(p1,cpu);
+  let sc2 = score(p2,cpu);
 
   if(p1 === p2){
-    document.getElementById("result").innerText = "Entrambi uguali → Madama Queen vince!";
-  } else {
-
-    let sc1 = score(p1, cpu);
-    let sc2 = score(p2, cpu);
-
-    if(sc1 > sc2) s1 += sc1;
-    else if(sc2 > sc1) s2 += sc2;
-    else document.getElementById("result").innerText = "Pareggio → CPU vince!";
+    document.getElementById("result").innerText = "Entrambi uguali → Madama Queen vince il round!";
+  }
+  else if(sc1 > sc2){
+    s1 += sc1;
+  }
+  else if(sc2 > sc1){
+    s2 += sc2;
+  }
+  else{
+    document.getElementById("result").innerText = "Pareggio → Madama Queen vince il round!";
   }
 
   update(ref(db,"rooms/"+roomCode),{
     score1:s1,
     score2:s2,
-    round:r.round+1,
+    round:r.round + 1,
     state:"reveal"
   });
 
   setTimeout(()=>{
+    roundStarted = false;
     startRound();
   },2000);
 }
 
-/* ================= LISTENER ================= */
+/* ================= CARDS DISPLAY ================= */
 
-function listen(){
-  onValue(ref(db,"rooms/"+roomCode),(snap)=>{
-    roomData = snap.val();
-    if(!roomData) return;
-
-    document.getElementById("score1").innerText = roomData.score1;
-    document.getElementById("score2").innerText = roomData.score2;
-    document.getElementById("round").innerText = roomData.round;
-  });
+function renderCards(p1,p2,cpu){
+  document.getElementById("cardP1").innerText = p1 ?? "🂠";
+  document.getElementById("cardP2").innerText = p2 ?? "🂠";
+  document.getElementById("cardCPU").innerText = cpu ?? "🂠";
 }
 
-/* ================= POPUP ================= */
+/* ================= POPUP RULES ================= */
 
 const popup = document.getElementById("popupRegole");
 const closeBtn = document.getElementById("chiudiPopup");
