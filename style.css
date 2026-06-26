@@ -232,14 +232,42 @@ button:active{
     position:absolute;
     top:-15px;
     right:-15px;
-    width:40px;
-    height:40px;
+
+    width:44px;
+    height:44px;
+
     border:none;
     border-radius:50%;
-    background:white;
-    color:black;
-    font-size:28px;
+
+    font-size:26px;
+    font-weight:bold;
+
     cursor:pointer;
+
+    color:white;
+
+    background:linear-gradient(135deg,#6a00ff,#a900ff);
+
+    box-shadow:
+        0 0 10px rgba(145,0,255,.6),
+        0 0 25px rgba(160,0,255,.4);
+
+    transition:all .2s ease;
+}
+
+#chiudiPopup:hover{
+    transform:scale(1.1) rotate(10deg);
+
+    background:linear-gradient(135deg,#8d2dff,#d145ff);
+
+    box-shadow:
+        0 0 15px #d48cff,
+        0 0 35px #b100ff,
+        0 0 60px #6b00ff;
+}
+
+#chiudiPopup:active{
+    transform:scale(.95);
 }
 
 /* HELP BUTTON */
