@@ -22,7 +22,6 @@ const db = getDatabase(app);
 /* STATE */
 let roomCode, playerNumber, roomData;
 let timer = null;
-let currentRoundLocal = 0; 
 
 /* DOM */
 const lobby = document.getElementById("lobby");
@@ -43,7 +42,7 @@ const playerLabel = document.getElementById("playerLabel");
 const resultEl = document.getElementById("result");
 const leaderboardEl = document.getElementById("leaderboard");
 
-// Creiamo dinamicamente il tasto "Prossimo Round" per l'Host
+// Tasto Prossimo Round inserito dinamicamente
 const nextRoundBtn = document.createElement("button");
 nextRoundBtn.id = "nextRoundBtn";
 nextRoundBtn.textContent = "Prossimo Round";
@@ -60,9 +59,7 @@ window.addEventListener("DOMContentLoaded", () => {
   if (close) close.onclick = () => popup.classList.add("hidden");
   if (help) help.onclick = () => popup.classList.remove("hidden");
   
-  // Inseriamo il pulsante sotto al box dei risultati nel DOM
   document.getElementById("game").appendChild(nextRoundBtn);
-
   loadLeaderboard();
 });
 
@@ -81,7 +78,7 @@ function loadLeaderboard() {
   });
 }
 
-/* AGGIORNA CLASSIFICA GLOBALE A FINE PARTITA */
+/* AGGIORNA CLASSIFICA GLOBALE */
 function updateLeaderboard(winnerName, points) {
   if (!winnerName || winnerName === "In attesa...") return;
   const userRef = ref(db, `leaderboard/${winnerName}`);
@@ -106,8 +103,8 @@ window.createRoom = () => {
     p1Color: color,
     p2Name: "In attesa...",
     p2Color: "#ffffff",
-    p1: null,
-    p2: null,
+    p1: false, // Usiamo false invece di null per evitare bug di lettura iniziale
+    p2: false,
     score1: 0,
     score2: 0,
     round: 1,
@@ -128,10 +125,12 @@ window.joinRoom = () => {
 
   playerNumber = 2;
 
-  // Quando entra P2, impostiamo la CPU e lanciamo direttamente lo stato "choose"
+  // Quando P2 entra, l'host genererà la CPU. Mettiamo solo i dati di P2 e attiviamo lo stato iniziale
   update(ref(db, "rooms/" + roomCode), {
     p2Name: nick,
     p2Color: color,
+    p1: false,
+    p2: false,
     cpu: Math.floor(Math.random() * 5) + 1,
     state: "choose" 
   }).then(() => {
@@ -167,7 +166,9 @@ window.choose = (v) => {
   if (roomData.state !== "choose") return;
 
   const field = playerNumber === 1 ? "p1" : "p2";
-  if (roomData[field] !== null) return; 
+  
+  // Se ha già scelto (ha un numero), non può cambiare
+  if (roomData[field] !== false) return; 
 
   update(ref(db, "rooms/" + roomCode), {
     [field]: v
@@ -186,25 +187,32 @@ function listen() {
     score2.innerHTML = `<span style="color:${roomData.p2Color}">${roomData.p2Name}</span>: ${roomData.score2}`;
     round.textContent = roomData.round;
 
-    // Gestione del timer nella fase "choose"
+    // FASE 1: CHOOSE (Scelta carte e Countdown)
     if (roomData.state === "choose") {
-      nextRoundBtn.style.display = "none"; // Nascondi il tasto durante la scelta
+      nextRoundBtn.style.display = "none"; 
+      
+      // Se il timer non è attivo sul browser attuale, lo facciamo partire
       if (!timer) {
         countdown(5);
       }
-      // Se entrambi scelgono prima del tempo, l'host calcola subito ed esegue il reveal
-      if (roomData.p1 !== null && roomData.p2 !== null) {
+
+      // CRITICO: Eseguiamo il reveal automatico SOLO se entrambi hanno scelto un numero (maggiore di 0)
+      if (typeof roomData.p1 === "number" && typeof roomData.p2 === "number") {
         clearInterval(timer);
         timer = null;
-        if (playerNumber === 1) calculateScores();
+        if (playerNumber === 1) {
+          calculateScores();
+        }
       }
     }
 
-    // Mostra il tasto prossimo round nella fase "reveal" (Solo per il Giocatore 1 / Host)
+    // FASE 2: REVEAL (Mostra carte e Tasto Prossimo turno)
     if (roomData.state === "reveal") {
       clearInterval(timer);
       timer = null;
       countdownEl.textContent = "-";
+      
+      // Il tasto compare solo all'Host (Player 1) per evitare desincronizzazioni
       if (playerNumber === 1) {
         nextRoundBtn.style.display = "block";
       }
@@ -230,7 +238,7 @@ function countdown(t) {
     if (t < 0) {
       clearInterval(timer);
       timer = null;
-      // Allo scadere del tempo l'host forza il calcolo dei punteggi
+      // Allo scadere del tempo, l'host chiude le votazioni e calcola
       if (playerNumber === 1) {
         calculateScores();
       }
@@ -240,13 +248,13 @@ function countdown(t) {
 
 /* REGOLA CALCOLO PUNTI */
 function calc(c, cpu) {
-  if (c === null || c === undefined || !cpu) return 0;
+  if (c === false || c === null || c === undefined || !cpu) return 0;
   if (c === cpu) return 2;
   if (Math.abs(c - cpu) === 1) return 1;
   return 0;
 }
 
-/* CALCOLO PUNTI E PASSAGGIO A REVEAL */
+/* CALCOLO E AGGIORNAMENTO STATO */
 function calculateScores() {
   let s1 = roomData.score1;
   let s2 = roomData.score2;
@@ -258,8 +266,8 @@ function calculateScores() {
   let ptsP1 = calc(choiceP1, cpuCard);
   let ptsP2 = calc(choiceP2, cpuCard);
 
-  // Se scelgono la stessa carta o equidistanti, vince la CPU (0 punti)
-  if (choiceP1 !== null && choiceP2 !== null) {
+  // Regola pareggio o equidistanza (attiva solo se entrambi hanno effettivamente risposto)
+  if (typeof choiceP1 === "number" && typeof choiceP2 === "number") {
     if (choiceP1 === choiceP2 || Math.abs(choiceP1 - cpuCard) === Math.abs(choiceP2 - cpuCard)) {
       ptsP1 = 0;
       ptsP2 = 0;
@@ -269,18 +277,16 @@ function calculateScores() {
   s1 += ptsP1;
   s2 += ptsP2;
 
-  // Aggiorna i punteggi e imposta lo stato su "reveal" (così le carte si girano)
   update(ref(db, "rooms/" + roomCode), {
     score1: s1,
     score2: s2,
-    state: "reveal"
+    state: "reveal" // Passa a reveal: ferma tutto e mostra i risultati a schermo
   });
 }
 
-/* FUNZIONE TASTO PROSSIMO ROUND (SOLO HOST) */
+/* FUNZIONE TASTO PROSSIMO ROUND */
 function advanceRound() {
   if (roomData.round >= 5) {
-    // Gestione fine partita al round 5
     let vincitoreFinale = "";
     let puntiVincitore = 0;
     
@@ -300,11 +306,11 @@ function advanceRound() {
       state: "ended"
     });
   } else {
-    // Genera una nuova carta CPU e resetta le scelte dei giocatori per il nuovo round
+    // Resettiamo accuratamente lo stato inserendo "false" (non nullo) per il nuovo round
     update(ref(db, "rooms/" + roomCode), {
       cpu: Math.floor(Math.random() * 5) + 1,
-      p1: null,
-      p2: null,
+      p1: false,
+      p2: false,
       round: roomData.round + 1,
       state: "choose"
     });
@@ -322,17 +328,17 @@ function render(d) {
     resultEl.textContent = "In attesa del secondo giocatore...";
   }
   else if (d.state === "choose") {
-    // DURANTE LA SCELTA: TUTTE LE CARTE SUL TAVOLO SONO COPERTE
+    // Durante il countdown tutto è rigorosamente coperto!
     cardCPU.innerHTML = back; 
-    cardP1.innerHTML = d.p1 !== null ? back : `<div class="waiting-text">...</div>`;
-    cardP2.innerHTML = d.p2 !== null ? back : `<div class="waiting-text">...</div>`;
-    resultEl.textContent = "Scegli la tua carta prima dello scadere del tempo!";
+    cardP1.innerHTML = d.p1 !== false ? back : `<div class="waiting-text">...</div>`;
+    cardP2.innerHTML = d.p2 !== false ? back : `<div class="waiting-text">...</div>`;
+    resultEl.textContent = "Scegli la tua carta dalla tua mano!";
   } 
   else if (d.state === "reveal" || d.state === "ended") {
-    // DOPO LA SCELTA (O FINE TEMPO): LE CARTE VENGONO GIRATE E SCOPERTE
+    // Fase di reveal: giriamo le immagini sul tavolo
     cardCPU.innerHTML = d.cpu ? `<img src="carta-${d.cpu}.webp">` : back;
-    cardP1.innerHTML = d.p1 !== null ? `<img src="carta-${d.p1}.webp">` : `<div class="waiting-text">Nessuna</div>`;
-    cardP2.innerHTML = d.p2 !== null ? `<img src="carta-${d.p2}.webp">` : `<div class="waiting-text">Nessuna</div>`;
+    cardP1.innerHTML = d.p1 !== false ? `<img src="carta-${d.p1}.webp">` : `<div class="waiting-text">Nessuna</div>`;
+    cardP2.innerHTML = d.p2 !== false ? `<img src="carta-${d.p2}.webp">` : `<div class="waiting-text">Nessuna</div>`;
     
     if (d.state === "ended") {
       if (d.score1 === d.score2) {
@@ -342,7 +348,7 @@ function render(d) {
         resultEl.textContent = `Partita Terminata! Vince ${winName}!`;
       }
     } else {
-      resultEl.textContent = "Carte girate! L'Host può cliccare su 'Prossimo Round' per continuare.";
+      resultEl.textContent = "Turno concluso. Carte scoperte sul tavolo!";
     }
   }
 }
