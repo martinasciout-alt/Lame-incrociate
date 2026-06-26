@@ -1,4 +1,4 @@
- <!DOCTYPE html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
 <meta charset="UTF-8"/>
@@ -14,18 +14,17 @@
 <!-- LOBBY -->
 <div id="lobby">
   <div class="lobby-box">
-
     <h1>Lama Alta</h1>
 
     <input id="roomInput" placeholder="Nome stanza">
     <input id="nickInput" placeholder="Nickname">
 
     <select id="colorInput">
-      <option value="red">Rosso</option>
-      <option value="blue">Blu</option>
-      <option value="green">Verde</option>
-      <option value="gold">Oro</option>
-      <option value="purple">Viola</option>
+      <option value="#ff4d4d">Rosso</option>
+      <option value="#4da6ff">Blu</option>
+      <option value="#4dff88">Verde</option>
+      <option value="#ffd24d">Oro</option>
+      <option value="#b84dff">Viola</option>
     </select>
 
     <button onclick="createRoom()">Crea stanza</button>
@@ -33,34 +32,20 @@
 
     <h3>🏆 Classifica globale</h3>
     <div id="leaderboard"></div>
-
   </div>
 </div>
 
 <!-- GAME -->
 <div id="game" class="hidden">
 
-  <div id="topInfo">
-    <h2 id="roomCode"></h2>
+  <h2 id="playerLabel"></h2>
 
-    <div id="playersTop">
-      <span id="p1Name"></span>
-      <span>VS</span>
-      <span id="p2Name"></span>
-    </div>
-  </div>
-
+  <p>Stanza: <span id="roomCode"></span></p>
   <p>Round: <span id="round"></span></p>
+
   <p>Score: <span id="score1"></span> - <span id="score2"></span></p>
 
   <div id="countdown"></div>
-
-  <!-- NOMI SOPRA TAVOLO -->
-  <div id="tableNames">
-    <div id="nameP1"></div>
-    <div id="nameCPU">Madama Queen</div>
-    <div id="nameP2"></div>
-  </div>
 
   <div id="table">
     <div id="cardP1"></div>
@@ -69,6 +54,7 @@
   </div>
 
   <div id="hand"></div>
+
   <div id="result"></div>
 
 </div>
@@ -76,7 +62,7 @@
 <!-- POPUP -->
 <div id="popupRegole" class="hidden">
   <div class="popup-box">
-    <button id="chiudiPopup">×</button>
+    <button id="chiudiPopup">&times;</button>
     <img src="Rr.png">
   </div>
 </div>
