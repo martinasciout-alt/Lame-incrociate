@@ -1,4 +1,4 @@
- body{
+body{
     margin:0;
     min-height:100vh;
     font-family:'Pirata One', serif;
@@ -43,7 +43,7 @@
         0 0 25px #6f00ff;
 }
 
-/* INPUT */
+/* ================= INPUT ================= */
 
 input,
 select{
@@ -80,7 +80,7 @@ select:focus{
         0 0 35px #8d00ff;
 }
 
-/* BOTTONI */
+/* ================= BUTTONS ================= */
 
 button{
     width:230px;
@@ -105,15 +105,13 @@ button:hover{
         0 0 15px #d48cff,
         0 0 35px #b100ff,
         0 0 70px #6b00ff;
-    filter:brightness(1.15);
 }
 
 button:active{
     transform:scale(.95);
-    background:linear-gradient(135deg,#b03fff,#e062ff);
 }
 
-/* CLASSIFICA */
+/* ================= LEADERBOARD ================= */
 
 #leaderboard{
     margin-top:18px;
@@ -129,19 +127,15 @@ button:active{
     padding:20px;
 }
 
-/* INFO TOP */
-
 #game p{
     font-size:18px;
 }
-
-/* ROUND COUNTER */
 
 #round{
     font-weight:bold;
 }
 
-/* COUNTDOWN */
+/* ================= COUNTDOWN ================= */
 
 #countdown{
     font-size:48px;
@@ -159,7 +153,7 @@ button:active{
     margin:20px 0;
 }
 
-/* CARDS */
+/* ================= CARD BOXES ================= */
 
 #cardP1,
 #cardP2,
@@ -169,14 +163,25 @@ button:active{
     display:flex;
     align-items:center;
     justify-content:center;
-    font-size:40px;
     border-radius:14px;
     background:rgba(0,0,0,.35);
     border:2px solid #a64dff;
     box-shadow:0 0 15px rgba(160,0,255,.3);
 }
 
-/* HAND (CARTE PLAYER) */
+/* CARD IMAGES */
+
+#cardP1 img,
+#cardP2 img,
+#cardCPU img{
+    width:90px;
+    height:120px;
+    object-fit:cover;
+    border-radius:12px;
+    display:block;
+}
+
+/* ================= HAND ================= */
 
 #hand{
     margin-top:20px;
@@ -186,13 +191,19 @@ button:active{
     gap:10px;
 }
 
-#hand button{
-    width:90px;
-    font-size:16px;
-    padding:10px;
+.card-hand{
+    width:80px;
+    height:110px;
+    cursor:pointer;
+    border-radius:10px;
+    transition:transform .2s ease;
 }
 
-/* RESULT */
+.card-hand:hover{
+    transform:scale(1.1);
+}
+
+/* ================= RESULT ================= */
 
 #result{
     margin-top:15px;
@@ -201,7 +212,7 @@ button:active{
     text-shadow:0 0 10px #8b00ff;
 }
 
-/* ================= POPUP REGOLE ================= */
+/* ================= POPUP ================= */
 
 #popupRegole{
     position:fixed;
@@ -232,38 +243,23 @@ button:active{
     position:absolute;
     top:-15px;
     right:-15px;
-
     width:44px;
     height:44px;
-
     border:none;
     border-radius:50%;
-
     font-size:26px;
     font-weight:bold;
-
     cursor:pointer;
-
     color:white;
-
     background:linear-gradient(135deg,#6a00ff,#a900ff);
-
-    box-shadow:
-        0 0 10px rgba(145,0,255,.6),
-        0 0 25px rgba(160,0,255,.4);
-
+    box-shadow:0 0 10px rgba(145,0,255,.6);
     transition:all .2s ease;
 }
 
 #chiudiPopup:hover{
     transform:scale(1.1) rotate(10deg);
-
     background:linear-gradient(135deg,#8d2dff,#d145ff);
-
-    box-shadow:
-        0 0 15px #d48cff,
-        0 0 35px #b100ff,
-        0 0 60px #6b00ff;
+    box-shadow:0 0 35px #b100ff;
 }
 
 #chiudiPopup:active{
@@ -288,11 +284,35 @@ button:active{
     box-shadow:0 0 15px rgba(160,0,255,.6);
 }
 
-#cardP1 img,
-#cardP2 img,
-#cardCPU img{
-    width:90px;
-    height:120px;
-    border-radius:12px;
-    object-fit:cover;
+/* ================= MOBILE FIX ================= */
+
+@media (max-width: 768px){
+
+    #table{
+        gap:12px;
+    }
+
+    #cardP1,
+    #cardP2,
+    #cardCPU{
+        width:70px;
+        height:100px;
+    }
+
+    #cardP1 img,
+    #cardP2 img,
+    #cardCPU img{
+        width:70px;
+        height:100px;
+    }
+
+    .card-hand{
+        width:65px;
+        height:90px;
+    }
+
+    button{
+        width:180px;
+        font-size:16px;
+    }
 }
