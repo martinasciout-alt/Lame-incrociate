@@ -1,4 +1,4 @@
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+ import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
   getDatabase,
   ref,
@@ -31,7 +31,6 @@ let roundLocked = false;
 /* ================= POPUP ================= */
 
 function initPopup(){
-
   const popup = document.getElementById("popupRegole");
   const closeBtn = document.getElementById("chiudiPopup");
   const helpBtn = document.getElementById("helpButton");
@@ -43,20 +42,11 @@ function initPopup(){
     sessionStorage.setItem("seenPopup","1");
   }
 
-  closeBtn.onclick = () => {
-    popup.classList.add("hidden");
-  };
-
-  helpBtn.onclick = () => {
-    popup.classList.remove("hidden");
-  };
+  closeBtn.onclick = () => popup.classList.add("hidden");
+  helpBtn.onclick = () => popup.classList.remove("hidden");
 }
 
-/* ================= INIT ================= */
-
-document.addEventListener("DOMContentLoaded", () => {
-  initPopup();
-});
+document.addEventListener("DOMContentLoaded", initPopup);
 
 /* ================= CREATE ROOM ================= */
 
@@ -77,9 +67,9 @@ window.createRoom = () => {
     round:1,
     state:"waiting",
 
-    cpu:null,
-    p1:null,
-    p2:null
+    cpu:0,
+    p1:0,
+    p2:0
   });
 
   startGame();
@@ -102,7 +92,7 @@ window.joinRoom = () => {
   startGame();
 };
 
-/* ================= START GAME ================= */
+/* ================= START ================= */
 
 function startGame(){
   document.getElementById("lobby").classList.add("hidden");
@@ -163,12 +153,12 @@ function listen(){
 
 function startRound(){
 
-  if(roomData.players < 2) return;
+  if(!roomData || roomData.players < 2) return;
 
   update(ref(db,"rooms/"+roomCode),{
     cpu: Math.floor(Math.random()*5)+1,
-    p1:null,
-    p2:null,
+    p1:0,
+    p2:0,
     state:"choosing"
   });
 
@@ -182,7 +172,6 @@ function startRound(){
 /* ================= COUNTDOWN ================= */
 
 function countdown(t){
-
   const cd = document.getElementById("countdown");
   let time = t;
 
@@ -200,6 +189,8 @@ function countdown(t){
 /* ================= SCORE ================= */
 
 function score(c,cpu){
+  if(!c || !cpu) return 0;
+
   if(c===cpu) return 2;
   if(Math.abs(c-cpu)===1) return 1;
   return 0;
@@ -228,24 +219,36 @@ function reveal(){
 
   renderTable(roomData,false);
 
-  setTimeout(()=>{
+  setTimeout(() => {
     roundLocked = false;
     startRound();
   },2000);
 }
 
-/* ================= TABLE ================= */
+/* ================= TABLE SAFE ================= */
 
 function renderTable(data,hidden=false){
 
   const back = `<img src="retro-carta.webp">`;
 
+  const cpu = (data?.cpu >= 1 && data?.cpu <= 5)
+    ? `<img src="carta-${data.cpu}.webp">`
+    : back;
+
+  const p1 = (data?.p1 >= 1 && data?.p1 <= 5)
+    ? `<img src="carta-${data.p1}.webp">`
+    : back;
+
+  const p2 = (data?.p2 >= 1 && data?.p2 <= 5)
+    ? `<img src="carta-${data.p2}.webp">`
+    : back;
+
   document.getElementById("cardCPU").innerHTML =
-    hidden ? back : `<img src="carta-${data.cpu}.webp">`;
+    hidden ? back : cpu;
 
   document.getElementById("cardP1").innerHTML =
-    hidden ? back : `<img src="carta-${data.p1}.webp">`;
+    hidden ? back : p1;
 
   document.getElementById("cardP2").innerHTML =
-    hidden ? back : `<img src="carta-${data.p2}.webp">`;
+    hidden ? back : p2;
 }
