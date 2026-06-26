@@ -50,48 +50,4 @@ button{
   gap:20px;
 }
 
-/* REGOLE MODAL */
-#rulesModal{
-  position:fixed;
-  inset:0;
-  display:none;
-  justify-content:center;
-  align-items:center;
-  background:rgba(0,0,0,.7);
-  z-index:9999;
-}
-
-#rulesModal.show{
-  display:flex;
-}
-
-.rules-box{
-  position:relative;
-  width:90%;
-  max-width:500px;
-}
-
-#rulesImage{
-  width:100%;
-  border-radius:15px;
-}
-
-/* CLOSE */
-#closeRules{
-  position:absolute;
-  top:10px;
-  right:15px;
-  font-size:28px;
-  cursor:pointer;
-  z-index:10;
-}
-
-/* OPEN BUTTON */
-#openRules{
-  position:fixed;
-  bottom:20px;
-  right:20px;
-  width:50px;
-  height:50px;
-  border-radius:50%;
-}
+ 
