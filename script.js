@@ -4,7 +4,8 @@ import {
   ref,
   set,
   update,
-  onValue
+  onValue,
+  get
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
 /* ================= FIREBASE ================= */
@@ -26,19 +27,26 @@ const db = getDatabase(app);
 let roomCode = null;
 let playerNumber = null;
 let roomData = null;
-let roundRunning = false;
 
-/* ================= CREATE ROOM ================= */
+let roundLocked = false;
+
+/* ================= CREATE ================= */
 
 window.createRoom = () => {
+  const name = document.getElementById("nickInput").value;
+
   roomCode = document.getElementById("roomInput").value;
   playerNumber = 1;
 
   set(ref(db,"rooms/"+roomCode),{
+    players:1,
+    p1Name:name,
+    p2Name:null,
+
     score1:0,
     score2:0,
+
     round:1,
-    players:1,
     state:"waiting",
 
     cpu:null,
@@ -49,30 +57,24 @@ window.createRoom = () => {
   startGame();
 };
 
-/* ================= JOIN ROOM ================= */
+/* ================= JOIN ================= */
 
 window.joinRoom = () => {
+  const name = document.getElementById("nickInput").value;
+
   roomCode = document.getElementById("roomInput").value;
   playerNumber = 2;
 
-  const roomRef = ref(db,"rooms/"+roomCode);
-
-  onValue(roomRef,(snap)=>{
-    const d = snap.val();
-    if(!d) return;
-
-    if(d.players === 1){
-      update(roomRef,{
-        players:2,
-        state:"playing"
-      });
-    }
-  },{onlyOnce:true});
+  update(ref(db,"rooms/"+roomCode),{
+    players:2,
+    p2Name:name,
+    state:"playing"
+  });
 
   startGame();
 };
 
-/* ================= START GAME ================= */
+/* ================= START ================= */
 
 function startGame(){
   document.getElementById("lobby").classList.add("hidden");
@@ -84,7 +86,7 @@ function startGame(){
   renderHand();
 }
 
-/* ================= HAND (IMMAGINI) ================= */
+/* ================= HAND ================= */
 
 function renderHand(){
   const hand = document.getElementById("hand");
@@ -94,18 +96,16 @@ function renderHand(){
     const img = document.createElement("img");
     img.src = `carta-${i}.webp`;
     img.className = "card-hand";
-
     img.onclick = () => choose(i);
-
     hand.appendChild(img);
   }
 }
 
-window.choose = (value)=>{
+window.choose = (val)=>{
   if(!roomData || roomData.state !== "choosing") return;
 
   update(ref(db,"rooms/"+roomCode),{
-    [playerNumber === 1 ? "p1" : "p2"]: value
+    [playerNumber===1?"p1":"p2"]:val
   });
 };
 
@@ -121,9 +121,9 @@ function listen(){
     document.getElementById("round").innerText = roomData.round;
 
     renderTable(roomData);
-    
-    if(roomData.state === "playing" && !roundRunning){
-      roundRunning = true;
+
+    if(roomData.state === "playing" && !roundLocked){
+      roundLocked = true;
       startRound();
     }
   });
@@ -141,23 +141,25 @@ function startRound(){
     state:"choosing"
   });
 
-  // tavolo iniziale COPERTO
-  renderTable(roomData, true);
+  document.getElementById("result").innerText = "";
+  document.getElementById("nextRoundBtn")?.remove();
 
+  renderTable(roomData,true);
   countdown(5);
 }
 
 /* ================= COUNTDOWN ================= */
 
-function countdown(sec){
-  let t = sec;
+function countdown(t){
   const cd = document.getElementById("countdown");
 
-  const int = setInterval(()=>{
-    cd.innerText = t;
-    t--;
+  let time = t;
 
-    if(t < 0){
+  const int = setInterval(()=>{
+    cd.innerText = time;
+    time--;
+
+    if(time < 0){
       clearInterval(int);
       reveal();
     }
@@ -166,9 +168,9 @@ function countdown(sec){
 
 /* ================= SCORE ================= */
 
-function score(card, cpu){
-  if(card === cpu) return 2;
-  if(Math.abs(card - cpu) === 1) return 1;
+function score(c,cpu){
+  if(c===cpu) return 2;
+  if(Math.abs(c-cpu)===1) return 1;
   return 0;
 }
 
@@ -177,72 +179,111 @@ function score(card, cpu){
 function reveal(){
   const r = roomData;
 
-  let cpu = r.cpu;
-  let p1 = r.p1;
-  let p2 = r.p2;
-
   let s1 = r.score1;
   let s2 = r.score2;
 
-  let sc1 = score(p1,cpu);
-  let sc2 = score(p2,cpu);
+  let sc1 = score(r.p1,r.cpu);
+  let sc2 = score(r.p2,r.cpu);
 
-  if(p1 === p2){
-    document.getElementById("result").innerText =
-      "Stessa carta → Madama Queen domina!";
-  }
-  else if(sc1 > sc2){
-    s1 += sc1;
-  }
-  else if(sc2 > sc1){
-    s2 += sc2;
-  }
+  if(sc1>sc2) s1+=sc1;
+  if(sc2>sc1) s2+=sc2;
 
   update(ref(db,"rooms/"+roomCode),{
     score1:s1,
     score2:s2,
-    round:r.round + 1,
     state:"reveal"
   });
 
-  setTimeout(()=>{
-    roundRunning = false;
-    startRound();
-  },2000);
+  renderTable(roomData,false);
+
+  showNextRoundButton();
 }
 
-/* ================= TABLE VISUAL ================= */
+/* ================= NEXT ROUND BUTTON ================= */
 
-function renderTable(data, hidden = false){
+function showNextRoundButton(){
+  const btn = document.createElement("button");
+  btn.id="nextRoundBtn";
+  btn.innerText="Nuovo Round";
+
+  btn.onclick = async ()=>{
+
+    const snap = await get(ref(db,"rooms/"+roomCode));
+    const d = snap.val();
+
+    if(d.round >= 3){
+      endGame(d);
+      return;
+    }
+
+    update(ref(db,"rooms/"+roomCode),{
+      round:d.round+1,
+      state:"playing"
+    });
+
+    roundLocked = false;
+  };
+
+  document.body.appendChild(btn);
+}
+
+/* ================= END GAME ================= */
+
+function endGame(d){
+
+  let winner = "Madama Queen";
+
+  if(d.score1 > d.score2) winner = d.p1Name;
+  if(d.score2 > d.score1) winner = d.p2Name;
+
+  document.getElementById("result").innerText =
+    "Vincitore: " + winner;
+
+  const btn = document.createElement("button");
+  btn.innerText = "Torna alla Lobby";
+
+  btn.onclick = ()=>{
+    location.reload();
+  };
+
+  document.body.appendChild(btn);
+
+  update(ref(db,"rooms/"+roomCode),{
+    state:"finished"
+  });
+
+  saveLeaderboard(winner, d);
+}
+
+/* ================= LEADERBOARD ================= */
+
+async function saveLeaderboard(name, d){
+
+  const lbRef = ref(db,"leaderboard/"+name);
+
+  const snap = await get(lbRef);
+  const old = snap.val();
+
+  const points = Math.max(d.score1,d.score2);
+
+  set(lbRef,{
+    name,
+    points:(old?.points||0)+points
+  });
+}
+
+/* ================= TABLE ================= */
+
+function renderTable(data,hidden=false){
 
   const back = `<img src="retro-carta.webp">`;
 
-  const cpuCard = hidden
-    ? back
-    : data.cpu ? `<img src="carta-${data.cpu}.webp">` : back;
+  document.getElementById("cardCPU").innerHTML =
+    hidden ? back : `<img src="carta-${data.cpu}.webp">`;
 
-  const p1Card = hidden
-    ? back
-    : data.p1 ? `<img src="carta-${data.p1}.webp">` : back;
+  document.getElementById("cardP1").innerHTML =
+    hidden ? back : `<img src="carta-${data.p1}.webp">`;
 
-  const p2Card = hidden
-    ? back
-    : data.p2 ? `<img src="carta-${data.p2}.webp">` : back;
-
-  document.getElementById("cardCPU").innerHTML = cpuCard;
-  document.getElementById("cardP1").innerHTML = p1Card;
-  document.getElementById("cardP2").innerHTML = p2Card;
+  document.getElementById("cardP2").innerHTML =
+    hidden ? back : `<img src="carta-${data.p2}.webp">`;
 }
-
-/* ================= POPUP ================= */
-
-const popup = document.getElementById("popupRegole");
-const closeBtn = document.getElementById("chiudiPopup");
-const helpBtn = document.getElementById("helpButton");
-
-window.addEventListener("load",()=>{
-  popup.style.display = "flex";
-});
-
-closeBtn.onclick = () => popup.style.display = "none";
-helpBtn.onclick = () => popup.style.display = "flex";
