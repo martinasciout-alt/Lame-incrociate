@@ -1,4 +1,4 @@
- import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
   getDatabase,
   ref,
@@ -42,6 +42,14 @@ const playerLabel = document.getElementById("playerLabel");
 const resultEl = document.getElementById("result");
 const leaderboardEl = document.getElementById("leaderboard");
 
+// Popup immagini
+const popupPunto = document.getElementById("popupPunto");
+const popupMadamaVince = document.getElementById("popupMadamaVince");
+const popupMadamaPerde = document.getElementById("popupMadamaPerde");
+const chiudiPopupPunto = document.getElementById("chiudiPopupPunto");
+const chiudiPopupMadamaVince = document.getElementById("chiudiPopupMadamaVince");
+const chiudiPopupMadamaPerde = document.getElementById("chiudiPopupMadamaPerde");
+
 // Tasto Dinamico per Prossimo Round / Torna alla Lobby
 const nextRoundBtn = document.createElement("button");
 nextRoundBtn.id = "nextRoundBtn";
@@ -62,6 +70,11 @@ window.addEventListener("DOMContentLoaded", () => {
   document.getElementById("game").appendChild(nextRoundBtn);
   loadLeaderboard();
 });
+
+// Chiudi popup immagini
+chiudiPopupPunto.onclick = () => popupPunto.classList.add("hidden");
+chiudiPopupMadamaVince.onclick = () => popupMadamaVince.classList.add("hidden");
+chiudiPopupMadamaPerde.onclick = () => popupMadamaPerde.classList.add("hidden");
 
 /* CARICA CLASSIFICA GLOBALE */
 function loadLeaderboard() {
@@ -280,17 +293,31 @@ function calculateScores() {
   s1 += ptsP1;
   s2 += ptsP2;
 
+  // Mostra popup punto.webp se un giocatore fa punto
+  if (ptsP1 > 0 || ptsP2 > 0) {
+    popupPunto.classList.remove("hidden");
+  } else {
+    // Altrimenti il computer vince il round
+    popupMadamaVince.classList.remove("hidden");
+  }
+
   // Se siamo al round 5, calcoliamo i punti e mandiamo direttamente in "ended"
   if (roomData.round >= 5) {
     let vincitoreFinale = "";
     let puntiVincitore = 0;
     
-    if (s1 > s2) {
+    // Controlla se almeno un giocatore ha vinto 3 round su 5 (almeno 6 punti)
+    if (s1 >= 6) {
       vincitoreFinale = roomData.p1Name;
       puntiVincitore = s1;
-    } else if (s2 > s1) {
+      popupMadamaPerde.classList.remove("hidden"); // Il computer perde i 5 round
+    } else if (s2 >= 6) {
       vincitoreFinale = roomData.p2Name;
       puntiVincitore = s2;
+      popupMadamaPerde.classList.remove("hidden"); // Il computer perde i 5 round
+    } else {
+      // Altrimenti vince il computer
+      popupMadamaVince.classList.remove("hidden"); // Il computer vince i 5 round
     }
 
     if (vincitoreFinale !== "") {
