@@ -287,3 +287,12 @@ button:active{
     border:none;
     box-shadow:0 0 15px rgba(160,0,255,.6);
 }
+
+#cardP1 img,
+#cardP2 img,
+#cardCPU img{
+    width:90px;
+    height:120px;
+    border-radius:12px;
+    object-fit:cover;
+}
