@@ -1,88 +1,334 @@
  body{
-  margin:0;
-  min-height:100vh;
-  font-family:'Pirata One', serif;
-  background:url("sfondo.jpeg") center/cover no-repeat fixed;
-  color:white;
-  text-align:center;
+    margin:0;
+    min-height:100vh;
+    font-family:'Pirata One', serif;
+    background:url("sfondo.jpeg") center/cover no-repeat fixed;
+    color:white;
+    text-align:center;
 }
 
-.hidden{display:none!important;}
+/* ================= UTILS ================= */
 
-/* LOBBY */
+.hidden{
+    display:none !important;
+}
+
+/* ================= LOBBY ================= */
+
 #lobby{
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  min-height:100vh;
-  background:rgba(40,0,70,.30);
+    display:flex;
+    justify-content:center;
+    align-items:center;
+    min-height:100vh;
+    background:rgba(40,0,70,.30);
 }
 
-/* GAME HEADER */
-#topInfo{
-  margin-top:10px;
+.lobby-box{
+    width:90%;
+    max-width:470px;
+    padding:35px;
+    border-radius:22px;
+
+    background:rgba(45,18,72,.82);
+    border:2px solid #9d4dff;
+
+    box-shadow:
+        0 0 25px rgba(157,77,255,.40),
+        0 0 60px rgba(120,0,255,.25);
+
+    backdrop-filter:blur(8px);
 }
 
-#playersTop{
-  font-size:22px;
-  margin-top:5px;
+.lobby-box h1{
+    color:#e5cfff;
+    font-size:3rem;
+    margin-bottom:25px;
+    text-shadow:
+        0 0 10px #b86cff,
+        0 0 25px #6f00ff;
 }
 
-/* TABLE NAMES */
-#tableNames{
-  display:flex;
-  justify-content:center;
-  gap:120px;
-  margin-top:20px;
-  font-size:18px;
+/* ================= INPUT ================= */
+
+input,
+select{
+    width:85%;
+    padding:14px;
+    margin:12px auto;
+    display:block;
+
+    border-radius:14px;
+    border:2px solid #8b45ff;
+
+    background:#31104e;
+    color:white;
+    font-size:18px;
+
+    transition:all .25s ease;
 }
 
-/* TABLE */
+input::placeholder{
+    color:#d0b5ff;
+}
+
+input:hover,
+select:hover{
+    border-color:#d96cff;
+    box-shadow:0 0 10px #b95dff, 0 0 20px #8b45ff;
+}
+
+input:focus,
+select:focus{
+    outline:none;
+    border-color:#ff9dff;
+    box-shadow:0 0 15px #d35cff, 0 0 35px #8d00ff;
+}
+
+/* ================= BUTTONS ================= */
+
+button{
+    width:230px;
+    padding:14px;
+    margin:12px auto;
+    display:block;
+
+    border:none;
+    border-radius:16px;
+
+    background:linear-gradient(135deg,#6a00ff,#a900ff);
+    color:white;
+
+    font-size:20px;
+    font-family:'Pirata One', serif;
+
+    cursor:pointer;
+
+    transition:all .25s ease;
+
+    box-shadow:0 0 15px rgba(145,0,255,.35);
+}
+
+button:hover{
+    transform:translateY(-4px) scale(1.05);
+    background:linear-gradient(135deg,#8d2dff,#d145ff);
+    box-shadow:0 0 15px #d48cff, 0 0 35px #b100ff, 0 0 70px #6b00ff;
+}
+
+button:active{
+    transform:scale(.95);
+}
+
+/* ================= LEADERBOARD ================= */
+
+#leaderboard{
+    margin-top:18px;
+    padding:15px;
+    border-radius:14px;
+    background:rgba(255,255,255,.08);
+    border:1px solid rgba(255,255,255,.15);
+}
+
+/* ================= GAME ================= */
+
+#game{
+    padding:20px;
+}
+
+#game p{
+    font-size:18px;
+}
+
+#round{
+    font-weight:bold;
+}
+
+/* ================= COUNTDOWN ================= */
+
+#countdown{
+    font-size:48px;
+    margin:15px;
+    color:#ffccff;
+    text-shadow:0 0 20px #a000ff;
+}
+
+/* ================= TABLE ================= */
+
 #table{
-  display:flex;
-  justify-content:center;
-  gap:40px;
-  margin:20px;
+    display:flex;
+    justify-content:center;
+    gap:25px;
+    margin:20px 0;
 }
 
-/* CARDS */
-#cardP1,#cardP2,#cardCPU{
-  width:140px;
-  height:200px;
-  display:flex;
-  justify-content:center;
-  align-items:center;
-  background:rgba(0,0,0,.35);
-  border-radius:14px;
+/* ================= CARD BOXES ================= */
+
+#cardP1,
+#cardP2,
+#cardCPU{
+    width:140px;
+    height:190px;
+
+    display:flex;
+    align-items:center;
+    justify-content:center;
+
+    border-radius:14px;
+
+    background:rgba(0,0,0,.35);
+    border:2px solid #a64dff;
+
+    box-shadow:0 0 15px rgba(160,0,255,.3);
 }
 
-#cardP1 img,#cardP2 img,#cardCPU img{
-  width:140px;
-  height:200px;
-  object-fit:contain;
+/* ================= CARD IMAGES ================= */
+
+#cardP1 img,
+#cardP2 img,
+#cardCPU img{
+    width:100%;
+    height:100%;
+    object-fit:contain;
+    border-radius:12px;
 }
 
-/* HAND */
+/* ================= HAND ================= */
+
+#hand{
+    margin-top:20px;
+    display:flex;
+    justify-content:center;
+    flex-wrap:wrap;
+    gap:12px;
+}
+
 .card-hand{
-  width:90px;
-  cursor:pointer;
+    width:90px;
+    height:120px;
+    cursor:pointer;
+
+    border-radius:10px;
+    transition:transform .2s ease;
+
+    object-fit:cover;
 }
 
-/* POPUP FIX (più piccolo PC) */
+.card-hand:hover{
+    transform:scale(1.1);
+}
+
+/* ================= RESULT ================= */
+
+#result{
+    margin-top:15px;
+    font-size:22px;
+    color:#ffd6ff;
+    text-shadow:0 0 10px #8b00ff;
+}
+
+/* ================= POPUP ================= */
+
+#popupRegole{
+    position:fixed;
+    inset:0;
+
+    display:flex;
+    justify-content:center;
+    align-items:center;
+
+    background:rgba(0,0,0,.75);
+
+    z-index:999999;
+}
+
 .popup-box{
-  max-width:55vw;
+    position:relative;
+
+    max-width:55vw;
+    max-height:80vh;
 }
 
 .popup-box img{
-  width:100%;
+    width:100%;
+    height:auto;
+
+    border-radius:15px;
+    box-shadow:0 0 30px black;
 }
 
-/* HELP */
+/* ================= CLOSE POPUP ================= */
+
+#chiudiPopup{
+    position:absolute;
+    top:-15px;
+    right:-15px;
+
+    width:44px;
+    height:44px;
+
+    border:none;
+    border-radius:50%;
+
+    font-size:26px;
+    font-weight:bold;
+
+    cursor:pointer;
+
+    color:white;
+    background:linear-gradient(135deg,#6a00ff,#a900ff);
+
+    box-shadow:0 0 10px rgba(145,0,255,.6);
+}
+
+#chiudiPopup:hover{
+    transform:scale(1.1) rotate(10deg);
+}
+
+#chiudiPopup:active{
+    transform:scale(.95);
+}
+
+/* ================= HELP BUTTON ================= */
+
 #helpButton{
-  position:fixed;
-  bottom:20px;
-  right:20px;
-  width:55px;
-  height:55px;
-  border-radius:50%;
+    position:fixed;
+    right:20px;
+    bottom:20px;
+
+    width:55px;
+    height:55px;
+
+    border-radius:50%;
+
+    font-size:30px;
+    font-weight:bold;
+
+    z-index:9000;
+
+    background:#6a00ff;
+    color:white;
+    border:none;
+
+    box-shadow:0 0 15px rgba(160,0,255,.6);
+}
+
+/* ================= MOBILE ================= */
+
+@media (max-width:768px){
+
+    #cardP1,
+    #cardP2,
+    #cardCPU{
+        width:90px;
+        height:130px;
+    }
+
+    .card-hand{
+        width:70px;
+        height:95px;
+    }
+
+    button{
+        width:180px;
+        font-size:16px;
+    }
 }
