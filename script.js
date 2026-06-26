@@ -20,6 +20,23 @@ const db = getDatabase(app);
 let roomCode, playerNumber, roomData;
 let locked = false;
 
+const roomInput = document.getElementById("roomInput");
+const lobby = document.getElementById("lobby");
+const game = document.getElementById("game");
+const hand = document.getElementById("hand");
+
+const score1 = document.getElementById("score1");
+const score2 = document.getElementById("score2");
+const round = document.getElementById("round");
+
+const countdownEl = document.getElementById("countdown");
+
+const cardCPU = document.getElementById("cardCPU");
+const cardP1 = document.getElementById("cardP1");
+const cardP2 = document.getElementById("cardP2");
+
+const roomCodeEl = document.getElementById("roomCode");
+
 /* POPUP */
 window.addEventListener("DOMContentLoaded", () => {
   const popup = document.getElementById("popupRegole");
@@ -60,8 +77,7 @@ function start(){
   lobby.classList.add("hidden");
   game.classList.remove("hidden");
 
-  roomCodeEl.textContent = roomCode;
-
+  document.getElementById("roomCode").textContent = roomCode;
   listen();
   renderHand();
 }
