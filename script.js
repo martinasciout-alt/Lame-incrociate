@@ -1,6 +1,4 @@
- console.log("SCRIPT CARICATO");
-
-import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
+  import { initializeApp } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-app.js";
 import {
   getDatabase,
   ref,
@@ -26,22 +24,9 @@ const db = getDatabase(app);
 let roomCode = null;
 let playerNumber = null;
 let roomData = null;
-let roundActive = false;
 
- 
+/* ================= ROOM ================= */
 
-/* ================= LOBBY -> GAME ================= */
-function startGame(){
-  document.getElementById("lobby").classList.add("hidden");
-  document.getElementById("game").classList.remove("hidden");
-
-  listen();
-  renderHand();
-
-  initRules();
-}
-
-/* CREATE */
 window.createRoom = () => {
   roomCode = document.getElementById("roomInput").value;
   playerNumber = 1;
@@ -50,42 +35,141 @@ window.createRoom = () => {
     score1:0,
     score2:0,
     round:1,
-    maxRounds:3,
-    player1Choice:null,
-    player2Choice:null,
     cpu:null,
-    locked:false
+    p1:null,
+    p2:null,
+    state:"waiting"
   });
 
   startGame();
 };
 
-/* JOIN */
 window.joinRoom = () => {
   roomCode = document.getElementById("roomInput").value;
   playerNumber = 2;
 
   update(ref(db,"rooms/"+roomCode),{
-    player2Name:"player"
+    joined:true
   });
 
   startGame();
 };
 
-/* HAND */
+function startGame(){
+  document.getElementById("lobby").classList.add("hidden");
+  document.getElementById("game").classList.remove("hidden");
+
+  document.getElementById("roomCode").innerText = roomCode;
+
+  listen();
+  renderHand();
+
+  startRound();
+}
+
+/* ================= HAND ================= */
+
 function renderHand(){
   const hand = document.getElementById("hand");
   hand.innerHTML = "";
 
   for(let i=1;i<=5;i++){
-    const btn = document.createElement("button");
-    btn.innerHTML = "Carta " + i;
-    btn.onclick = () => choose(i);
-    hand.appendChild(btn);
+    const b = document.createElement("button");
+    b.innerText = "Carta " + i;
+    b.onclick = () => choose(i);
+    hand.appendChild(b);
   }
 }
 
-/* LISTENER */
+window.choose = (v)=>{
+  if(roomData?.state !== "choosing") return;
+
+  update(ref(db,"rooms/"+roomCode),{
+    [playerNumber===1 ? "p1" : "p2"]: v
+  });
+};
+
+/* ================= ROUND ================= */
+
+function startRound(){
+  update(ref(db,"rooms/"+roomCode),{
+    cpu: Math.floor(Math.random()*5)+1,
+    p1:null,
+    p2:null,
+    state:"choosing"
+  });
+
+  countdown();
+}
+
+/* ================= COUNTDOWN ================= */
+
+function countdown(){
+  let t = 5;
+  const cd = document.getElementById("countdown");
+
+  const int = setInterval(()=>{
+    cd.innerText = t;
+    t--;
+
+    if(t < 0){
+      clearInterval(int);
+      reveal();
+    }
+  },1000);
+}
+
+/* ================= SCORE ================= */
+
+function score(card, cpu){
+  if(card === cpu) return 2;
+  if(Math.abs(card - cpu) === 1) return 1;
+  return 0;
+}
+
+/* ================= REVEAL ================= */
+
+function reveal(){
+  const r = roomData;
+
+  let cpu = r.cpu;
+  let p1 = r.p1;
+  let p2 = r.p2;
+
+  let s1 = r.score1;
+  let s2 = r.score2;
+
+  // mostra carte
+  document.getElementById("cardCPU").innerText = cpu;
+  document.getElementById("cardP1").innerText = p1 ?? "X";
+  document.getElementById("cardP2").innerText = p2 ?? "X";
+
+  if(p1 === p2){
+    document.getElementById("result").innerText = "Entrambi uguali → Madama Queen vince!";
+  } else {
+
+    let sc1 = score(p1, cpu);
+    let sc2 = score(p2, cpu);
+
+    if(sc1 > sc2) s1 += sc1;
+    else if(sc2 > sc1) s2 += sc2;
+    else document.getElementById("result").innerText = "Pareggio → CPU vince!";
+  }
+
+  update(ref(db,"rooms/"+roomCode),{
+    score1:s1,
+    score2:s2,
+    round:r.round+1,
+    state:"reveal"
+  });
+
+  setTimeout(()=>{
+    startRound();
+  },2000);
+}
+
+/* ================= LISTENER ================= */
+
 function listen(){
   onValue(ref(db,"rooms/"+roomCode),(snap)=>{
     roomData = snap.val();
@@ -97,32 +181,15 @@ function listen(){
   });
 }
 
-/* CHOOSE */
-window.choose = (v)=>{
-  if(roomData?.locked) return;
-
-  update(ref(db,"rooms/"+roomCode),{
-    [playerNumber===1?"player1Choice":"player2Choice"]:v
-  });
-};
-
-/* ================= POPUP REGOLE ================= */
+/* ================= POPUP ================= */
 
 const popup = document.getElementById("popupRegole");
 const closeBtn = document.getElementById("chiudiPopup");
 const helpBtn = document.getElementById("helpButton");
 
-// Mostra il popup all'apertura della pagina
-window.addEventListener("load", () => {
-    popup.style.display = "flex";
+window.addEventListener("load",()=>{
+  popup.style.display = "flex";
 });
 
-// Chiudi
-closeBtn.addEventListener("click", () => {
-    popup.style.display = "none";
-});
-
-// Riapri
-helpBtn.addEventListener("click", () => {
-    popup.style.display = "flex";
-});
+closeBtn.onclick = () => popup.style.display = "none";
+helpBtn.onclick = () => popup.style.display = "flex";
