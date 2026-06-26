@@ -7,6 +7,7 @@ import {
   onValue
 } from "https://www.gstatic.com/firebasejs/10.7.1/firebase-database.js";
 
+/* FIREBASE */
 const firebaseConfig = {
   apiKey: "AIzaSy....",
   authDomain: "gioco-della-lama-alta.firebaseapp.com",
@@ -17,9 +18,12 @@ const firebaseConfig = {
 const app = initializeApp(firebaseConfig);
 const db = getDatabase(app);
 
+/* STATE */
 let roomCode, playerNumber, roomData;
 let locked = false;
+let timer = null;
 
+/* DOM */
 const roomInput = document.getElementById("roomInput");
 const lobby = document.getElementById("lobby");
 const game = document.getElementById("game");
@@ -28,7 +32,6 @@ const hand = document.getElementById("hand");
 const score1 = document.getElementById("score1");
 const score2 = document.getElementById("score2");
 const round = document.getElementById("round");
-
 const countdownEl = document.getElementById("countdown");
 
 const cardCPU = document.getElementById("cardCPU");
@@ -55,11 +58,13 @@ window.createRoom = () => {
   playerNumber = 1;
 
   set(ref(db,"rooms/"+roomCode),{
-    p1:0,p2:0,
-    score1:0,score2:0,
-    round:1,
-    state:"waiting",
-    cpu:0
+    p1: null,
+    p2: null,
+    score1: 0,
+    score2: 0,
+    round: 1,
+    state: "waiting",
+    cpu: null
   });
 
   start();
@@ -69,15 +74,17 @@ window.joinRoom = () => {
   roomCode = roomInput.value;
   playerNumber = 2;
 
-  update(ref(db,"rooms/"+roomCode),{state:"playing"});
+  update(ref(db,"rooms/"+roomCode),{state:"choose"});
   start();
 };
 
+/* START */
 function start(){
   lobby.classList.add("hidden");
   game.classList.remove("hidden");
 
-  document.getElementById("roomCode").textContent = roomCode;
+  roomCodeEl.textContent = roomCode;
+
   listen();
   renderHand();
 }
@@ -99,7 +106,7 @@ window.choose = (v)=>{
   if(roomData?.state !== "choose") return;
 
   update(ref(db,"rooms/"+roomCode),{
-    [playerNumber===1?"p1":"p2"]:v
+    [playerNumber===1?"p1":"p2"]: v
   });
 };
 
@@ -113,35 +120,39 @@ function listen(){
     score2.textContent = roomData.score2;
     round.textContent = roomData.round;
 
-    if(roomData.state==="playing" && !locked){
-      locked = true;
-      roundStart();
-    }
-
     render(roomData);
+
+    /* parte SOLO quando entrambi sono pronti */
+    if(roomData.state === "choose" && !locked && roomData.p1 && roomData.p2){
+      locked = true;
+      startRound();
+    }
   });
 }
 
-/* ROUND */
-function roundStart(){
+/* ROUND START */
+function startRound(){
 
   update(ref(db,"rooms/"+roomCode),{
     cpu: Math.floor(Math.random()*5)+1,
-    p1:0,p2:0,
-    state:"choose"
+    p1: null,
+    p2: null,
+    state: "choose"
   });
 
-  countdown(5);
+  startTimer(5);
 }
 
-/* COUNTDOWN */
-function countdown(t){
-  let cd = setInterval(()=>{
+/* TIMER */
+function startTimer(t){
+  clearInterval(timer);
+
+  timer = setInterval(()=>{
     countdownEl.textContent = t;
     t--;
 
-    if(t<0){
-      clearInterval(cd);
+    if(t < 0){
+      clearInterval(timer);
       reveal();
     }
   },1000);
@@ -149,6 +160,7 @@ function countdown(t){
 
 /* SCORE */
 function calc(c,cpu){
+  if(!c || !cpu) return 0;
   if(c===cpu) return 2;
   if(Math.abs(c-cpu)===1) return 1;
   return 0;
@@ -156,20 +168,21 @@ function calc(c,cpu){
 
 /* REVEAL */
 function reveal(){
+
   let s1 = roomData.score1;
   let s2 = roomData.score2;
 
-  let a = calc(roomData.p1,roomData.cpu);
-  let b = calc(roomData.p2,roomData.cpu);
+  let a = calc(roomData.p1, roomData.cpu);
+  let b = calc(roomData.p2, roomData.cpu);
 
-  if(a>b) s1+=a;
-  if(b>a) s2+=b;
+  if(a>b) s1 += a;
+  if(b>a) s2 += b;
 
   update(ref(db,"rooms/"+roomCode),{
-    score1:s1,
-    score2:s2,
-    state:"playing",
-    round:roomData.round+1
+    score1: s1,
+    score2: s2,
+    round: roomData.round + 1,
+    state: "choose"
   });
 
   locked = false;
@@ -177,7 +190,11 @@ function reveal(){
 
 /* RENDER */
 function render(d){
-  cardCPU.innerHTML = d.cpu ? `<img src="carta-${d.cpu}.webp">` : `<img src="retro-carta.webp">`;
-  cardP1.innerHTML = d.p1 ? `<img src="retro-carta.webp">` : `<img src="retro-carta.webp">`;
-  cardP2.innerHTML = d.p2 ? `<img src="retro-carta.webp">` : `<img src="retro-carta.webp">`;
+
+  const back = `<img src="retro-carta.webp">`;
+
+  cardCPU.innerHTML = d.cpu ? `<img src="carta-${d.cpu}.webp">` : back;
+
+  cardP1.innerHTML = d.p1 ? back : back;
+  cardP2.innerHTML = d.p2 ? back : back;
 }
