@@ -10,7 +10,7 @@ import {
 
 /* FIREBASE CONFIG */
 const firebaseConfig = {
-  apiKey: "AIzaSy....", // Inserisci la tua chiave qui
+  apiKey: "AIzaSy....", 
   authDomain: "gioco-della-lama-alta.firebaseapp.com",
   databaseURL: "https://gioco-della-lama-alta-default-rtdb.europe-west1.firebasedatabase.app",
   projectId: "gioco-della-lama-alta"
@@ -22,6 +22,7 @@ const db = getDatabase(app);
 /* STATE */
 let roomCode, playerNumber, roomData;
 let timer = null;
+let lastRoundSeenPopup = 0; // Serve per non far riapparire i popup se si riapre la stanza
 
 /* DOM */
 const lobby = document.getElementById("lobby");
@@ -44,9 +45,12 @@ const leaderboardEl = document.getElementById("leaderboard");
 
 // Popup immagini
 const popupPunto = document.getElementById("popupPunto");
+const popupNessunPunto = document.getElementById("popupNessunPunto");
 const popupMadamaVince = document.getElementById("popupMadamaVince");
 const popupMadamaPerde = document.getElementById("popupMadamaPerde");
+
 const chiudiPopupPunto = document.getElementById("chiudiPopupPunto");
+const chiudiPopupNessunPunto = document.getElementById("chiudiPopupNessunPunto");
 const chiudiPopupMadamaVince = document.getElementById("chiudiPopupMadamaVince");
 const chiudiPopupMadamaPerde = document.getElementById("chiudiPopupMadamaPerde");
 
@@ -71,10 +75,18 @@ window.addEventListener("DOMContentLoaded", () => {
   loadLeaderboard();
 });
 
-// Chiudi popup immagini
-chiudiPopupPunto.onclick = () => popupPunto.classList.add("hidden");
-chiudiPopupMadamaVince.onclick = () => popupMadamaVince.classList.add("hidden");
-chiudiPopupMadamaPerde.onclick = () => popupMadamaPerde.classList.add("hidden");
+// Funzione per chiudere tutti i popup di gioco in un colpo solo
+function chiudiTuttiIPopup() {
+  popupPunto.classList.add("hidden");
+  popupNessunPunto.classList.add("hidden");
+  popupMadamaVince.classList.add("hidden");
+  popupMadamaPerde.classList.add("hidden");
+}
+
+chiudiPopupPunto.onclick = chiudiTuttiIPopup;
+chiudiPopupNessunPunto.onclick = chiudiTuttiIPopup;
+chiudiPopupMadamaVince.onclick = chiudiTuttiIPopup;
+chiudiPopupMadamaPerde.onclick = chiudiTuttiIPopup;
 
 /* CARICA CLASSIFICA GLOBALE */
 function loadLeaderboard() {
@@ -122,7 +134,8 @@ window.createRoom = () => {
     score2: 0,
     round: 1,
     state: "waiting", 
-    cpu: false
+    cpu: false,
+    roundResult: "" // Nuovo campo: "madama", "p1", "p2", "both", "none"
   }).then(() => {
     start();
   });
@@ -144,7 +157,8 @@ window.joinRoom = () => {
     p1: false,
     p2: false,
     cpu: Math.floor(Math.random() * 5) + 1,
-    state: "choose" 
+    state: "choose",
+    roundResult: ""
   }).then(() => {
     start();
   });
@@ -200,6 +214,7 @@ function listen() {
     // FASE: CHOOSE
     if (roomData.state === "choose") {
       nextRoundBtn.style.display = "none"; 
+      chiudiTuttiIPopup(); // Pulisce i popup vecchi ad inizio round
       
       if (!timer) {
         countdown(5);
@@ -214,28 +229,51 @@ function listen() {
       }
     }
 
-    // FASE: REVEAL
-    if (roomData.state === "reveal") {
+    // FASE: REVEAL O ENDED (Mostra i Popup sincronizzati)
+    if (roomData.state === "reveal" || roomData.state === "ended") {
       clearInterval(timer);
       timer = null;
       countdownEl.textContent = "-";
       
-      // Il tasto di avanzamento round normale lo vede solo l'host
-      if (playerNumber === 1) {
+      // Controlla se dobbiamo mostrare il popup per questo round specifico
+      if (lastRoundSeenPopup !== roomData.round || roomData.state === "ended") {
+        lastRoundSeenPopup = roomData.round;
+        chiudiTuttiIPopup();
+
+        const res = roomData.roundResult;
+
+        if (roomData.state === "ended") {
+          // FINE PARTITA DEI 5 ROUND
+          if (res === "madama_win_game") {
+            popupMadamaVince.classList.remove("hidden");
+          } else if (res === "madama_lose_game") {
+            popupMadamaPerde.classList.remove("hidden");
+          }
+        } else {
+          // FINE ROUND NORMALE
+          if (res === "madama") {
+            popupMadamaVince.classList.remove("hidden"); // Entrambi vedono Madama vince il round
+          } else if (res === "both") {
+            popupPunto.classList.remove("hidden"); // Entrambi hanno fatto punto
+          } else if (res === "p1") {
+            if (playerNumber === 1) popupPunto.classList.remove("hidden");
+            if (playerNumber === 2) popupNessunPunto.classList.remove("hidden");
+          } else if (res === "p2") {
+            if (playerNumber === 2) popupPunto.classList.remove("hidden");
+            if (playerNumber === 1) popupNessunPunto.classList.remove("hidden");
+          }
+        }
+      }
+
+      if (roomData.state === "reveal" && playerNumber === 1) {
         nextRoundBtn.textContent = "Prossimo Round";
         nextRoundBtn.style.display = "block";
       }
-    }
-
-    // FASE: ENDED (Partita finita)
-    if (roomData.state === "ended") {
-      clearInterval(timer);
-      timer = null;
-      countdownEl.textContent = "-";
       
-      // A fine gioco il tasto diventa "Torna alla Lobby" ed è visibile a TUTTI e due
-      nextRoundBtn.textContent = "Torna alla Lobby";
-      nextRoundBtn.style.display = "block";
+      if (roomData.state === "ended") {
+        nextRoundBtn.textContent = "Torna alla Lobby";
+        nextRoundBtn.style.display = "block";
+      }
     }
 
     render(roomData);
@@ -271,7 +309,7 @@ function calc(c, cpu) {
   return 0;
 }
 
-/* CALCOLO E AGGIORNAMENTO STATO */
+/* CALCOLO E AGGIORNAMENTO STATO INTERNAZIONALE */
 function calculateScores() {
   let s1 = roomData.score1;
   let s2 = roomData.score2;
@@ -293,31 +331,26 @@ function calculateScores() {
   s1 += ptsP1;
   s2 += ptsP2;
 
-  // Mostra popup punto.webp se un giocatore fa punto
-  if (ptsP1 > 0 || ptsP2 > 0) {
-    popupPunto.classList.remove("hidden");
-  } else {
-    // Altrimenti il computer vince il round
-    popupMadamaVince.classList.remove("hidden");
-  }
+  // Stabiliamo l'esito del round corrente da inviare a entrambi
+  let roundResult = "madama"; // Default: nessuno fa punti -> vince madama
+  if (ptsP1 > 0 && ptsP2 > 0) roundResult = "both";
+  else if (ptsP1 > 0) roundResult = "p1";
+  else if (ptsP2 > 0) roundResult = "p2";
 
-  // Se siamo al round 5, calcoliamo i punti e mandiamo direttamente in "ended"
+  // Se siamo al round 5, verifichiamo la macro-vittoria del gioco
   if (roomData.round >= 5) {
     let vincitoreFinale = "";
     let puntiVincitore = 0;
-    
-    // Controlla se almeno un giocatore ha vinto 3 round su 5 (almeno 6 punti)
+    let finalResult = "madama_win_game"; // Di base vince il computer
+
     if (s1 >= 6) {
       vincitoreFinale = roomData.p1Name;
       puntiVincitore = s1;
-      popupMadamaPerde.classList.remove("hidden"); // Il computer perde i 5 round
+      finalResult = "madama_lose_game";
     } else if (s2 >= 6) {
       vincitoreFinale = roomData.p2Name;
       puntiVincitore = s2;
-      popupMadamaPerde.classList.remove("hidden"); // Il computer perde i 5 round
-    } else {
-      // Altrimenti vince il computer
-      popupMadamaVince.classList.remove("hidden"); // Il computer vince i 5 round
+      finalResult = "madama_lose_game";
     }
 
     if (vincitoreFinale !== "") {
@@ -327,13 +360,15 @@ function calculateScores() {
     update(ref(db, "rooms/" + roomCode), {
       score1: s1,
       score2: s2,
+      roundResult: finalResult,
       state: "ended"
     });
   } else {
-    // Altrimenti proseguiamo normalmente mostrando le carte girate (reveal)
+    // Round normali
     update(ref(db, "rooms/" + roomCode), {
       score1: s1,
       score2: s2,
+      roundResult: roundResult,
       state: "reveal"
     });
   }
@@ -342,30 +377,29 @@ function calculateScores() {
 /* FUNZIONE GESTIONE TASTO (AVANZA / TORNA ALLA LOBBY) */
 function advanceRound() {
   if (roomData && roomData.state === "ended") {
-    // AZIONE: Torna alla lobby e resetta l'interfaccia locale
     game.classList.add("hidden");
     lobby.classList.remove("hidden");
     nextRoundBtn.style.display = "none";
+    chiudiTuttiIPopup();
     
-    // Pulizia variabili di stato
     roomCode = null;
     playerNumber = null;
     roomData = null;
-    currentRoundLocal = 0;
+    lastRoundSeenPopup = 0;
     return;
   }
 
-  // Avanzamento round standard (Solo Host)
   update(ref(db, "rooms/" + roomCode), {
     cpu: Math.floor(Math.random() * 5) + 1,
     p1: false,
     p2: false,
     round: roomData.round + 1,
+    roundResult: "",
     state: "choose"
   });
 }
 
-/* AGGIORNAMENTO GRAFICO DEL TAVOLO */
+/* AGGIORNA INTERFACCIA TAVOLO */
 function render(d) {
   const back = `<img src="retro-carta.webp" alt="Carta Coperta">`;
 
@@ -387,8 +421,10 @@ function render(d) {
     cardP2.innerHTML = (typeof d.p2 === "number" && d.p2 >= 1 && d.p2 <= 5) ? `<img src="carta-${d.p2}.webp">` : `<div class="waiting-text">Nessuna</div>`;
     
     if (d.state === "ended") {
-      if (d.score1 === d.score2) {
-        resultEl.textContent = "Partita Terminata! Pareggio totale!";
+      if (d.score1 < 6 && d.score2 < 6) {
+        resultEl.textContent = "Partita Terminata! Vince Madama (Nessuno ha raggiunto 6 punti)!";
+      } else if (d.score1 === d.score2) {
+        resultEl.textContent = "Partita Terminata! Pareggio totale tra i giocatori!";
       } else {
         const winName = d.score1 > d.score2 ? d.p1Name : d.p2Name;
         resultEl.textContent = `Partita Terminata! Vince ${winName}!`;
